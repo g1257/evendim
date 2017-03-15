@@ -25,7 +25,17 @@ You are welcomed to use it and publish data
 obtained with evendim. If you do, please cite this
 work. Explain How To Cite This Work. FIXME. TBW.
 
-## References 
+## References
+
+	@book{ferreira2006gene,
+	title={Gene Expression Programming: Mathematical Modeling by an Artificial Intelligence},
+	author={Ferreira, C.},
+	isbn={9783540328490},
+	series={Studies in Computational Intelligence},
+	url={https://books.google.com/books?id=NkG7BQAAQBAJ},
+	year={2006},
+	publisher={Springer Berlin Heidelberg}
+	}
 
 ## Hash of the latest commit
 
