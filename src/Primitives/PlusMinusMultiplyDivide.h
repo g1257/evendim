@@ -1,0 +1,125 @@
+#ifndef PLUS_MINUS_MULT_DIV_H
+#define PLUS_MINUS_MULT_DIV_H
+#include "Vector.h"
+#include <cassert>
+#include "Node.h"
+#include "MersenneTwister.h"
+
+namespace Gep {
+
+template<typename ValueType_>
+class PlusMinusMultiplyDivide {
+
+public:
+
+	typedef typename PsimagLite::Vector<ValueType_>::Type VectorValueType;
+	typedef Node<VectorValueType> NodeType;
+	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
+	typedef NodeDc<VectorValueType> NodeDcType;
+	typedef Plus<VectorValueType> PlusType;
+	typedef Minus<VectorValueType> MinusType;
+	typedef Times<VectorValueType> TimesType;
+	typedef DividedBy<VectorValueType> DividedByType;
+	typedef Input<VectorValueType> InputType;
+	typedef NodeAdf<VectorValueType> NodeAdfType;
+	typedef ValueType_ ValueType;
+
+	PlusMinusMultiplyDivide(SizeType inputs,
+	                        SizeType genes,
+	                        SizeType constants)
+	    : maxArity_(0),dcValues_(constants),dcArray_(""),rng_(1000)
+	{
+		addConstants();
+
+		NodeType* plus = new PlusType();
+		nodes_.push_back(plus);
+
+		NodeType* minus = new MinusType();
+		nodes_.push_back(minus);
+
+		NodeType* times = new TimesType();
+		nodes_.push_back(times);
+
+		NodeType* dividedBy = new DividedByType();
+		nodes_.push_back(dividedBy);
+
+		for (SizeType i = 0; i < inputs; i++) {
+			NodeType* input = new InputType(i,0);
+			nodes_.push_back(input);
+		}
+
+		for (SizeType i = 0; i < genes; i++) {
+			NodeType* adf = new NodeAdfType(i,0);
+			nodes_.push_back(adf);
+		}
+
+		for (SizeType i=0;i<nodes_.size();i++) {
+			if (nodes_[i]->isInput()) {
+				terminals_ += nodes_[i]->code();
+			} else if (nodes_[i]->arity()>0) {
+				nonTerminals_ += nodes_[i]->code();
+			}
+		}
+
+		for (SizeType i=0;i<nodes_.size();i++) {
+			if (maxArity_ < nodes_[i]->arity())
+				maxArity_ = nodes_[i]->arity();
+		}
+	}
+
+	~PlusMinusMultiplyDivide()
+	{
+		for (SizeType i = 0; i < nodes_.size(); i++)
+			delete nodes_[i];
+
+		nodes_.clear();
+	}
+
+	const VectorNodeType& nodes() const { return nodes_; }
+
+	const PsimagLite::String& nonTerminals() const
+	{
+		return nonTerminals_;
+	}
+
+	const PsimagLite::String& terminals() const
+	{
+		return terminals_;
+	}
+
+	SizeType arity() const { return maxArity_; }
+
+	bool hasDc() const { return (dcValues_.size() > 0); }
+
+	const VectorValueType& dcValues() const { return dcValues_; }
+
+	const PsimagLite::String& dcArray() const { return dcArray_; }
+
+	double rng() const { return rng_(); }
+
+private:
+
+	void addConstants()
+	{
+		if (dcValues_.size() == 0) return;
+		for (SizeType i = 0; i < dcValues_.size(); i++) {
+			dcValues_[i] = 10.0*rng_() - 10.0;
+			dcArray_ += ttos(i);
+		}
+
+		NodeType* dc = new NodeDcType();
+		nodes_.push_back(dc);
+	}
+
+	SizeType maxArity_;
+	VectorValueType dcValues_;
+	PsimagLite::String dcArray_;
+	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
+	VectorNodeType nodes_;
+	PsimagLite::String nonTerminals_;
+	PsimagLite::String terminals_;
+}; // class PlusMinusMultiplyDivide
+
+} // namespace Gep
+
+#endif // PLUS_MINUS_MULT_DIV_H
