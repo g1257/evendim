@@ -1,0 +1,47 @@
+\documentclass{article}
+\begin{document}
+	
+\title{ExaGEP Plan of Work}
+
+\author{G.~A.}
+
+\maketitle
+
+\section{Representation of Circuits}
+
+The 4-bit quantum circuit in Fig.~\ref{fig:circuit} will be represented
+by the following four genes A$_0$ D$x_0$  B$_1x_1$ C$_0x_2x_3$;
+ B$_0x_1$ C$_0x_2x_3$; A$_1$B$_1x_1$C$_0x_2 x_3$; and C$_1x_2x_3$.
+Here, A, B, C, and D are gates, the input is to the left, and the output to the right.
+ 
+To understand the first gene, consider that it is the first output of applying
+the quantum circuit to the ket $|x_0, x_1, x_2, x_3\rangle$. Therefore, we need
+to apply the first output of gate A, indicated by A$_0$ to two inputs, because
+gate A takes two inputs. The first input is the result of applying the D gate
+to $x_0$ so we have the first part as A$_0$ D$x_0\ldots$. The second input to gate
+A is the second output of B or B$_1$. Now B has two inputs, one is $x_1$ and the other is
+the first output of gate C, which we denote by C$_0$. Combining it all we have so far
+A$_0$ D$x_0$ B$_1x_1$C$_0\ldots$. Finally, gate C takes to inputs which are $x_2$ and $x_3$,
+yielding the first output or first gene as A$_0$ D$x_0$ B$_1x_1$C$_0x_2x_3$.
+
+\section{Optimization Procedure}
+Given a state $|\psi^{\textrm{known}}\rangle$, we want to find a quantum
+circuit that generates it for an initial state $|\psi_0\rangle$
+\begin{enumerate}
+	\item Start with an original population of $M=100$ circuits generated randomly.
+	\item Start with a pure state ket of length $N$: $|\psi_0\rangle\equiv|x_0, x_1, \ldots, x_{N-1}\rangle$.
+	\item By genetic expression programming mutations and combinations of the original 
+	population created in step 1, generate $M'=200$ new circuits
+	$\{\mathcal{C}(\varphi)\}_{0\le j<M}$, optionally dependent on $K$ continuous variables
+	$\varphi\equiv\{\varphi_0, \varphi_1, \cdots, \varphi_{K-1}\}$.
+	\item For every circuit $j$, define the $\varphi-$dependent ket $\psi_j(\varphi)=\mathcal{C}_j|\psi_0\rangle$.
+	\item For every circuit $j$, define the pre-fitness $P_j$ function by
+	\begin{equation}
+		P_j(\varphi) = |\langle \psi^{\textrm{known}} | \psi_j(\varphi)\rangle|^2
+	\end{equation}
+	and find the $\varphi$ where the maximum occurs; let's call it $\varphi_{\textrm{max}}$.
+	\item For every circuit $j$, calculate its fitness $F_j = P_j(\varphi_{\textrm{max}})$.
+	\item Eliminate the $M'-M=100$ circuits with less fitness and keep the others.
+	\item Go to step 3. 
+\end{enumerate}
+\end{document}
