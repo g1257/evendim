@@ -1,5 +1,7 @@
 \documentclass{article}
 \usepackage{tikz}
+\usetikzlibrary{shapes, arrows, chains}
+\tikzstyle{line} = [draw, -latex']
 \begin{document}
 	
 \title{ExaGEP Plan of Work}
@@ -44,11 +46,11 @@
 \begin{figure}[h]\centering{%
 	\begin{tikzpicture}
 		\def\yn{1.2}
-		\def\xn{2}
-		\node[circle, draw=black] (x0) at (0, 0) {x0};
-		\node[circle, draw=black] (x1) at (\xn, 0) {x1};
-		\node[circle, draw=black] (x2) at (2*\xn, 0) {x2};
-		\node[circle, draw=black] (x3) at (3*\xn, 0) {x3};
+		\def\xn{2.5}
+		\node[rectangle, dashed, draw=black] (x0) at (0, 0) {$\psi_0$, 0, $c=0$};
+		\node[rectangle, dashed, draw=black] (x1) at (\xn, 0) {$\psi_0$, 1, $c=0$};
+		\node[rectangle, dashed, draw=black] (x2) at (2*\xn, 0) {$\psi_0$, 2, $c=0$};
+		\node[rectangle, dashed, draw=black] (x3) at (3*\xn, 0) {$\psi_0$, 3, $c=0$};
 		\node[rectangle,draw=black,fill=white] (D) at (0, \yn) {D};
 		
 		\coordinate (C) at (2.5*\xn, 1.25*\yn);	
@@ -58,15 +60,22 @@
 		\draw (x2) -- (C);
 		\draw (x3) -- (C);
 		\draw (x1) -- (B);
-		\draw (C) -- (B);
-		\draw (D) -- (A);
-		\draw (B) -- (A);
-		\draw[fill=white] (2*\xn, \yn) -- (3*\xn, \yn) -- (3*\xn, 1.5*\yn) -- (2*\xn, 1.5*\yn) -- cycle;
+		%\draw (C) -- (B);
+		\path [line] (C) -- node [text width=2.5cm,midway] {$C\psi_0$, 2, $c=1$} (B);		
+		%\draw (D) -- (A);
+		\path [line] (D) -- node [text width=2.5cm,midway, left=1em] {$D\psi_0$, 0, $c=1$} (A);
+		\path [line] (B) -- node [text width=2.5cm,midway, right=1em] {$BC\psi_0$, 2, $c=2$} (A);
+		%\draw (B) -- (A);
+		
+		draw[fill=white] (2*\xn, \yn) -- (3*\xn, \yn) -- (3*\xn, 1.5*\yn) -- (2*\xn, 1.5*\yn) -- cycle;
 		\node at (C) {$C_0$};
 		\draw[fill=white] (\xn, 2*\yn) -- (2*\xn, 2*\yn) -- (2*\xn, 2.5*\yn) -- (\xn, 2.5*\yn) -- cycle;
 		\node at (B) {$B_1$};
 		\draw[fill=white] (0.8*\xn, 3*\yn) -- (1.8*\xn, 3*\yn) -- (1.8*\xn, 3.5*\yn) -- (0.8*\xn, 3.5*\yn) -- cycle;
 		\node at (A) {$A_0$};
+		
+
+		
 	\end{tikzpicture}}
 \end{figure}
 
