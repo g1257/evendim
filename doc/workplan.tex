@@ -62,10 +62,10 @@
 		\draw (x3) -- (C);
 		\draw (x1) -- (B);
 		%\draw (C) -- (B);
-		\path [line] (C) -- node [text width=2.5cm,midway] {$C\psi_0$, 2, $c=1$} (B);		
+		\path [line] (C) -- node [text width=2.5cm,midway] {$C_{2,3}\psi_0$, 2, 1} (B);		
 		%\draw (D) -- (A);
-		\path [line] (D) -- node [text width=2.5cm,midway, left=1em] {$D\psi_0$, 0, $c=1$} (A);
-		\path [line] (B) -- node [text width=2.5cm,midway, right=1em] {$BC\psi_0$, 2, $c=2$} (A);
+		\path [line] (D) -- node [text width=2.5cm,midway, left=1em] {$D_0\psi_0$, 0, 1} (A);
+		\path [line] (B) -- node [text width=2.5cm,midway, right=1em] {$B_{1,2}C_{2,3}\psi_0$, 2, 2} (A);
 		%\draw (B) -- (A);
 		
 		\draw[fill=white] (2*\xn, \yn) -- (3*\xn, \yn) -- (3*\xn, 1.5*\yn) -- (2*\xn, 1.5*\yn) -- cycle;
@@ -74,10 +74,9 @@
 		\node at (B) {$B_1$};
 		\draw[fill=white] (0.8*\xn, 3*\yn) -- (1.8*\xn, 3*\yn) -- (1.8*\xn, 3.5*\yn) -- (0.8*\xn, 3.5*\yn) -- cycle;
 		\node at (A) {$A_0$};
-		
-
-		
 	\end{tikzpicture}}
+\caption{Representation of the previous figure's quantum circuit in Genetic Expression Programming.
+	The final output is $A_{0,2}B_{1,2}C_{2,3}\psi_0$.}
 \end{figure}
 
 The 4-bit quantum circuit in Fig.~\ref{fig:circuit} needs to be represented in genetic expression programming.
