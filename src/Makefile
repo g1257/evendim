@@ -1,6 +1,13 @@
 include Config.make
 CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src -IEngine
-all: gep2
+all: gep2 #quantumGep
+
+quantumGep.o: quantumGep.cpp  Makefile   Config.make
+	$(CXX) $(CPPFLAGS) -c quantumGep.cpp
+
+quantumGep: quantumGep.o
+	$(CXX) -o  quantumGep quantumGep.o $(LDFLAGS) $(CPPFLAGS)
+	$(STRIP_COMMAND) quantumGep
 
 gep2.o: gep2.cpp  Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c gep2.cpp

@@ -26,25 +26,24 @@ namespace Gep {
 template<typename TreeType,typename EvolutionType,typename ParametersType>
 class Chromosome {
 
+public:
+
 	typedef Gene<TreeType,EvolutionType> GeneType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
 	typedef typename PsimagLite::Vector<GeneType*>::Type VectorGeneType;
+	typedef typename GeneType::VectorStringType VectorStringType;
 	typedef Chromosome<TreeType,EvolutionType,ParametersType> ChromosomeType;
-	typedef std::pair<PsimagLite::String,PsimagLite::String> PairOfStringsType;
-
-public:
+	typedef std::pair<VectorStringType, VectorStringType> PairVectorStringType;
 
 	Chromosome(const ParametersType& params,
 	           const EvolutionType& evolution,
-	           const PsimagLite::String& str)
+	           const VectorStringType& vecStr)
 	    : evolution_(evolution),
-	      params_(params),
-	      effectiveString_(""),
-	      adfsString_("")
+	      params_(params)
 	{
-		SizeType len = str.length();
+		SizeType len = vecStr.size();
 		SizeType dc = (evolution_.primitives().hasDc())? evolution.tail(params.head) : 0;
 
 		SizeType geneLength = params.head + evolution.tail(params.head) + dc;
@@ -53,16 +52,16 @@ public:
 			throw PsimagLite::RuntimeError("Chromosome::ctor()\n");
 
 		SizeType index = 0;
-		PsimagLite::String buffer = "";
+		VectorStringType buffer;
 		for (SizeType i = 0; i < geneLength; i++)
-			buffer += " ";
+			buffer.push_back(" ");
 
 		for (SizeType i = 0; i < len; i++) {
-			buffer[index] = str[i];
+			buffer[index] = vecStr[i];
 			index++;
 			if (index == geneLength) {
 				index = 0;
-				GeneType* gene = new GeneType(params.head,false,evolution,buffer);
+				GeneType* gene = new GeneType(params.head, false, evolution, buffer);
 				genes_.push_back(gene);
 				if (genes_.size() == params.genes) break;
 			}
@@ -75,34 +74,39 @@ public:
 		SizeType start = geneLength*genes_.size();
 		SizeType cgeneLength = params.chead + evolution.tail(params.chead);
 
-		buffer = "";
+		buffer.clear();
 		for (SizeType i = 0; i < cgeneLength; i++)
-			buffer += " ";
+			buffer.push_back(" ");
 
 		for (SizeType i = start; i < len; i++) {
-			buffer[index] = str[i];
+			buffer[index] = vecStr[i];
 			index++;
 			if (index == cgeneLength) {
 				index = 0;
-				GeneType* gene = new GeneType(params.chead,true,evolution,buffer);
+				GeneType* gene = new GeneType(params.chead, true, evolution, buffer);
 				adfs_.push_back(gene);
 				if (adfs_.size() == params.adfs) break;
 			}
 		}
 
+		SizeType counter = 0;
 		for (SizeType i = 0; i < genes_.size(); i++) {
-			effectiveString_ += genes_[i]->effectiveString();
+			const SizeType effectiveSize = genes_[i]->effectiveSize();
+			const VectorStringType& vStr = genes_[i]->vecString();
+			for (SizeType j = 0; j < effectiveSize; ++j)
+				effectiveVecStr_[counter++] = vStr[j];
 		}
 
 		assert(adfs_.size() == params.adfs);
 		if (adfs_.size() == 0) return;
 		assert(adfs_.size() == 1);
 
-		adfsString_ = adfs_[0]->string();
-		PsimagLite::String adfsEffective = adfs_[0]->effectiveString();
+		adfsVecStr_ = adfs_[0]->vecString();
+		const SizeType adfsEffective = adfs_[0]->effectiveSize();
+		const VectorStringType& adfsVec = adfs_[0]->vecString();
 
-		effectiveString_ += adfsEffective;
-
+		for (SizeType j = 0; j < adfsEffective; ++j)
+			effectiveVecStr_[counter++] = adfsVec[j];
 	}
 
 	~Chromosome()
@@ -116,30 +120,36 @@ public:
 		adfs_.clear();
 	}
 
-	PsimagLite::String string(const PsimagLite::String& sep = "") const
+	VectorStringType vecString() const
 	{
-		PsimagLite::String ret = "";
+		VectorStringType ret;
 
 		for (SizeType i = 0; i < genes_.size(); i++) {
-			ret += genes_[i]->string() + sep;
+			const VectorStringType vStr = genes_[i]->vecString();
+			const SizeType total = vStr.size();
+			for (SizeType j = 0; j < total; ++j)
+				ret.push_back(vStr[j]);
 		}
+		const SizeType total2 = adfsVecStr_.size();
+		for (SizeType j = 0; j < total2; ++j)
+			ret.push_back(adfsVecStr_[j]);
 
-		return ret + adfsString_;
+		return ret;
 	}
 
-	PsimagLite::String string(SizeType i) const
+	VectorStringType vecString(SizeType i) const
 	{
 		if (i < genes_.size())
-			return genes_[i]->string();
+			return genes_[i]->vecString();
 
 		SizeType index = i - genes_.size();
 		assert(index < adfs_.size());
-		return adfs_[index]->string();
+		return adfs_[index]->vecString();
 	}
 
-	const PsimagLite::String& effectiveString() const
+	const VectorStringType& effectiveVecString() const
 	{
-		return effectiveString_;
+		return effectiveVecStr_;
 	}
 
 	ValueType exec(SizeType outputIndex) const
@@ -169,12 +179,12 @@ public:
 		return tmp;
 	}
 
-	SizeType effectiveSize() const { return effectiveString_.size(); }
+	SizeType effectiveSize() const { return effectiveVecStr_.size(); }
 
 	SizeType size() const { return genes_.size(); }
 
-	PairOfStringsType recombine(const ChromosomeType& other,
-	                            SizeType points) const
+	PairVectorStringType recombine(const ChromosomeType& other,
+	                               SizeType points) const
 	{
 		const PrimitivesType& primitives = evolution_.primitives();
 		SizeType genes = genes_.size();
@@ -184,30 +194,36 @@ public:
 		bool isCell = (index >= genes);
 		SizeType indexCorrected = (isCell) ? genes_.size() : index;
 
-		PsimagLite::String first = "";
+		VectorStringType firstVec;
 		for (SizeType i = 0; i < indexCorrected; i++) {
-			first += genes_[i]->string();
+			pushVector(firstVec, genes_[i]->VecString());
 		}
 
-		PsimagLite::String last = "";
+		VectorStringType lastVec;
 		if (!isCell) {
 			for (SizeType i = index+1; i < genes_.size(); i++) {
-				last += genes_[i]->string();
+				pushVector(lastVec, genes_[i]->VecString());
 			}
-			last += adfsString_;
+
+			pushVector(lastVec, adfsVecStr_);
 		}
 
-		PairOfStringsType p = (points == 1) ?
-		            recombine1(gene->string(),other.string(index)) :
-		            recombine2(gene->string(),other.string(index));
+		PairVectorStringType p = (points == 1) ?
+		            recombine1(gene->vecString(), other.vecString(index)) :
+		            recombine2(gene->vecString(), other.vecString(index));
 
-		PsimagLite::String str1 = first + p.first + last;
-		PsimagLite::String str2 = first + p.second + last;
+		VectorStringType vecStr1 = firstVec;
+		pushVector(vecStr1, p.first);
+		pushVector(vecStr1, lastVec);
 
-		return PairOfStringsType(str1,str2);
+		VectorStringType vecStr2 = firstVec;
+		pushVector(vecStr2, p.second);
+		pushVector(vecStr2, lastVec);
+
+		return VectorStringType(vecStr1, vecStr2);
 	}
 
-	PsimagLite::String evolve(const PsimagLite::String& action) const
+	VectorStringType evolve(const PsimagLite::String& action) const
 	{
 		const PrimitivesType& primitives = evolution_.primitives();
 
@@ -217,33 +233,55 @@ public:
 		GeneType *gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
 		bool isCell = (index >= genes);
 
-		PsimagLite::String first = "";
+		VectorStringType firstVec;
 		for (SizeType i = 0; i < index; i++) {
-			first += genes_[i]->string();
+			pushVector(firstVec, genes_[i]->vecString());
 		}
 
-		PsimagLite::String last = "";
+		VectorStringType lastVec;
 
 		if (!isCell) {
-			for (SizeType i = index+1; i < genes_.size(); i++) {
-				last += genes_[i]->string();
+			for (SizeType i = index + 1; i < genes_.size(); ++i) {
+				pushVector(lastVec, genes_[i]->vecString());
 			}
-			last +=  adfsString_;
+
+			pushVector(lastVec, adfsVecStr_);
 		}
 
+		VectorStringType ret = firstVec;
 		if (action == "mutate") {
-			return first + evolution_.mutate(gene->string(),
+			pushVector(ret, evolution_.mutate(gene->string(),
 			                                 gene->head(),
 			                                 genes,
-			                                 isCell) + last;
+			                                 isCell));
+			pushVector(ret, lastVec);
+			return ret;
 		} else if (action == "invert") {
-			return first + evolution_.invert(gene->string(),
-			                                 gene->head()) + last;
+			pushVector(ret, evolution_.invert(gene->string(),
+			                                 gene->head()));
+			pushVector(ret, lastVec);
+			return ret;
 		} else if (action == "swap") {
-			return first + swap(gene->string(),
-			                    gene->head(),isCell) + last;
+			pushVector(ret, swap(gene->string(),
+			                    gene->head(),isCell));
+			pushVector(ret, lastVec);
+			return ret;
 		}
+
 		throw PsimagLite::RuntimeError("Chromosome::evolve()\n");
+	}
+
+	static void pushVector(VectorStringType& dest,
+	                       const VectorStringType& src,
+	                       SizeType upTo = 0)
+	{
+		const SizeType total = src.size();
+		if (upTo == 0) upTo = total;
+		if (upTo >= total)
+			err("pushVector\n");
+
+		for (SizeType j = 0; j < upTo; ++j)
+			dest.push_back(src[j]);
 	}
 
 private:
@@ -267,18 +305,18 @@ private:
 		return ret;
 	}
 
-	PairOfStringsType recombine1(const PsimagLite::String& str1,
-	                            const PsimagLite::String& str2) const
+	PairVectorStringType recombine1(const PsimagLite::String& str1,
+	                                const PsimagLite::String& str2) const
 	{
 		assert(str1.length() == str2.length());
 
 		SizeType len = str1.length();
 		const PrimitivesType& primitives = evolution_.primitives();
 		SizeType index = static_cast<SizeType>(primitives.rng() * len);
-		PairOfStringsType newStrings;
-		newStrings.first = recombine(str1,str2,index);
-		newStrings.second = recombine(str2,str1,index);
-		return newStrings;
+		PairVectorStringType newVecStrings;
+		newVecStrings.first = recombine(str1, str2, index);
+		newVecStrings.second = recombine(str2, str1, index);
+		return newVecStrings;
 	}
 
 	PsimagLite::String recombine(const PsimagLite::String& str1,
@@ -298,8 +336,8 @@ private:
 		return tmp1 + tmp2 + str1.substr(index2);
 	}
 
-	PairOfStringsType recombine2(const PsimagLite::String& str1,
-	                            const PsimagLite::String& str2) const
+	PairVectorStringType recombine2(const PsimagLite::String& str1,
+	                                const PsimagLite::String& str2) const
 	{
 		assert(str1.length() == str2.length());
 
@@ -311,18 +349,18 @@ private:
 		SizeType index1 = (i1 < i2) ? i1 : i2;
 		SizeType index2 = (i1 < i2) ? i2 : i1;
 
-		PairOfStringsType newStrings;
-		newStrings.first = recombine(str1,str2,index1,index2);
-		assert(newStrings.first.length() == len);
-		newStrings.second = recombine(str2,str1,index1,index2);
-		assert(newStrings.second.length() == len);
-		return newStrings;
+		PairVectorStringType newVecStrings;
+		newVecStrings.first = recombine(str1,str2,index1,index2);
+		assert(newVecStrings.first.size() == len);
+		newVecStrings.second = recombine(str2,str1,index1,index2);
+		assert(newVecStrings.second.size() == len);
+		return newVecStrings;
 	}
 
 	const EvolutionType& evolution_;
 	const ParametersType& params_;
-	PsimagLite::String effectiveString_;
-	PsimagLite::String adfsString_;
+	VectorStringType effectiveVecStr_;
+	VectorStringType adfsVecStr_;
 	VectorGeneType genes_;
 	VectorGeneType adfs_;
 

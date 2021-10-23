@@ -17,7 +17,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef TREE_H
 #define TREE_H
-#include "Vector.h"
+#include "PsimagLite.h"
 
 namespace Gep {
 
@@ -74,7 +74,12 @@ public:
 		for (SizeType i = 0; i < descendants_.size(); i++)
 			descendants_[i]->set(values);
 
-		char c = node_.code();
+		const PsimagLite::String str = node_.code();
+		if (str.length() == 0)
+			err("Node with empty code!?\n");
+
+		if (str.length() > 1) return;
+		const char c = str[0];
 		if (c < 48 || c > 57) return;
 		SizeType index = c - 48;
 		assert(index < values.size());

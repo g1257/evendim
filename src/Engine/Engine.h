@@ -37,25 +37,26 @@ class Engine {
 	typedef Chromosome<TreeType,EvolutionType,ParametersEngineType_> ChromosomeType;
 	typedef typename PsimagLite::Vector<ChromosomeType*>::Type VectorChromosomeType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
+	typedef typename PsimagLite::Vector<VectorStringType>::Type VectorVectorStringType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
-	typedef std::pair<PsimagLite::String,PsimagLite::String> PairOfStringsType;
-	typedef std::pair<VectorStringType,VectorStringType> PairVectorStringType;
+	typedef typename ChromosomeType::PairVectorStringType PairVectorStringType;
+	typedef std::pair<VectorVectorStringType, VectorVectorStringType> PairVectorVectorStringType;
 
 public:
 
 	typedef ParametersEngineType_ ParametersEngineType;
 
-	Engine(const ParametersEngineType& params,const EvolutionType& evolution)
-	    : params_(params),evolution_(evolution),fitness_(params.samples,evolution_)
+	Engine(const ParametersEngineType& params, const EvolutionType& evolution)
+	    : params_(params), evolution_(evolution), fitness_(params.samples, evolution_)
 	{
 		for (SizeType i = 0; i<params_.population; i++) {
-			PsimagLite::String str = "";
+			VectorStringType vecStr;
 			for (SizeType j = 0; j < params_.genes; j++)
-				str += evolution_.randomGene(params_.head);
+				vecStr.push_back(evolution_.randomGene(params_.head));
 			for (SizeType j = 0; j < params_.adfs; j++)
-				str += evolution_.randomAdf(params.chead,params.genes);
-			ChromosomeType* chromosome = new ChromosomeType(params_,evolution_,str);
+				vecStr.push_back(evolution_.randomAdf(params.chead,params.genes));
+			ChromosomeType* chromosome = new ChromosomeType(params_, evolution_, vecStr);
 			chromosomes_.push_back(chromosome);
 		}
 	}
@@ -67,27 +68,28 @@ public:
 
 	bool evolve()
 	{
-		PairVectorStringType newChromosomes;
+		PairVectorVectorStringType newChromosomes;
 		VectorRealType parentFitness(chromosomes_.size());
 
 		for (SizeType i = 0; i < chromosomes_.size(); i++) {
-			PsimagLite::String str = chromosomes_[i]->string();
+			const VectorStringType vecStr = chromosomes_[i]->vecString();
 
-			PsimagLite::String strEffective = chromosomes_[i]->effectiveString();
-
-			if (notAdded(newChromosomes.second,strEffective)) {
-				newChromosomes.first.push_back(str);
-				newChromosomes.second.push_back(strEffective);
+			const SizeType effectiveSize = chromosomes_[i]->effectiveSize();
+			VectorStringType effectiveVec;
+			ChromosomeType::pushVector(effectiveVec, vecStr, effectiveSize);
+			if (notAdded(newChromosomes.second, effectiveVec)) {
+				newChromosomes.first.push_back(vecStr);
+				newChromosomes.second.push_back(effectiveVec);
 			}
 
 			parentFitness[i] = -fitness_.getFitness(*chromosomes_[i]);
 		}
 
-		recombination(newChromosomes,parentFitness,1);
+		recombination(newChromosomes, parentFitness, 1);
 
-		recombination(newChromosomes,parentFitness,2);
+		recombination(newChromosomes, parentFitness, 2);
 
-		evolve(newChromosomes,"mutate");
+		evolve(newChromosomes, "mutate");
 
 		evolve(newChromosomes,"invert");
 
@@ -105,28 +107,28 @@ private:
 		chromosomes_.clear();
 	}
 
-	void addWithCare(PairVectorStringType& newChromosomes,
-	                 const PsimagLite::String& str) const
+	void addWithCare(PairVectorVectorStringType& newChromosomes,
+	                 const VectorStringType& vecStr) const
 	{
-		ChromosomeType chromosome(params_,evolution_,str);
-		if (notAdded(newChromosomes.second,chromosome.effectiveString()))
-			newChromosomes.first.push_back(str);
+		ChromosomeType chromosome(params_, evolution_, vecStr);
+		if (notAdded(newChromosomes.second, chromosome.effectiveString()))
+			newChromosomes.first.push_back(vecStr);
 	}
 
-	void recombination(PairVectorStringType& newChromosomes,
+	void recombination(PairVectorVectorStringType& newChromosomes,
 	                   const VectorRealType& parentFitness,
 	                   SizeType points) const
 	{
 		for (SizeType i = 0; i < params_.descendants; i++) {
 			SizeType index1 = selectAccordingToFitness(parentFitness);
 			SizeType index2 = selectAccordingToFitness(parentFitness);
-			PairOfStringsType newStrings = chromosomes_[index1]->
+			PairVectorStringType newStrings = chromosomes_[index1]->
 			        recombine(*chromosomes_[index2],
 			                  points);
 
-			addWithCare(newChromosomes,newStrings.first);
+			addWithCare(newChromosomes, newStrings.first);
 
-			addWithCare(newChromosomes,newStrings.second);
+			addWithCare(newChromosomes, newStrings.second);
 		}
 	}
 
@@ -162,20 +164,20 @@ private:
 		throw PsimagLite::RuntimeError("selectAccordingToFitness\n");
 	}
 
-	void evolve(PairVectorStringType& newChromosomes,
+	void evolve(PairVectorVectorStringType& newChromosomes,
 	            const PsimagLite::String& action) const
 	{
 		SizeType population = chromosomes_.size();
 		const PrimitivesType& primitives = evolution_.primitives();
 		for (SizeType i = 0; i < params_.mutation; i++) {
 			SizeType index = static_cast<SizeType>(primitives.rng() * population);
-			PsimagLite::String newStr = chromosomes_[index]->evolve(action);
+			VectorStringType newVecStr = chromosomes_[index]->evolve(action);
 
-			addWithCare(newChromosomes,newStr);
+			addWithCare(newChromosomes, newVecStr);
 		}
 	}
 
-	bool selectBest(VectorStringType& newChromosomes)
+	bool selectBest(VectorVectorStringType& newChromosomes)
 	{
 		assert(chromosomes_.size() > 0);
 		typename PsimagLite::Vector<RealType>::Type fitness(newChromosomes.size());
@@ -198,11 +200,11 @@ private:
 		PsimagLite::Vector<SizeType>::Type iperm(fitness.size());
 		sort.sort(fitness,iperm);
 
-		VectorStringType newChromosomes2 = newChromosomes;
+		VectorVectorStringType newChromosomes2 = newChromosomes;
 		for (SizeType i = 0; i < newChromosomes.size(); i++)
 			newChromosomes[i] = newChromosomes2[iperm[i]];
 
-		orderBySize(newChromosomes,fitness);
+		orderBySize(newChromosomes, fitness);
 
 		SizeType population = chromosomes_.size();
 		RealType fraction = 0.8;
@@ -213,7 +215,7 @@ private:
 		RealType maxFitness = params_.samples;
 		for (SizeType i = 0; i < point; i++) {
 			RealType f = -fitness[i];
-			addChromosome(newChromosomes[i],f);
+			addChromosome(newChromosomes[i], f);
 			if (i==0 && f == maxFitness) return true;
 		}
 
@@ -230,7 +232,7 @@ private:
 		return false;
 	}
 
-	void addChromosome(const PsimagLite::String& str, const RealType& f)
+	void addChromosome(const VectorStringType& str, const RealType& f)
 	{
 		ChromosomeType* chromosome = new ChromosomeType(params_,evolution_,str);
 		chromosomes_.push_back(chromosome);
@@ -238,8 +240,8 @@ private:
 		std::cout<<"effective size= "<<chromosome->effectiveSize()<<"\n";
 	}
 
-	bool notAdded(const VectorStringType& newChromosomes,
-	              const PsimagLite::String& newStr) const
+	bool notAdded(const VectorVectorStringType& newChromosomes,
+	              const VectorStringType& newStr) const
 	{
 		return (find(newChromosomes.begin(),
 		             newChromosomes.end(),
@@ -294,7 +296,7 @@ private:
 		return max;
 	}
 
-	void orderBySize(VectorStringType& newChromosomes,const VectorRealType& fitness) const
+	void orderBySize(VectorVectorStringType& newChromosomes,const VectorRealType& fitness) const
 	{
 		RealType value = -fitness_.maxFitness();
 		VectorRealType bestSize;

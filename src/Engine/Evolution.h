@@ -32,6 +32,7 @@ class Evolution {
 	typedef typename PrimitivesType_::NodeType NodeType;
 	typedef typename PrimitivesType_::VectorValueType VectorValueType;
 	typedef typename NodeType::ValueType ValueType;
+	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 
 public:
 
@@ -47,7 +48,6 @@ public:
 
 		for (SizeType i = 0; i < nodes.size(); i++) {
 			if (nodes[i]->isInput()) {
-				assert(inputs_.size() == static_cast<SizeType>(nodes[i]->code() - 48));
 				inputs_.push_back(nodes[i]);
 			}
 		}
@@ -55,7 +55,7 @@ public:
 
 	bool verbose() const { return verbose_; }
 
-	const NodeType& findNodeWithCode(char c,
+	const NodeType& findNodeWithCode(PsimagLite::String codeStr,
 	                                 const ValueType& value = 0,
 	                                 bool isCell = false) const
 	{
@@ -63,8 +63,8 @@ public:
 
 		for (SizeType i = 0; i < nodes.size(); i++) {
 			if (isCell && nodes[i]->isInput()) continue;
-			if (nodes[i]->code() == c) {
-				if (c == '?') nodes[i]->setDcValue(value);
+			if (nodes[i]->code() == codeStr) {
+				if (codeStr == "?") nodes[i]->setDcValue(value);
 				return *nodes[i];
 			}
 		}
@@ -189,11 +189,11 @@ public:
 		return ret;
 	}
 
-	void checkStringNonCell(const PsimagLite::String& str,
+	void checkStringNonCell(const VectorStringType& vecStr,
 	                        SizeType head) const
 	{
 		SizeType tail1 = tail(head);
-		SizeType len = str.length();
+		SizeType len = vecStr.size();
 		SizeType dc = (primitives_.hasDc())? tail(head) : 0;
 
 		if (len != head + tail1 + dc) {

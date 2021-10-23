@@ -20,33 +20,35 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Vector.h"
 #include "TypeToString.h"
+#include "PsimagLite.h"
 
 namespace Gep {
 
 template<typename TreeType,typename EvolutionType>
 class Gene {
 
+public:
+
 	typedef typename EvolutionType::PrimitivesType::NodeType NodeType;
 	typedef typename TreeType::VectorValueType VectorValueType;
 	typedef typename NodeType::ValueType ValueType;
 	typedef typename PsimagLite::Vector<TreeType*>::Type VectorTreeType;
+	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef Gene<TreeType,EvolutionType> GeneType;
-
-public:
 
 	Gene(SizeType head,
 	     bool isCell,
 	     const EvolutionType& evolution,
-	     const PsimagLite::String& str)
+	     const VectorStringType& vecStr)
 	    : head_(head),
 	      tail_(evolution.tail(head)),
-	      str_(str)
+	      vecStr_(vecStr)
 	{
-		if (!isCell) evolution.checkStringNonCell(str_,head);
+		if (!isCell) evolution.checkStringNonCell(vecStr_, head);
 
 		SizeType headPlusTail = head_ + tail_;
 
-		fromString(vt_,evolution,str,headPlusTail,isCell);
+		fromString(vt_, evolution, vecStr, headPlusTail, isCell);
 	}
 
 	~Gene()
@@ -56,33 +58,33 @@ public:
 
 	static void fromString(VectorTreeType& vt,
 	                       const EvolutionType& evolution,
-	                       const PsimagLite::String& str,
+	                       const VectorStringType& vecStr,
 	                       SizeType effectiveSize,
 	                       bool isCell)
 	{
 		PsimagLite::Vector<SizeType>::Type va;
-		PsimagLite::String dc = str.substr(effectiveSize);
-
+		const SizeType dcLength = vecStr.size() - effectiveSize;
 		SizeType sumOfA = 1;
 		SizeType dcIndex = 0;
-		char dcChar = (dc.length() > 0) ? dc[dcIndex] : '0';
-		assert(dcChar >= 48);
-		SizeType dcNumber = dcChar - 48;
+		PsimagLite::String dcStr = (dcLength > 0) ? vecStr[dcIndex + effectiveSize] : "0";
+		assert(dcStr.length() == 1 and dcStr[0] >= 48);
+		SizeType dcNumber = dcStr[0] - 48;
 		const VectorValueType& dcArray = evolution.primitives().dcValues();
-		assert(dc.length() ==0 || dcNumber < dcArray.size());
-		ValueType dcValue = (dc.length() > 0) ? dcArray[dcNumber] : 0;
+		assert(dcLength == 0 || dcNumber < dcArray.size());
+		ValueType dcValue = (dcLength > 0) ? dcArray[dcNumber] : 0;
 		for (SizeType i = 0; i < effectiveSize; i++) {
-			char c = str[i];
-			const NodeType& node = evolution.findNodeWithCode(c,dcValue,isCell);
-			if (c == '?') {
-				assert(dc.length() > 0);
+			PsimagLite::String cStr = vecStr[i];
+			const NodeType& node = evolution.findNodeWithCode(cStr, dcValue, isCell);
+			if (cStr == "?") {
+				assert(dcLength > 0);
 				dcIndex++;
-				assert(dcIndex < dc.length());
-				dcChar = dc[dcIndex];
-				dcNumber = dcChar - 48;
+				assert(dcIndex < dcLength);
+				dcStr = vecStr[dcIndex + effectiveSize];
+				dcNumber = dcStr[0] - 48;
 				assert(dcNumber < dcArray.size());
 				dcValue = dcArray[dcNumber];
 			}
+
 			SizeType a = node.arity();
 			sumOfA += (a - 1);
 			TreeType* tree = new TreeType(evolution.primitives(),
@@ -102,13 +104,14 @@ public:
 				if (j>=vt.size()) continue;
 				vt[i]->setDescendants(*vt[j]);
 			}
+
 			k += a;
 		}
 	}
 
-	const PsimagLite::String& string() const
+	const VectorStringType& vecString() const
 	{
-		return str_;
+		return vecStr_;
 	}
 
 	const TreeType& getExpression() const
@@ -118,10 +121,9 @@ public:
 
 	const SizeType head() const { return head_; }
 
-	PsimagLite::String effectiveString() const
+	SizeType effectiveSize() const
 	{
-		SizeType index = vt_.size();
-		return str_.substr(0,index);
+		return vt_.size();
 	}
 
 private:
@@ -136,7 +138,7 @@ private:
 
 	SizeType head_;
 	SizeType tail_;
-	PsimagLite::String str_;
+	VectorStringType vecStr_;
 	VectorTreeType vt_;
 }; // class Gene
 

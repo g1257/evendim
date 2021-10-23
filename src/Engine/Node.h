@@ -17,6 +17,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef NODE_H
 #define NODE_H
+#include "Vector.h"
 
 namespace Gep {
 
@@ -29,7 +30,7 @@ public:
 
 	virtual ~Node() {}
 
-	virtual char code() const = 0;
+	virtual PsimagLite::String code() const = 0;
 
 	virtual SizeType arity() const = 0;
 
@@ -60,7 +61,7 @@ class NodeDc : public Node<VectorValueType> {
 
 public:
 
-	virtual char code() const { return '?'; }
+	virtual PsimagLite::String code() const { return "?"; }
 
 	virtual SizeType arity() const { return 0; }
 
@@ -88,7 +89,7 @@ class Plus : public Node<VectorValueType> {
 
 public:
 
-	virtual char code() const { return '+'; }
+	virtual PsimagLite::String code() const { return "+"; }
 
 	virtual SizeType arity() const { return 2; }
 
@@ -107,7 +108,7 @@ class Minus : public Node<VectorValueType> {
 
 public:
 
-	virtual char code() const { return '-'; }
+	virtual PsimagLite::String code() const { return "-"; }
 
 	virtual SizeType arity() const { return 2; }
 
@@ -126,7 +127,7 @@ class Times : public Node<VectorValueType> {
 
 public:
 
-	virtual char code() const { return '*'; }
+	virtual PsimagLite::String code() const { return "*"; }
 
 	virtual SizeType arity() const { return 2; }
 
@@ -145,7 +146,7 @@ class DividedBy : public Node<VectorValueType> {
 
 public:
 
-	virtual char code() const { return '/'; }
+	virtual PsimagLite::String code() const { return "/"; }
 
 	virtual SizeType arity() const { return 2; }
 
@@ -207,11 +208,13 @@ class Input : public Node<VectorValueType> {
 
 public:
 
-	Input(SizeType i,ValueType input_)
-	    : char_(i+48)
-	{}
+	Input(SizeType i, ValueType)
+	    : char_(i+48),strOneChar_(" ")
+	{
+		strOneChar_[0] = char_;
+	}
 
-	virtual char code() const { return char_; }
+	virtual PsimagLite::String code() const { return strOneChar_; }
 
 	virtual SizeType arity() const { return 0; }
 
@@ -228,6 +231,7 @@ public:
 private:
 
 	char char_;
+	PsimagLite::String strOneChar_;
 	mutable ValueType input_;
 
 }; // class Input
@@ -240,10 +244,12 @@ class NodeAdf : public Node<VectorValueType> {
 public:
 
 	NodeAdf(SizeType i,ValueType input_)
-	    : char_(i+48)
-	{}
+	    : char_(i+48),strOneChar_(" ")
+	{
+		strOneChar_[0] = char_;
+	}
 
-	virtual char code() const { return char_; }
+	virtual PsimagLite::String code() const { return strOneChar_; }
 
 	virtual SizeType arity() const { return 0; }
 
@@ -258,6 +264,7 @@ public:
 private:
 
 	char char_;
+	PsimagLite::String strOneChar_;
 	mutable ValueType value_;
 
 }; // class NodeAdf
