@@ -74,9 +74,7 @@ public:
 		for (SizeType i = 0; i < chromosomes_.size(); i++) {
 			const VectorStringType vecStr = chromosomes_[i]->vecString();
 
-			const SizeType effectiveSize = chromosomes_[i]->effectiveSize();
-			VectorStringType effectiveVec;
-			pushVector(effectiveVec, vecStr, effectiveSize);
+			const VectorStringType& effectiveVec = chromosomes_[i]->effectiveVecString();
 			if (notAdded(newChromosomes.second, effectiveVec)) {
 				newChromosomes.first.push_back(vecStr);
 				newChromosomes.second.push_back(effectiveVec);

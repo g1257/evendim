@@ -20,6 +20,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Vector.h"
 #include "Gene.h"
+#include "ProgramGlobals.h"
 
 namespace Gep {
 
@@ -93,9 +94,7 @@ public:
 
 		for (SizeType i = 0; i < genes_.size(); i++) {
 			const SizeType effectiveSize = genes_[i]->effectiveSize();
-			const VectorStringType& vStr = genes_[i]->vecString();
-			for (SizeType j = 0; j < effectiveSize; ++j)
-				effectiveVecStr_.push_back(vStr[j]);
+			pushVector(effectiveVecStr_, genes_[i]->vecString(), effectiveSize);
 		}
 
 		assert(adfs_.size() == params.adfs);
@@ -106,8 +105,7 @@ public:
 		const SizeType adfsEffective = adfs_[0]->effectiveSize();
 		const VectorStringType& adfsVec = adfs_[0]->vecString();
 
-		for (SizeType j = 0; j < adfsEffective; ++j)
-			effectiveVecStr_.push_back(adfsVec[j]);
+		pushVector(effectiveVecStr_, adfsVec, adfsEffective);
 	}
 
 	~Chromosome()
@@ -126,14 +124,10 @@ public:
 		VectorStringType ret;
 
 		for (SizeType i = 0; i < genes_.size(); i++) {
-			const VectorStringType vStr = genes_[i]->vecString();
-			const SizeType total = vStr.size();
-			for (SizeType j = 0; j < total; ++j)
-				ret.push_back(vStr[j]);
+			pushVector(ret, genes_[i]->vecString());
 		}
-		const SizeType total2 = adfsVecStr_.size();
-		for (SizeType j = 0; j < total2; ++j)
-			ret.push_back(adfsVecStr_[j]);
+
+		pushVector(ret, adfsVecStr_);
 
 		return ret;
 	}
