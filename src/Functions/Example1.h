@@ -48,7 +48,7 @@ public:
 
 		for (SizeType i = 0; i < maxFitness(); i++) {
 			bool b = true; //(evolution_.rng() < 0.5) ? true : false;
-			RealType r = evolution_.primitives().rng() * 2.0 - 1.0;
+			RealType r = evolution_.primitives().rng() * 10.0 - 10.0;
 			RealType x = (b) ? r : samples_[i];
 			samples_[i] = r;
 			RealType fOfX = f(x);
@@ -70,7 +70,7 @@ private:
 	RealType f(const RealType& x)
 	{
 		RealType tmp = x * (x - 1) * (x + 1);
-		return tmp*tmp;
+		return tmp;
 	}
 
 	VectorRealType samples_;

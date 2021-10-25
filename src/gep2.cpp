@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);
 	strUsage += " -i inputs -h head [-p population -t total -g genes -H chead]\n";
-	while ((opt = getopt(argc, argv,"i:h:g:s:p:t:c:H:a:e:Sv")) != -1) {
+	while ((opt = getopt(argc, argv,"i:h:g:s:p:t:c:H:a:e:n:Sv")) != -1) {
 		switch (opt) {
 		case 'i':
 			inputs = atoi(optarg);
@@ -86,6 +86,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'e':
 			example = atoi(optarg);
+			break;
+		case 'n':
+			gepOptions.samples = atoi(optarg);
 			break;
 		case 'S':
 			gepOptions.stopEarly = true;

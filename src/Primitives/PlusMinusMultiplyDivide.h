@@ -58,8 +58,8 @@ public:
 		NodeType* times = new TimesType();
 		nodes_.push_back(times);
 
-		NodeType* dividedBy = new DividedByType();
-		nodes_.push_back(dividedBy);
+//		NodeType* dividedBy = new DividedByType();
+//		nodes_.push_back(dividedBy);
 
 		for (SizeType i = 0; i < inputs; i++) {
 			NodeType* input = new InputType(i,0);

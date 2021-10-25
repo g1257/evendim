@@ -27,8 +27,15 @@ struct Options
 	        SizeType g = 1,
 	        SizeType ch = 0,
 	        SizeType adfs1 = 0,
+			SizeType samples1 = 50,
 	        bool se = false)
-	    : population(p),head(h),genes(g),chead(ch),adfs(adfs1),stopEarly(se)
+	    : population(p),
+		  head(h),
+		  genes(g),
+		  chead(ch),
+		  adfs(adfs1),
+		  samples(samples1),
+		  stopEarly(se)
 	{}
 
 	SizeType population;
@@ -36,6 +43,7 @@ struct Options
 	SizeType genes;
 	SizeType chead;
 	SizeType adfs;
+	SizeType samples;
 	bool stopEarly;
 };
 
@@ -47,8 +55,7 @@ public:
 	ParametersEngine(const Options& op,
 	                 RealType d = 2.0,
 	                 RealType m = 0.5,
-	                 RealType i = 0.5,
-	                 SizeType s = 50)
+	                 RealType i = 0.5)
 	    : population(op.population),
 	      head(op.head),
 	      genes(op.genes),
@@ -57,7 +64,7 @@ public:
 	      descendants(static_cast<SizeType>(op.population*d)),
 	      mutation(static_cast<SizeType>(op.population*m)),
 	      inversion(static_cast<SizeType>(op.population*i)),
-	      samples(s),
+	      samples(op.samples),
 	      stopEarly(op.stopEarly)
 	{}
 
