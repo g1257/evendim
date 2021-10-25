@@ -37,11 +37,11 @@ class Engine {
 	typedef Chromosome<TreeType,EvolutionType,ParametersEngineType_> ChromosomeType;
 	typedef typename PsimagLite::Vector<ChromosomeType*>::Type VectorChromosomeType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
-	typedef typename PsimagLite::Vector<VectorStringType>::Type VectorVectorStringType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	typedef typename ChromosomeType::PairVectorStringType PairVectorStringType;
-	typedef std::pair<VectorVectorStringType, VectorVectorStringType> PairVectorVectorStringType;
+	typedef typename ChromosomeType::PairVectorVectorStringType PairVectorVectorStringType;
+	typedef typename ChromosomeType::VectorVectorStringType VectorVectorStringType;
 
 public:
 
@@ -53,9 +53,9 @@ public:
 		for (SizeType i = 0; i<params_.population; i++) {
 			VectorStringType vecStr;
 			for (SizeType j = 0; j < params_.genes; j++)
-				vecStr.push_back(evolution_.randomGene(params_.head));
+				pushVector(vecStr, evolution_.randomGene(params_.head));
 			for (SizeType j = 0; j < params_.adfs; j++)
-				vecStr.push_back(evolution_.randomAdf(params.chead,params.genes));
+				pushVector(vecStr, evolution_.randomAdf(params.chead,params.genes));
 			ChromosomeType* chromosome = new ChromosomeType(params_, evolution_, vecStr);
 			chromosomes_.push_back(chromosome);
 		}
@@ -76,7 +76,7 @@ public:
 
 			const SizeType effectiveSize = chromosomes_[i]->effectiveSize();
 			VectorStringType effectiveVec;
-			ChromosomeType::pushVector(effectiveVec, vecStr, effectiveSize);
+			pushVector(effectiveVec, vecStr, effectiveSize);
 			if (notAdded(newChromosomes.second, effectiveVec)) {
 				newChromosomes.first.push_back(vecStr);
 				newChromosomes.second.push_back(effectiveVec);
@@ -111,7 +111,10 @@ private:
 	                 const VectorStringType& vecStr) const
 	{
 		ChromosomeType chromosome(params_, evolution_, vecStr);
-		if (notAdded(newChromosomes.second, chromosome.effectiveString()))
+		VectorStringType vEff(chromosome.effectiveSize());
+		for (SizeType i = 0; i < chromosome.effectiveSize(); ++i)
+			vEff[i] = chromosome.vecString()[i];
+		if (notAdded(newChromosomes.second, vEff))
 			newChromosomes.first.push_back(vecStr);
 	}
 
@@ -236,7 +239,8 @@ private:
 	{
 		ChromosomeType* chromosome = new ChromosomeType(params_,evolution_,str);
 		chromosomes_.push_back(chromosome);
-		std::cout<<"Added "<<chromosome->string(" ")<<" with fitness "<<f<<" ";
+		std::cout<<"Added "<<vecStrToStr(chromosome->vecString(), " ");
+		std::cout<<" with fitness "<<f<<" ";
 		std::cout<<"effective size= "<<chromosome->effectiveSize()<<"\n";
 	}
 
@@ -313,7 +317,7 @@ private:
 		PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
 		sort.sort(bestSize,iperm);
 
-		VectorStringType oldChromosomes = newChromosomes;
+		VectorVectorStringType oldChromosomes = newChromosomes;
 		for (SizeType i = 0; i < fitness.size(); i++) {
 			if (fitness[i] != value) break;
 			newChromosomes[i] = oldChromosomes[iperm[i]];

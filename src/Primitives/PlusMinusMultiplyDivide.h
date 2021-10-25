@@ -40,11 +40,12 @@ public:
 	typedef Input<VectorValueType> InputType;
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
+	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 
 	PlusMinusMultiplyDivide(SizeType inputs,
 	                        SizeType genes,
 	                        SizeType constants)
-	    : maxArity_(0),dcValues_(constants),dcArray_(""),rng_(1000)
+	    : maxArity_(0),dcValues_(constants),dcArray_(constants),rng_(1000)
 	{
 		addConstants();
 
@@ -72,9 +73,9 @@ public:
 
 		for (SizeType i=0;i<nodes_.size();i++) {
 			if (nodes_[i]->isInput()) {
-				terminals_ += nodes_[i]->code();
+				terminals_.push_back(nodes_[i]->code());
 			} else if (nodes_[i]->arity()>0) {
-				nonTerminals_ += nodes_[i]->code();
+				nonTerminals_.push_back(nodes_[i]->code());
 			}
 		}
 
@@ -94,12 +95,12 @@ public:
 
 	const VectorNodeType& nodes() const { return nodes_; }
 
-	const PsimagLite::String& nonTerminals() const
+	const VectorStringType& nonTerminals() const
 	{
 		return nonTerminals_;
 	}
 
-	const PsimagLite::String& terminals() const
+	const VectorStringType& terminals() const
 	{
 		return terminals_;
 	}
@@ -110,7 +111,7 @@ public:
 
 	const VectorValueType& dcValues() const { return dcValues_; }
 
-	const PsimagLite::String& dcArray() const { return dcArray_; }
+	const VectorStringType& dcArray() const { return dcArray_; }
 
 	double rng() const { return rng_(); }
 
@@ -119,9 +120,10 @@ private:
 	void addConstants()
 	{
 		if (dcValues_.size() == 0) return;
+		dcArray_.resize(dcValues().size());
 		for (SizeType i = 0; i < dcValues_.size(); i++) {
 			dcValues_[i] = 10.0*rng_() - 10.0;
-			dcArray_ += ttos(i);
+			dcArray_[i] = ttos(i);
 		}
 
 		NodeType* dc = new NodeDcType();
@@ -130,11 +132,11 @@ private:
 
 	SizeType maxArity_;
 	VectorValueType dcValues_;
-	PsimagLite::String dcArray_;
+	VectorStringType dcArray_;
 	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 	VectorNodeType nodes_;
-	PsimagLite::String nonTerminals_;
-	PsimagLite::String terminals_;
+	VectorStringType nonTerminals_;
+	VectorStringType terminals_;
 }; // class PlusMinusMultiplyDivide
 
 } // namespace Gep

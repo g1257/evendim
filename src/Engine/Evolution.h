@@ -22,6 +22,8 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <iostream>
 #include "TypeToString.h"
+#include "PsimagLite.h"
+#include "ProgramGlobals.h"
 
 namespace Gep {
 
@@ -101,50 +103,64 @@ public:
 		return head*(primitives_.arity() - 1) + 1;
 	}
 
-	PsimagLite::String randomGene(SizeType head) const
+	VectorStringType randomGene(SizeType head) const
 	{
-		SizeType tail1 = tail(head);
-		PsimagLite::String str = primitives_.nonTerminals() + primitives_.terminals();
-		PsimagLite::String str1 = selectRandomFrom(head,str);
-		PsimagLite::String str2 = selectRandomFrom(tail1,primitives_.terminals());
-		SizeType dc = (primitives_.hasDc()) ? tail1 : 0;
-		PsimagLite::String str3 = selectRandomFrom(dc,primitives_.dcArray());
-		return str1 + str2 + str3;
+		const SizeType tail1 = tail(head);
+		VectorStringType str = primitives_.nonTerminals();
+		pushVector(str, primitives_.terminals());
+		VectorStringType str1 = selectRandomFrom(head,str);
+		const VectorStringType str2 = selectRandomFrom(tail1, primitives_.terminals());
+		const SizeType dc = (primitives_.hasDc()) ? tail1 : 0;
+		const VectorStringType str3 = selectRandomFrom(dc, primitives_.dcArray());
+		pushVector(str1, str2);
+		pushVector(str1, str3);
+		return str1;
 	}
 
-	PsimagLite::String randomAdf(SizeType chead,SizeType genes) const
+	VectorStringType randomAdf(SizeType chead,SizeType genes) const
 	{
-		PsimagLite::String terminals = "";
+		VectorStringType terminals(genes);
 		for (SizeType i = 0; i < genes; i++)
-			terminals += ttos(i);
+			terminals[i] = ttos(i);
 		SizeType ctail = tail(chead);
-		PsimagLite::String str = primitives_.nonTerminals() + terminals;
-		PsimagLite::String str1 = selectRandomFrom(chead,str);
-		PsimagLite::String str2 = selectRandomFrom(ctail,terminals);
-		return str1 + str2;
+		VectorStringType str = primitives_.nonTerminals();
+		pushVector(str, terminals);
+		VectorStringType str1 = selectRandomFrom(chead, str);
+		const VectorStringType str2 = selectRandomFrom(ctail, terminals);
+		pushVector(str1, str2);
+		return str1;
 	}
 
 	const PrimitivesType& primitives() const { return primitives_; }
 
-	PsimagLite::String mutate(const PsimagLite::String& str,
-	                          SizeType head,
-	                          SizeType genes,
-	                          bool isCell) const
+	VectorStringType mutate(const VectorStringType& str,
+	                        SizeType head,
+	                        SizeType genes,
+	                        bool isCell) const
 	{
-		SizeType len = str.length();
+		SizeType len = str.size();
 
 		SizeType index = static_cast<SizeType>(primitives_.rng() * len);
 
-		PsimagLite::String something = getStringForRegion(index,head,genes,isCell);
+		VectorStringType something = getStringForRegion(index, head, genes, isCell);
 
-		return str.substr(0,index) + selectRandomFrom(1,something) + str.substr(index+1);
+		VectorStringType ret(index);
+		for (SizeType i = 0; i < index; ++i)
+			ret[i] = str[i];
 
+		VectorStringType vRandom = selectRandomFrom(1, something);
+		pushVector(ret, vRandom);
+
+		for (SizeType i = index + 1; i < str.size(); ++i)
+			ret.push_back(str[i]);
+
+		return ret;
 	}
 
-	PsimagLite::String getStringForRegion(SizeType index,
-	                                      SizeType head,
-	                                      SizeType genes,
-	                                      bool isCell) const
+	VectorStringType getStringForRegion(SizeType index,
+	                                    SizeType head,
+	                                    SizeType genes,
+	                                    bool isCell) const
 	{
 		if (isCell)
 			return getStringForRegionCell(index,head,genes);
@@ -152,12 +168,15 @@ public:
 			return getStringForRegionNonCell(index,head);
 	}
 
-	PsimagLite::String getStringForRegionNonCell(SizeType index,
-	                                             SizeType head) const
+	VectorStringType getStringForRegionNonCell(SizeType index,
+	                                           SizeType head) const
 	{
 		SizeType tail1 = tail(head);
-		if (index < head)
-			return primitives_.terminals() + primitives_.nonTerminals();
+		if (index < head) {
+			VectorStringType ret = primitives_.terminals();
+			pushVector(ret, primitives_.nonTerminals());
+			return ret;
+		}
 
 		if (index < head + tail1)
 			return primitives_.terminals();
@@ -165,27 +184,27 @@ public:
 		return primitives_.dcArray();
 	}
 
-	PsimagLite::String getStringForRegionCell(SizeType index,
-	                                             SizeType head,
-	                                             SizeType genes) const
+	VectorStringType getStringForRegionCell(SizeType index,
+	                                        SizeType head,
+	                                        SizeType genes) const
 	{
 
-		PsimagLite::String terminals = "";
-		for (SizeType i = 0; i < genes; i++)
-			terminals += ttos(i);
+		VectorStringType terminals(genes);
+		for (SizeType i = 0; i < genes; ++i)
+			terminals[i] = ttos(i);
 
 		if (index < head)
-			return terminals + primitives_.nonTerminals();
+			pushVector(terminals, primitives_.nonTerminals());
 
 		return terminals;
 	}
 
-	PsimagLite::String invert(const PsimagLite::String& str,SizeType head) const
+	VectorStringType invert(const VectorStringType& str,SizeType head) const
 	{
-		PsimagLite::String ret = str;
-		for (SizeType i = 0; i < head; i++) {
-			ret[i] = str[head-i-1];
-		}
+		VectorStringType ret = str;
+		for (SizeType i = 0; i < head; ++i)
+			ret[i] = str[head - i - 1];
+
 		return ret;
 	}
 
@@ -201,37 +220,45 @@ public:
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "Length= " + ttos(len);
 			errorMessage += " expected " + ttos(head + tail1 + dc) + "\n";
-			throw PsimagLite::RuntimeError(errorMessage);
+			err(errorMessage);
 		}
 
-		PsimagLite::String terminals = primitives_.terminals();
+		VectorStringType terminals = primitives_.terminals();
 
 		for (SizeType i = head; i < len -dc; i++) {
-			if (terminals.find(str[i]) != PsimagLite::String::npos) continue;
+			if (std::find(terminals.begin(),terminals.end(), vecStr[i]) != terminals.end())
+				continue;
 			PsimagLite::String errorMessage(__FILE__);
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "head= " + ttos(head);
-			errorMessage += " string " + str + "\n";
+			errorMessage += " string " + vecStrToStr(vecStr, "") + "\n";
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
-		for (SizeType i = head+tail1; i < len; i++) {
-			char c = str[i];
-			SizeType x = c - 48;
-			if (x >= primitives_.dcArray().length()) {
+		for (SizeType i = head + tail1; i < len; ++i) {
+			PsimagLite::String cStr = vecStr[i];
+			if (cStr.size() != 1) {
 				PsimagLite::String errorMessage(__FILE__);
 				errorMessage += " " + ttos(__LINE__) + "\n";
-				throw PsimagLite::RuntimeError(errorMessage);
+				err(errorMessage);
+			}
+
+			const char c = cStr[0];
+			SizeType x = c - 48;
+			if (x >= primitives_.dcArray().size()) {
+				PsimagLite::String errorMessage(__FILE__);
+				errorMessage += " " + ttos(__LINE__) + "\n";
+				err(errorMessage);
 			}
 		}
 	}
 
-	void checkStringCell(const PsimagLite::String& str,
+	void checkStringCell(const VectorStringType& str,
 	                     SizeType head,
 	                     SizeType genes) const
 	{
 		SizeType tail1 = tail(head);
-		SizeType len = str.length();
+		SizeType len = str.size();
 
 		if (len != head + tail1) {
 			PsimagLite::String errorMessage(__FILE__);
@@ -241,29 +268,30 @@ public:
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
-		PsimagLite::String terminals = "";
-		for (SizeType i = 0; i < genes; i++)
-			terminals += ttos(i);
+		VectorStringType terminals(genes);
+		for (SizeType i = 0; i < genes; ++i)
+			terminals[i] = ttos(i);
 
 		for (SizeType i = head; i < len; i++) {
-			if (terminals.find(str[i]) != PsimagLite::String::npos) continue;
+			if (std::find(terminals.begin(), terminals.end(), str[i]) != terminals.end())
+				continue;
 			PsimagLite::String errorMessage(__FILE__);
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "head= " + ttos(head);
-			errorMessage += " string " + str + "\n";
-			throw PsimagLite::RuntimeError(errorMessage);
+			errorMessage += " string " + vecStrToStr(str, "") + "\n";
+			err(errorMessage);
 		}
 	}
 
 private:
 
-	PsimagLite::String selectRandomFrom(SizeType head,const PsimagLite::String& str) const
+	VectorStringType selectRandomFrom(SizeType head, const VectorStringType& str) const
 	{
-		PsimagLite::String ret = "";
+		VectorStringType ret(head);
 
 		for (SizeType i = 0; i < head; i++) {
-			SizeType index = static_cast<SizeType>(primitives_.rng()*str.length());
-			ret += str[index];
+			SizeType index = static_cast<SizeType>(primitives_.rng()*str.size());
+			ret[i] = str[index];
 		}
 
 		return ret;

@@ -36,6 +36,8 @@ public:
 	typedef typename GeneType::VectorStringType VectorStringType;
 	typedef Chromosome<TreeType,EvolutionType,ParametersType> ChromosomeType;
 	typedef std::pair<VectorStringType, VectorStringType> PairVectorStringType;
+	typedef typename PsimagLite::Vector<VectorStringType>::Type VectorVectorStringType;
+	typedef std::pair<VectorVectorStringType, VectorVectorStringType> PairVectorVectorStringType;
 
 	Chromosome(const ParametersType& params,
 	           const EvolutionType& evolution,
@@ -89,12 +91,11 @@ public:
 			}
 		}
 
-		SizeType counter = 0;
 		for (SizeType i = 0; i < genes_.size(); i++) {
 			const SizeType effectiveSize = genes_[i]->effectiveSize();
 			const VectorStringType& vStr = genes_[i]->vecString();
 			for (SizeType j = 0; j < effectiveSize; ++j)
-				effectiveVecStr_[counter++] = vStr[j];
+				effectiveVecStr_.push_back(vStr[j]);
 		}
 
 		assert(adfs_.size() == params.adfs);
@@ -106,7 +107,7 @@ public:
 		const VectorStringType& adfsVec = adfs_[0]->vecString();
 
 		for (SizeType j = 0; j < adfsEffective; ++j)
-			effectiveVecStr_[counter++] = adfsVec[j];
+			effectiveVecStr_.push_back(adfsVec[j]);
 	}
 
 	~Chromosome()
@@ -196,13 +197,13 @@ public:
 
 		VectorStringType firstVec;
 		for (SizeType i = 0; i < indexCorrected; i++) {
-			pushVector(firstVec, genes_[i]->VecString());
+			pushVector(firstVec, genes_[i]->vecString());
 		}
 
 		VectorStringType lastVec;
 		if (!isCell) {
 			for (SizeType i = index+1; i < genes_.size(); i++) {
-				pushVector(lastVec, genes_[i]->VecString());
+				pushVector(lastVec, genes_[i]->vecString());
 			}
 
 			pushVector(lastVec, adfsVecStr_);
@@ -220,7 +221,7 @@ public:
 		pushVector(vecStr2, p.second);
 		pushVector(vecStr2, lastVec);
 
-		return VectorStringType(vecStr1, vecStr2);
+		return PairVectorStringType(vecStr1, vecStr2);
 	}
 
 	VectorStringType evolve(const PsimagLite::String& action) const
@@ -250,20 +251,20 @@ public:
 
 		VectorStringType ret = firstVec;
 		if (action == "mutate") {
-			pushVector(ret, evolution_.mutate(gene->string(),
-			                                 gene->head(),
-			                                 genes,
-			                                 isCell));
+			pushVector(ret, evolution_.mutate(gene->vecString(),
+			                                  gene->head(),
+			                                  genes,
+			                                  isCell));
 			pushVector(ret, lastVec);
 			return ret;
 		} else if (action == "invert") {
-			pushVector(ret, evolution_.invert(gene->string(),
-			                                 gene->head()));
+			pushVector(ret, evolution_.invert(gene->vecString(),
+			                                  gene->head()));
 			pushVector(ret, lastVec);
 			return ret;
 		} else if (action == "swap") {
-			pushVector(ret, swap(gene->string(),
-			                    gene->head(),isCell));
+			pushVector(ret, swap(gene->vecString(),
+			                     gene->head(),isCell));
 			pushVector(ret, lastVec);
 			return ret;
 		}
@@ -271,46 +272,33 @@ public:
 		throw PsimagLite::RuntimeError("Chromosome::evolve()\n");
 	}
 
-	static void pushVector(VectorStringType& dest,
-	                       const VectorStringType& src,
-	                       SizeType upTo = 0)
-	{
-		const SizeType total = src.size();
-		if (upTo == 0) upTo = total;
-		if (upTo >= total)
-			err("pushVector\n");
-
-		for (SizeType j = 0; j < upTo; ++j)
-			dest.push_back(src[j]);
-	}
-
 private:
 
-	PsimagLite::String swap(const PsimagLite::String& str,
-	                        SizeType head,
-	                        bool isCell) const
+	VectorStringType swap(const VectorStringType& str,
+	                      SizeType head,
+	                      bool isCell) const
 	{
-		PsimagLite::String ret = str;
+		VectorStringType ret = str;
 		const PrimitivesType& primitives = evolution_.primitives();
-		SizeType index = static_cast<SizeType>(primitives.rng() * str.length());
+		SizeType index = static_cast<SizeType>(primitives.rng() * str.size());
 		if (index+1 == head) index = 0;
-		if (index+1 == str.length())
+		if (index+1 == str.size())
 			index--;
 		if (index+1 == head + evolution_.tail(head)) index = 0;
 		ret[index] = str[index+1];
 		ret[index+1] = str[index];
 
-		if (isCell) evolution_.checkStringCell(ret,head,genes_.size());
+		if (isCell) evolution_.checkStringCell(ret, head, genes_.size());
 		else evolution_.checkStringNonCell(ret,head);
 		return ret;
 	}
 
-	PairVectorStringType recombine1(const PsimagLite::String& str1,
-	                                const PsimagLite::String& str2) const
+	PairVectorStringType recombine1(const VectorStringType& str1,
+	                                const VectorStringType& str2) const
 	{
-		assert(str1.length() == str2.length());
+		assert(str1.size() == str2.size());
 
-		SizeType len = str1.length();
+		SizeType len = str1.size();
 		const PrimitivesType& primitives = evolution_.primitives();
 		SizeType index = static_cast<SizeType>(primitives.rng() * len);
 		PairVectorStringType newVecStrings;
@@ -319,29 +307,44 @@ private:
 		return newVecStrings;
 	}
 
-	PsimagLite::String recombine(const PsimagLite::String& str1,
-	                            const PsimagLite::String& str2,
-	                            SizeType index) const
+	VectorStringType recombine(const VectorStringType& str1,
+	                           const VectorStringType& str2,
+	                           SizeType index) const
 	{
-		return str1.substr(0,index) + str2.substr(index);
+		VectorStringType ret(str2.size());
+		for (SizeType i = 0; i < index; ++i)
+			ret[i] = str1[i];
+
+		for (SizeType i = index; i < str2.size(); ++i)
+			ret[i] = str2[i];
+
+		return ret;
 	}
 
-	PsimagLite::String recombine(const PsimagLite::String& str1,
-	                             const PsimagLite::String& str2,
-	                             SizeType index1,
-	                             SizeType index2) const
+	VectorStringType recombine(const VectorStringType& str1,
+	                           const VectorStringType& str2,
+	                           SizeType index1,
+	                           SizeType index2) const
 	{
-		PsimagLite::String tmp1 = str1.substr(0,index1);
-		PsimagLite::String tmp2 = str2.substr(index1,index2-index1);
-		return tmp1 + tmp2 + str1.substr(index2);
+		VectorStringType tmp1(str1.size());
+		for (SizeType i = 0; i < index1; ++i)
+			tmp1[i] = str1[i];
+
+		for (SizeType i = index1; i < index2; ++i)
+			tmp1[i] = str2[i];
+
+		for (SizeType i = index2; i < str1.size(); ++i)
+			tmp1[i] = str1[i];
+
+		return tmp1;
 	}
 
-	PairVectorStringType recombine2(const PsimagLite::String& str1,
-	                                const PsimagLite::String& str2) const
+	PairVectorStringType recombine2(const VectorStringType& str1,
+	                                const VectorStringType& str2) const
 	{
-		assert(str1.length() == str2.length());
+		assert(str1.size() == str2.size());
 
-		SizeType len = str1.length();
+		SizeType len = str1.size();
 
 		const PrimitivesType& primitives = evolution_.primitives();
 		SizeType i1 = static_cast<SizeType>(primitives.rng() * len);
