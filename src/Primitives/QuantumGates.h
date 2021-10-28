@@ -16,11 +16,13 @@ public:
 	Hadamard(SizeType bitNumber, SizeType numberOfBits)
 	    : bitNumber_(bitNumber), gateMatrix_(2, 2), w_(1 << numberOfBits)
 	{
+		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
+
 		numberOfBits_ = numberOfBits;
-		gateMatrix_(0, 1) = 1;
-		gateMatrix_(0, 2) = 1;
-		gateMatrix_(1, 0) = 1;
-		gateMatrix_(1, 1) = -1;
+		gateMatrix_(0, 1) = oneOverSqrt2;
+		gateMatrix_(0, 2) = oneOverSqrt2;
+		gateMatrix_(1, 0) = oneOverSqrt2;
+		gateMatrix_(1, 1) = -oneOverSqrt2;
 	}
 
 	virtual PsimagLite::String code() const { return "H"; }
@@ -29,11 +31,11 @@ public:
 
 	virtual ValueType exec(const VectorValueType& v) const
 	{
-		const SizeType n = v.size();
+		const int n = v.size();
 		assert(n == (1 << numberOfBits_));  // 2^N
 
 		std::fill(w_.begin(), w_.end(), 0);
-		for (SizeType i = 0; i < n; ++i) {
+		for (int i = 0; i < n; ++i) {
 			SizeType j = findBasisState(i);
 			SizeType bitI = getBitForIndex(i);
 			SizeType bitJ = getBitForIndex(j);
@@ -62,7 +64,7 @@ private:
 	static SizeType numberOfBits_;
 	SizeType bitNumber_;
 	PsimagLite::Matrix<ComplexOrRealType> gateMatrix_;
-	ValueType w_;
+	mutable ValueType w_;
 
 }; // class Hadamard
 

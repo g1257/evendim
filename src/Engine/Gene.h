@@ -71,7 +71,7 @@ public:
 		SizeType dcNumber = dcStr[0] - 48;
 		const VectorValueType& dcArray = evolution.primitives().dcValues();
 		assert(dcLength == 0 || dcNumber < dcArray.size());
-		ValueType dcValue = (dcLength > 0) ? dcArray[dcNumber] : 0;
+		ValueType dcValue = (dcLength > 0) ? dcArray[dcNumber] : ValueType(0);
 		for (SizeType i = 0; i < effectiveSize; i++) {
 			PsimagLite::String cStr = vecStr[i];
 			const NodeType& node = evolution.findNodeWithCode(cStr, dcValue, isCell);

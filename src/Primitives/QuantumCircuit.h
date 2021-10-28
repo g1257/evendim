@@ -46,7 +46,7 @@ public:
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,
 	               SizeType numberOfBits)
-	    : maxArity_(0),rng_(1000)
+	    : maxArity_(0),rng_(1000), numberOfBits_(numberOfBits)
 	{
 
 		const SizeType n = inputs;
@@ -105,6 +105,8 @@ public:
 
 	double rng() const { return rng_(); }
 
+	SizeType numberOfBits() const { return numberOfBits_; }
+
 private:
 
 	void addConstants()
@@ -125,6 +127,7 @@ private:
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
+	const SizeType numberOfBits_;
 	VectorNodeType nodes_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
