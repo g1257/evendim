@@ -5,24 +5,42 @@
 
 namespace Gep {
 
-template<typename VectorValueType>
-class Hadamard : public Node<VectorValueType> {
-
-	typedef typename VectorValueType::value_type ValueType;
-	typedef typename ValueType::value_type ComplexOrRealType;
+template<typename ComplexOrRealType>
+class GateLibrary {
 
 public:
 
-	Hadamard(SizeType bitNumber, SizeType numberOfBits)
-	    : bitNumber_(bitNumber), gateMatrix_(2, 2), w_(1 << numberOfBits)
+	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
+
+	static void fillHadamard(MatrixType& gateMatrix)
 	{
 		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
 
+		gateMatrix.resize(2, 2);
+		gateMatrix(0, 0) = oneOverSqrt2;
+		gateMatrix(0, 1) = oneOverSqrt2;
+		gateMatrix(1, 0) = oneOverSqrt2;
+		gateMatrix(1, 1) = -oneOverSqrt2;
+	}
+}; // class GateLibrary
+
+template<typename VectorValueType>
+class OneBitGate : public Node<VectorValueType> {
+
+public:
+
+	typedef typename VectorValueType::value_type ValueType;
+	typedef typename ValueType::value_type ComplexOrRealType;
+	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
+
+	OneBitGate(SizeType bitNumber,
+	           SizeType numberOfBits,
+	           const MatrixType& gateMatrix)
+	    : bitNumber_(bitNumber),
+	      gateMatrix_(gateMatrix),
+	      w_(1 << numberOfBits)
+	{
 		numberOfBits_ = numberOfBits;
-		gateMatrix_(0, 0) = oneOverSqrt2;
-		gateMatrix_(0, 1) = oneOverSqrt2;
-		gateMatrix_(1, 0) = oneOverSqrt2;
-		gateMatrix_(1, 1) = -oneOverSqrt2;
 	}
 
 	virtual PsimagLite::String code() const { return "H"; }
@@ -66,13 +84,13 @@ private:
 
 	static SizeType numberOfBits_;
 	SizeType bitNumber_;
-	PsimagLite::Matrix<ComplexOrRealType> gateMatrix_;
+	MatrixType gateMatrix_;
 	mutable ValueType w_;
 
-}; // class Hadamard
+}; // class OneBitGate
 
 template<typename T>
-SizeType Hadamard<T>::numberOfBits_ = 0;
+SizeType OneBitGate<T>::numberOfBits_ = 0;
 }
 
 #endif // QUANTUMGATES_H

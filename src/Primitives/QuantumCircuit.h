@@ -42,6 +42,9 @@ public:
 	typedef Input<VectorValueType> InputType;
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
+	typedef OneBitGate<VectorValueType> OneBitGateType;
+	typedef typename OneBitGateType::MatrixType MatrixType;
+	typedef GateLibrary<typename ValueType::value_type> GateLibraryType;
 
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,
@@ -51,8 +54,10 @@ public:
 
 		const SizeType n = inputs;
 		// add Hadamard gates
+		MatrixType hadamardGate;
+		GateLibraryType::fillHadamard(hadamardGate);
 		for (SizeType i = 0; i < n; ++i) {
-			NodeType* hadamard = new Hadamard<VectorValueType>(i, numberOfBits);
+			NodeType* hadamard = new OneBitGateType(i, numberOfBits, hadamardGate);
 			nodes_.push_back(hadamard);
 		}
 

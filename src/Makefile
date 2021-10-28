@@ -20,7 +20,7 @@ gep2: gep2.o
 	$(MAKE) -f Makefile -C ../../PsimagLite/lib/
 
 Makefile.dep: gep2.cpp
-	$(CXX) $(CPPFLAGS) -MM gep2.cpp  > Makefile.dep
+	$(CXX) $(CPPFLAGS) -MM gep2.cpp  quantumGep.cpp > Makefile.dep
 
 clean: Makefile.dep
 	rm -f core* gep2 *.o *.dep
