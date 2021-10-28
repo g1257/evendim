@@ -51,10 +51,10 @@ public:
 			evolution_.setInput(0, inVector_);
 			if (verbose) evolution_.printInputs(std::cout);
 
-			// RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
+			functionF(outVector_, inVector_);
 
-			RealType tmp = 0;
-			err("getFitness: unimplemented\n");
+			RealType tmp = vectorDiff2(chromosome.exec(0), outVector_);
+
 			sum += (1.0 - fabs(tmp));
 		}
 		return sum;
@@ -64,11 +64,33 @@ public:
 
 private:
 
+	// Flip the first bit
+	static void functionF(VectorRealType& dest, const VectorRealType& src)
+	{
+		const SizeType n = dest.size();
+		assert(n == src.size());
+		for (SizeType i = 0; i < n; ++i) {
+			SizeType j = i ^ 1;
+			dest[j] = src[i];
+		}
+	}
+
 	void fillRandomVector()
 	{
 		const SizeType n = inVector_.size();
 		for (SizeType i = 0; i < n; ++i)
 			inVector_[i] = 2.0*evolution_.primitives().rng() - 1.0;
+	}
+
+	static RealType vectorDiff2(const VectorRealType& v1, const VectorRealType& v2)
+	{
+		const SizeType n = v1.size();
+		assert(n == v2.size());
+		RealType sum = 0;
+		for (SizeType i = 0; i < n; ++i)
+			sum += fabs(v2[i] - v1[i]);
+
+		return sum;
 	}
 
 	SizeType samples_;

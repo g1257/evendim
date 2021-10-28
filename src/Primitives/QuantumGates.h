@@ -19,8 +19,8 @@ public:
 		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
 
 		numberOfBits_ = numberOfBits;
+		gateMatrix_(0, 0) = oneOverSqrt2;
 		gateMatrix_(0, 1) = oneOverSqrt2;
-		gateMatrix_(0, 2) = oneOverSqrt2;
 		gateMatrix_(1, 0) = oneOverSqrt2;
 		gateMatrix_(1, 1) = -oneOverSqrt2;
 	}
@@ -31,7 +31,10 @@ public:
 
 	virtual ValueType exec(const VectorValueType& v) const
 	{
-		const int n = v.size();
+		assert(v.size() == 1);
+
+		const ValueType& vv = v[0];
+		const int n = vv.size();
 		assert(n == (1 << numberOfBits_));  // 2^N
 
 		std::fill(w_.begin(), w_.end(), 0);
@@ -39,8 +42,8 @@ public:
 			SizeType j = findBasisState(i);
 			SizeType bitI = getBitForIndex(i);
 			SizeType bitJ = getBitForIndex(j);
-			w_[i] += gateMatrix_(bitI, bitI);
-			w_[j] += gateMatrix_(bitI, bitJ);
+			w_[i] += gateMatrix_(bitI, bitI)*vv[i];
+			w_[j] += gateMatrix_(bitI, bitJ)*vv[i];
 		}
 
 		return w_;

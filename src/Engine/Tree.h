@@ -51,10 +51,10 @@ public:
 			values[i] = descendants_[i]->exec();
 		}
 
-		for (SizeType i = 0; i < values.size(); i++) {
-			if (values[i]<0 || values[i]==0 || values[i] >0) continue;
-			throw std::runtime_error("exec\n");
-		}
+//		for (SizeType i = 0; i < values.size(); i++) {
+//			if (values[i]<0 || values[i]==0 || values[i] >0) continue;
+//			throw std::runtime_error("exec\n");
+//		}
 
 		ValueType tmp =  node_.exec(values);
 		if (verbose_) {
@@ -64,8 +64,6 @@ public:
 			std::cout<<"\n";
 		}
 
-		if (std::isinf(tmp) || std::isnan(tmp))
-			throw std::runtime_error("exec\n");
 		 return tmp;
 	}
 
