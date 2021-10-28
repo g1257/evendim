@@ -1,0 +1,6 @@
+VectorRealType needs to be VectorType (complex)
+
+Hadamard needs to be OneBitGate
+
+Implement TwoBitGate
+
