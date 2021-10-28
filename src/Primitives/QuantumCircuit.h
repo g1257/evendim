@@ -57,7 +57,7 @@ public:
 		MatrixType hadamardGate;
 		GateLibraryType::fillHadamard(hadamardGate);
 		for (SizeType i = 0; i < n; ++i) {
-			NodeType* hadamard = new OneBitGateType(i, numberOfBits, hadamardGate);
+			NodeType* hadamard = new OneBitGateType('H', i, numberOfBits, hadamardGate);
 			nodes_.push_back(hadamard);
 		}
 

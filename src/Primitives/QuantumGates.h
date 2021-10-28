@@ -33,17 +33,24 @@ public:
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 
-	OneBitGate(SizeType bitNumber,
+	OneBitGate(char c,
+	           SizeType bitNumber,
 	           SizeType numberOfBits,
 	           const MatrixType& gateMatrix)
-	    : bitNumber_(bitNumber),
+	    : code_("FF"),
+	      bitNumber_(bitNumber),
 	      gateMatrix_(gateMatrix),
 	      w_(1 << numberOfBits)
 	{
+		code_[0] = c;
+		assert(bitNumber < 10);
+		PsimagLite::String c1 = ttos(bitNumber);
+		assert(c1.length() == 1);
+		code_[1] = c1[0];
 		numberOfBits_ = numberOfBits;
 	}
 
-	virtual PsimagLite::String code() const { return "H"; }
+	virtual PsimagLite::String code() const { return code_; }
 
 	virtual SizeType arity() const { return 1; }
 
@@ -83,6 +90,7 @@ private:
 	}
 
 	static SizeType numberOfBits_;
+	PsimagLite::String code_;
 	SizeType bitNumber_;
 	MatrixType gateMatrix_;
 	mutable ValueType w_;
