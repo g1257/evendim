@@ -28,8 +28,9 @@ public:
 
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
-	typedef typename PrimitivesType::ValueType VectorRealType; // or complex FIXME TODO
-	typedef typename VectorRealType::value_type RealType;
+	typedef typename PrimitivesType::ValueType VectorType;
+	typedef typename VectorType::value_type ComplexType;
+	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 
 	QuantumOracle(SizeType samples, const EvolutionType& evolution)
 	    : samples_(samples),
@@ -65,7 +66,7 @@ public:
 private:
 
 	// Flip the first bit
-	static void functionF(VectorRealType& dest, const VectorRealType& src)
+	static void functionF(VectorType& dest, const VectorType& src)
 	{
 		const SizeType n = dest.size();
 		assert(n == src.size());
@@ -82,7 +83,7 @@ private:
 			inVector_[i] = 2.0*evolution_.primitives().rng() - 1.0;
 	}
 
-	static RealType vectorDiff2(const VectorRealType& v1, const VectorRealType& v2)
+	static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
 	{
 		const SizeType n = v1.size();
 		assert(n == v2.size());
@@ -95,8 +96,8 @@ private:
 
 	SizeType samples_;
 	const EvolutionType& evolution_;
-	VectorRealType inVector_;
-	VectorRealType outVector_;
+	VectorType inVector_;
+	VectorType outVector_;
 }; // class QuantumOracle
 
 } // namespace Gep
