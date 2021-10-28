@@ -21,6 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "QuantumGates.h"
 #include "MersenneTwister.h"
+#include "QuantumInput.h"
 
 namespace Gep {
 
@@ -44,34 +45,20 @@ public:
 
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,
-	               SizeType)
+	               SizeType numberOfBits)
 	    : maxArity_(0),rng_(1000)
 	{
 
 		const SizeType n = inputs;
 		// add Hadamard gates
 		for (SizeType i = 0; i < n; ++i) {
-			NodeType* hadamard = new Hadamard<VectorValueType>(i);
+			NodeType* hadamard = new Hadamard<VectorValueType>(i, numberOfBits);
 			nodes_.push_back(hadamard);
 		}
 
-		NodeType* minus = new MinusType();
-		nodes_.push_back(minus);
-
-		NodeType* times = new TimesType();
-		nodes_.push_back(times);
-
-		NodeType* dividedBy = new DividedByType();
-		nodes_.push_back(dividedBy);
-
 		for (SizeType i = 0; i < inputs; i++) {
-			NodeType* input = new InputType(i,0);
+			NodeType* input = new QuantumInput<VectorValueType>(numberOfBits);
 			nodes_.push_back(input);
-		}
-
-		for (SizeType i = 0; i < genes; i++) {
-			NodeType* adf = new NodeAdfType(i,0);
-			nodes_.push_back(adf);
 		}
 
 		for (SizeType i=0;i<nodes_.size();i++) {
