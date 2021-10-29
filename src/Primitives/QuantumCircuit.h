@@ -52,11 +52,10 @@ public:
 	    : maxArity_(0),rng_(1000), numberOfBits_(numberOfBits)
 	{
 
-		const SizeType n = inputs;
 		// add Hadamard gates
 		MatrixType hadamardGate;
 		GateLibraryType::fillHadamard(hadamardGate);
-		for (SizeType i = 0; i < n; ++i) {
+		for (SizeType i = 0; i < numberOfBits; ++i) {
 			NodeType* hadamard = new OneBitGateType('H', i, numberOfBits, hadamardGate);
 			nodes_.push_back(hadamard);
 		}
