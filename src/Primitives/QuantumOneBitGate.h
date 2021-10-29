@@ -6,7 +6,7 @@
 namespace Gep {
 
 template<typename ComplexOrRealType>
-class GateLibrary {
+class OneBitGateLibrary {
 
 public:
 
