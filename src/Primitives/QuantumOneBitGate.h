@@ -1,5 +1,5 @@
-#ifndef QUANTUMGATES_H
-#define QUANTUMGATES_H
+#ifndef QUANTUM_ONE_BIT_GATES_H
+#define QUANTUM_ONE_BIT_GATES_H
 #include "Node.h"
 #include "Matrix.h"
 
@@ -25,7 +25,7 @@ public:
 }; // class GateLibrary
 
 template<typename VectorValueType>
-class OneBitGate : public Node<VectorValueType> {
+class QuantumOneBitGate : public Node<VectorValueType> {
 
 public:
 
@@ -33,7 +33,7 @@ public:
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 
-	OneBitGate(char c,
+	QuantumOneBitGate(char c,
 	           SizeType bitNumber,
 	           SizeType numberOfBits,
 	           const MatrixType& gateMatrix)
@@ -95,10 +95,10 @@ private:
 	MatrixType gateMatrix_;
 	mutable ValueType w_;
 
-}; // class OneBitGate
+}; // class QuantumOneBitGate
 
 template<typename T>
-SizeType OneBitGate<T>::numberOfBits_ = 0;
+SizeType QuantumOneBitGate<T>::numberOfBits_ = 0;
 }
 
-#endif // QUANTUMGATES_H
+#endif // QUANTUM_ONE_BIT_GATES_H

@@ -19,7 +19,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #define EVENDIM_QUANTUM_CIRCUIT_H
 #include "Vector.h"
 #include <cassert>
-#include "QuantumGates.h"
+#include "QuantumOneBitGate.h"
 #include "MersenneTwister.h"
 #include "QuantumInput.h"
 
@@ -42,8 +42,8 @@ public:
 	typedef Input<VectorValueType> InputType;
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
-	typedef OneBitGate<VectorValueType> OneBitGateType;
-	typedef typename OneBitGateType::MatrixType MatrixType;
+	typedef QuantumOneBitGate<VectorValueType> QuantumOneBitGateType;
+	typedef typename QuantumOneBitGateType::MatrixType MatrixType;
 	typedef GateLibrary<typename ValueType::value_type> GateLibraryType;
 
 	QuantumCircuit(SizeType inputs,
@@ -56,7 +56,7 @@ public:
 		MatrixType hadamardGate;
 		GateLibraryType::fillHadamard(hadamardGate);
 		for (SizeType i = 0; i < numberOfBits; ++i) {
-			NodeType* hadamard = new OneBitGateType('H', i, numberOfBits, hadamardGate);
+			NodeType* hadamard = new QuantumOneBitGateType('H', i, numberOfBits, hadamardGate);
 			nodes_.push_back(hadamard);
 		}
 
