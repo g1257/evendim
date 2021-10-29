@@ -22,6 +22,13 @@ public:
 		gateMatrix(1, 0) = oneOverSqrt2;
 		gateMatrix(1, 1) = -oneOverSqrt2;
 	}
+
+	static void fillPhase(MatrixType& gateMatrix)
+	{
+		gateMatrix.resize(2, 2);
+		gateMatrix(0, 0) = 1;
+		gateMatrix(1, 1) = ComplexOrRealType(0, 1);
+	}
 }; // class GateLibrary
 
 template<typename VectorValueType>

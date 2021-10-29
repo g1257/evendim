@@ -44,13 +44,15 @@ public:
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
 	typedef QuantumOneBitGate<VectorValueType> QuantumOneBitGateType;
+	typedef QuantumTwoBitGate<VectorValueType> QuantumTwoBitGateType;
 	typedef typename QuantumOneBitGateType::MatrixType MatrixType;
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
+	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
 
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,
 	               SizeType numberOfBits)
-	    : maxArity_(0),rng_(1000), numberOfBits_(numberOfBits)
+	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)
 	{
 
 		// add Hadamard gates
@@ -59,6 +61,24 @@ public:
 		for (SizeType i = 0; i < numberOfBits; ++i) {
 			NodeType* hadamard = new QuantumOneBitGateType('H', i, numberOfBits, hadamardGate);
 			nodes_.push_back(hadamard);
+		}
+
+		// add PHASE gates
+		MatrixType phaseGate;
+		OneBitGateLibraryType::fillPhase(phaseGate);
+		for (SizeType i = 0; i < numberOfBits; ++i) {
+			NodeType* phase = new QuantumOneBitGateType('P', i, numberOfBits, phaseGate);
+			nodes_.push_back(phase);
+		}
+
+		// add CNOT gates
+		MatrixType cnotGate;
+		TwoBitGateLibraryType::fillCnot(cnotGate);
+		for (SizeType i = 0; i < numberOfBits; ++i) {
+			for (SizeType j = i + 1; j < numberOfBits; ++j) {
+				NodeType* cnot = new QuantumTwoBitGateType('C', i, j, numberOfBits, cnotGate);
+				nodes_.push_back(cnot);
+			}
 		}
 
 		for (SizeType i = 0; i < inputs; i++) {

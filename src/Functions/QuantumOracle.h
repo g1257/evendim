@@ -58,7 +58,7 @@ public:
 
 			sum += (1.0 - fabs(tmp));
 		}
-		return sum;
+		return sum/samples_;
 	}
 
 	RealType maxFitness() const { return samples_; }

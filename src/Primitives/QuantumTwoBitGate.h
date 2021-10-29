@@ -14,13 +14,9 @@ public:
 
 	static void fillCnot(MatrixType& gateMatrix)
 	{
-		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
-
-		gateMatrix.resize(2, 2);
-		gateMatrix(0, 0) = oneOverSqrt2;
-		gateMatrix(0, 1) = oneOverSqrt2;
-		gateMatrix(1, 0) = oneOverSqrt2;
-		gateMatrix(1, 1) = -oneOverSqrt2;
+		gateMatrix.resize(4, 4);
+		gateMatrix(0, 0) = gateMatrix(0, 1) = 1;
+		gateMatrix(2, 3) = gateMatrix(3, 2) = 1;
 	}
 }; // class GateLibrary
 
@@ -60,7 +56,7 @@ public:
 
 	virtual PsimagLite::String code() const { return code_; }
 
-	virtual SizeType arity() const { return 2; }
+	virtual SizeType arity() const { return 1; }
 
 	virtual ValueType exec(const VectorValueType& v) const
 	{
@@ -104,6 +100,8 @@ private:
 		default:
 			err("findBasisState\n");
 		}
+
+		throw PsimagLite::RuntimeError("findBasisState\n");
 	}
 
 	SizeType getTwoBitForIndex(SizeType ind) const
