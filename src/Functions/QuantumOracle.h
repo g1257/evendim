@@ -79,8 +79,15 @@ private:
 	void fillRandomVector()
 	{
 		const SizeType n = inVector_.size();
-		for (SizeType i = 0; i < n; ++i)
+		ComplexType sum = 0;
+		for (SizeType i = 0; i < n; ++i) {
 			inVector_[i] = 2.0*evolution_.primitives().rng() - 1.0;
+			sum += inVector_[i]*PsimagLite::conj(inVector_[i]);
+		}
+
+		RealType factor = 1.0/sqrt(PsimagLite::real(sum));
+		for (SizeType i = 0; i < n; ++i)
+			inVector_[i] *= factor;
 	}
 
 	static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
@@ -91,7 +98,7 @@ private:
 		for (SizeType i = 0; i < n; ++i)
 			sum += fabs(v2[i] - v1[i]);
 
-		return sum;
+		return sum/n;
 	}
 
 	SizeType samples_;
