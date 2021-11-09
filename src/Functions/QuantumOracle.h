@@ -66,6 +66,14 @@ public:
 private:
 
 	// Flip the first bit
+	// 0.1*|0000> -0.2|1110>
+	// src[0] = 0.1;   src[14] = -0.2 src[..] = 0
+	// 0.1*|0001> - 0.2|1111>
+	// dest[1] = 0.1;  dest[15] = -0.2 dest[...] = 0
+	// Flip the first bit
+	// 1111 <--- 15 --> i
+	// 0001 <--- 1
+	// 1110 <--- 14 --> j
 	static void functionF(VectorType& dest, const VectorType& src)
 	{
 		const SizeType n = dest.size();
