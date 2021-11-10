@@ -103,8 +103,8 @@ int main(int argc, char* argv[])
 		throw PsimagLite::RuntimeError(strUsage);
 
 	typedef std::complex<double> ComplexType;
-	typedef PsimagLite::Vector<ComplexType>::Type VectorRealType;
-	typedef Gep::QuantumCircuit<VectorRealType> PrimitivesType;
+	typedef PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 
 	PrimitivesType primitives(inputs, gepOptions.genes, numberOfBits);

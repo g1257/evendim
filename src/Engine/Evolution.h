@@ -74,7 +74,7 @@ public:
 		throw PsimagLite::RuntimeError("findNodeWithCode\n");
 	}
 
-	void setInput(SizeType i,ValueType x) const
+	void setInput(SizeType i, ValueType x) const
 	{
 		assert(i < inputs_.size());
 		inputs_[i]->set(x);

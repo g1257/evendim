@@ -18,8 +18,18 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #ifndef QUANTUM_ORACLE_H
 #define QUANTUM_ORACLE_H
 #include "PsimagLite.h"
+#include "Minimizer.h"
+#include "MinimizerParams.h"
+#include "BaseFitness.h"
 
 namespace Gep {
+
+template<typename ComplexOrRealType>
+class FunctionToMinimize {
+public:
+	typedef typename PsimagLite::Real<ComplexOrRealType>::Type RealType;
+	typedef RealType FieldType;
+};
 
 template<typename EvolutionType_>
 class QuantumOracle {
@@ -31,10 +41,18 @@ public:
 	typedef typename PrimitivesType::ValueType VectorType;
 	typedef typename VectorType::value_type ComplexType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
+	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
+	typedef FunctionToMinimize<ComplexType> FunctionToMinimizeType;
+	typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
+	typedef MinimizerParams<RealType> MinimizerParamsType;
+	typedef MinimizerParamsType ExtraParamsType;
 
-	QuantumOracle(SizeType samples, const EvolutionType& evolution)
+	QuantumOracle(SizeType samples,
+	              const EvolutionType& evolution,
+	              const MinimizerParamsType& minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
+	      minParams_(minParams),
 	      inVector_((1 << evolution.primitives().numberOfBits())),
 	      outVector_(inVector_.size())
 	{
@@ -45,8 +63,10 @@ public:
 	template<typename SomeChromosomeType>
 	RealType getFitness(const SomeChromosomeType& chromosome)
 	{
-		bool verbose = evolution_.verbose();
+		const bool verbose = evolution_.verbose();
+
 		RealType sum = 0;
+		VectorType outputFromIndividual(inVector_.size());
 		for (SizeType i = 0; i < maxFitness(); i++) {
 			fillRandomVector();
 			evolution_.setInput(0, inVector_);
@@ -54,16 +74,56 @@ public:
 
 			functionF(outVector_, inVector_);
 
-			RealType tmp = vectorDiff2(chromosome.exec(0), outVector_);
+			findAnglesMax(outputFromIndividual, chromosome);
+			RealType tmp = vectorDiff2(outputFromIndividual, outVector_);
 
 			sum += (1.0 - fabs(tmp));
 		}
+
 		return sum/samples_;
 	}
 
 	RealType maxFitness() const { return samples_; }
 
 private:
+
+	template<typename SomeChromosomeType>
+	int findAnglesMax(VectorType& output, const SomeChromosomeType& chromosome)
+	{
+		FunctionToMinimizeType f;
+		MinimizerType min(f, minParams_.maxIter, minParams_.verbose);
+
+		int used = 0;
+		VectorRealType angles;
+		if (minParams_.algo == MinimizerParamsType::SIMPLEX) {
+			used = min.simplex(angles,
+			                   minParams_.delta,
+			                   minParams_.tol);
+		} else {
+			used = min.conjugateGradient(angles,
+			                             minParams_.delta,
+			                             minParams_.delta2,
+			                             minParams_.tol,
+			                             minParams_.saveEvery);
+		}
+
+		const bool printFooter = minParams_.verbose;
+		const int returnStatus = (used > 0) ? 0 : 1;
+
+		if (!printFooter) return returnStatus; // <--- EARLY EXIT HERE
+
+		std::cerr<<"QuantumOracle::minimize(): ";
+		if (min.status() == MinimizerType::GSL_SUCCESS) {
+			std::cerr<<" converged after ";
+		} else {
+			std::cerr<<"NOT CONVERGED after ";
+		}
+
+		++used;
+		std::cerr<<used<<" iterations.\n";
+
+		return returnStatus;
+	}
 
 	// Flip the first bit
 	// 0.1*|0000> -0.2|1110>
@@ -111,6 +171,7 @@ private:
 
 	SizeType samples_;
 	const EvolutionType& evolution_;
+	const MinimizerParamsType minParams_;
 	VectorType inVector_;
 	VectorType outVector_;
 }; // class QuantumOracle

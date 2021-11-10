@@ -29,6 +29,7 @@ template<typename FitnessType>
 class Engine {
 
 	typedef typename FitnessType::EvolutionType EvolutionType;
+	typedef typename FitnessType::ExtraParamsType ExtraParamsType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename FitnessType::RealType RealType;
 	typedef typename EvolutionType::PrimitivesType::ValueType ValueType;
@@ -47,8 +48,11 @@ public:
 
 	typedef ParametersEngineType_ ParametersEngineType;
 
-	Engine(const ParametersEngineType& params, const EvolutionType& evolution)
-	    : params_(params), evolution_(evolution), fitness_(params.samples, evolution_)
+	Engine(const ParametersEngineType& params,
+	       const EvolutionType& evolution,
+	       ExtraParamsType* extraParams = nullptr)
+	    : params_(params), evolution_(evolution),
+	      fitness_(params.samples, evolution_, extraParams)
 	{
 		for (SizeType i = 0; i<params_.population; i++) {
 			VectorStringType vecStr;

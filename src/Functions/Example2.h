@@ -17,11 +17,12 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef EXAMPLE_2_H
 #define EXAMPLE_2_H
+#include "BaseFitness.h"
 
 namespace Gep {
 
 template<typename EvolutionType_>
-class Example2 {
+class Example2 : public BaseFitness<EvolutionType_> {
 
 public:
 
