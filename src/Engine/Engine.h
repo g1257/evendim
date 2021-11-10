@@ -48,18 +48,15 @@ public:
 
 	typedef ParametersEngineType_ ParametersEngineType;
 
-	Engine(const ParametersEngineType& params,
-	       const EvolutionType& evolution,
-	       ExtraParamsType* extraParams = nullptr)
-	    : params_(params), evolution_(evolution),
-	      fitness_(params.samples, evolution_, extraParams)
+	Engine(const ParametersEngineType& params, const EvolutionType& evolution)
+	    : params_(params), evolution_(evolution), fitness_(params.samples, evolution_)
 	{
-		for (SizeType i = 0; i<params_.population; i++) {
+		for (SizeType i = 0; i< params_.population; ++i) {
 			VectorStringType vecStr;
-			for (SizeType j = 0; j < params_.genes; j++)
+			for (SizeType j = 0; j < params_.genes; ++j)
 				pushVector(vecStr, evolution_.randomGene(params_.head));
-			for (SizeType j = 0; j < params_.adfs; j++)
-				pushVector(vecStr, evolution_.randomAdf(params.chead,params.genes));
+			for (SizeType j = 0; j < params_.adfs; ++j)
+				pushVector(vecStr, evolution_.randomAdf(params_.chead, params_.genes));
 			ChromosomeType* chromosome = new ChromosomeType(params_, evolution_, vecStr);
 			chromosomes_.push_back(chromosome);
 		}
