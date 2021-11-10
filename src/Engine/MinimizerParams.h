@@ -4,8 +4,10 @@
 
 namespace Gep {
 
-template<typename RealType>
+template<typename RealType_>
 struct MinimizerParams {
+
+	typedef RealType_ RealType;
 
 	enum EnumAlgo {SIMPLEX, CONJUGATE_GRADIENT};
 

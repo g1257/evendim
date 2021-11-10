@@ -29,9 +29,21 @@ void main1(EvolutionType& evolution,
 {
 	typedef FitnessTemplate<EvolutionType> FitnessType;
 	typedef Gep::Engine<FitnessType> EngineType;
+	typedef typename FitnessType::MinimizerParamsType MinimizerParamsType;
+	typedef typename MinimizerParamsType::RealType RealType;
 
+	// TODO FIXME Read from input file
+	typename MinimizerParamsType::EnumAlgo algo = MinimizerParamsType::EnumAlgo::CONJUGATE_GRADIENT;
+	SizeType maxIter = 100;
+	SizeType saveEvery = 0;
+	RealType delta = 0.01;
+	RealType delta2 = 0.01;
+	RealType tol = 1e-3;
+	bool verbose = true;
+
+	MinimizerParamsType minParams(algo, maxIter, delta, delta2, tol, saveEvery, verbose);
 	typename EngineType::ParametersEngineType params(gepOptions);
-	EngineType engine(params, evolution);
+	EngineType engine(params, evolution, &minParams);
 
 	for (SizeType i = 0; i < total; i++)
 		if (engine.evolve() && gepOptions.stopEarly) break;
