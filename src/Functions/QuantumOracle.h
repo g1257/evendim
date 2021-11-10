@@ -24,11 +24,56 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename ComplexOrRealType>
+template<typename ChromosomeType, typename ComplexOrRealType>
 class FunctionToMinimize {
 public:
+
 	typedef typename PsimagLite::Real<ComplexOrRealType>::Type RealType;
+	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef RealType FieldType;
+	typedef typename ChromosomeType::VectorStringType VectorStringType;
+
+	FunctionToMinimize(const ChromosomeType& chromosome)
+	    : chromosome_(chromosome)
+	{
+		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
+	}
+
+	SizeType size() const { return numberOfAngles_; }
+
+	RealType operator()(const VectorRealType& angles) const
+	{
+		err("testing\n");
+		return 0;
+	}
+
+	void df(VectorRealType& dest, const VectorRealType& src) const
+	{
+		err("testing\n");
+	}
+
+private:
+
+	static SizeType findNumberOfAngles(const VectorStringType& vstr)
+	{
+		SizeType n = vstr.size();
+
+		SizeType count = 0;
+		for (SizeType i = 0; i < n; ++i) {
+			count += numberOfAnglesOneGate(vstr[i]);
+		}
+
+		return count;
+	}
+
+	static SizeType numberOfAnglesOneGate(PsimagLite::String str)
+	{
+		if (str.length() == 0) return 0;
+		return (str[0] == 'R') ? 1 : 0;
+	}
+
+	const ChromosomeType& chromosome_;
+	SizeType numberOfAngles_;
 };
 
 template<typename EvolutionType_>
@@ -42,8 +87,6 @@ public:
 	typedef typename VectorType::value_type ComplexType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
-	typedef FunctionToMinimize<ComplexType> FunctionToMinimizeType;
-	typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 	typedef MinimizerParams<RealType> MinimizerParamsType;
 	typedef MinimizerParamsType FitnessParamsType;
 
@@ -88,7 +131,16 @@ private:
 	template<typename SomeChromosomeType>
 	int findAnglesMax(VectorType& output, const SomeChromosomeType& chromosome)
 	{
-		FunctionToMinimizeType f;
+		typedef FunctionToMinimize<SomeChromosomeType, ComplexType> FunctionToMinimizeType;
+		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
+
+		FunctionToMinimizeType f(chromosome);
+
+		if (f.size() == 0) {
+			output = chromosome.exec(0);
+			return 0;
+		}
+
 		MinimizerType min(f, minParams_.maxIter, minParams_.verbose);
 
 		int used = 0;
