@@ -29,13 +29,14 @@ class Example3 : public BaseFitness<EvolutionType_> {
 
 public:
 
+	typedef typename BaseFitness<EvolutionType_>::FitnessParamsType FitnessParamsType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
-	Example3(SizeType samples, const EvolutionType& evolution)
+	Example3(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
 		if (evolution.inputs() != stringLength_) {

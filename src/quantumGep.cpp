@@ -31,7 +31,7 @@ void main1(EvolutionType& evolution,
 	typedef Gep::Engine<FitnessType> EngineType;
 
 	typename EngineType::ParametersEngineType params(gepOptions);
-	EngineType engine(params,evolution);
+	EngineType engine(params, evolution);
 
 	for (SizeType i = 0; i < total; i++)
 		if (engine.evolve() && gepOptions.stopEarly) break;

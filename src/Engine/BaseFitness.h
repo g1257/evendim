@@ -3,10 +3,13 @@
 
 namespace Gep {
 
+class NullClass {};
+
 template<typename EvolutionType>
 class BaseFitness {
 public:
 
+	typedef NullClass FitnessParamsType;
 };
 }
 #endif // BASEFITNESS_H

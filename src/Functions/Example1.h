@@ -26,12 +26,13 @@ class Example1 : public BaseFitness<EvolutionType_> {
 
 public:
 
+	typedef typename BaseFitness<EvolutionType_>::FitnessParamsType FitnessParamsType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
-	Example1(SizeType samples, const EvolutionType& evolution)
+	Example1(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
 		if (evolution.inputs() != 1) {

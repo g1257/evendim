@@ -32,7 +32,7 @@ public:
 };
 
 template<typename EvolutionType_>
-class QuantumOracle {
+class QuantumOracle : public BaseFitness<EvolutionType_> {
 
 public:
 
@@ -45,14 +45,12 @@ public:
 	typedef FunctionToMinimize<ComplexType> FunctionToMinimizeType;
 	typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 	typedef MinimizerParams<RealType> MinimizerParamsType;
-	typedef MinimizerParamsType ExtraParamsType;
+	typedef MinimizerParamsType FitnessParamsType;
 
-	QuantumOracle(SizeType samples,
-	              const EvolutionType& evolution,
-	              const MinimizerParamsType& minParams)
+	QuantumOracle(SizeType samples, const EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
-	      minParams_(minParams),
+	      minParams_(*minParams),
 	      inVector_((1 << evolution.primitives().numberOfBits())),
 	      outVector_(inVector_.size())
 	{
