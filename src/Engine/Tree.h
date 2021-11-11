@@ -28,7 +28,7 @@ public:
 
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename PrimitivesType::NodeType NodeType;
-	typedef typename PrimitivesType::AnglesType AnglesType;
+	typedef typename NodeType::AnglesType AnglesType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
 	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 
@@ -55,7 +55,7 @@ public:
 
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename PrimitivesType::NodeType NodeType;
-	typedef typename PrimitivesType::AnglesType AnglesType;
+	typedef typename NodeType::AnglesType AnglesType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
 	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 
@@ -83,10 +83,10 @@ public:
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename PrimitivesType::NodeType NodeType;
 	typedef typename PsimagLite::Vector<const TreeType*>::Type VectorTreeType;
-	typedef typename PrimitivesType::AnglesType AnglesType;
+	typedef typename NodeType::AnglesType AnglesType;
 	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
-	typedef LeafEvaluator<PrimitivesType, NodeType::hasAngles> LeafEvaluatorType;
+	typedef LeafEvaluator<PrimitivesType, PrimitivesType::hasAngles> LeafEvaluatorType;
 
 	Tree(const PrimitivesType& primitives,const NodeType& node, bool verbose)
 	    : primitives_(primitives),

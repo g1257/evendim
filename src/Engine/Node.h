@@ -21,15 +21,14 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename VectorValueType, typename AnglesType = int>
+template<typename VectorValueType, typename AnglesType_ = int>
 class Node {
 
 public:
 
+	typedef AnglesType_ AnglesType;
 	typedef typename VectorValueType::value_type ValueType;
 	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
-
-	static const bool hasAngles = false;
 
 	virtual ~Node() {}
 

@@ -32,7 +32,8 @@ public:
 	typedef Gene<TreeType,EvolutionType> GeneType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType ValueType;
-	typedef typename PrimitivesType::AnglesType AnglesType;
+	typedef typename TreeType::NodeType NodeType;
+	typedef typename NodeType::AnglesType AnglesType;
 	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
 	typedef typename PsimagLite::Vector<GeneType*>::Type VectorGeneType;

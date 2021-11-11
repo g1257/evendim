@@ -32,8 +32,10 @@ class QuantumCircuit {
 public:
 
 	typedef typename PsimagLite::Vector<ValueType_>::Type VectorValueType;
+	typedef typename ValueType_::value_type ComplexType;
+	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
-	typedef Node<VectorValueType> NodeType;
+	typedef Node<VectorValueType, RealType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
 	typedef NodeDc<VectorValueType> NodeDcType;
 	typedef Plus<VectorValueType> PlusType;
@@ -48,9 +50,8 @@ public:
 	typedef typename QuantumOneBitGateType::MatrixType MatrixType;
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
 	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
-	typedef typename ValueType_::value_type ComplexType;
-	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
-	typedef RealType AnglesType;
+
+	static const bool hasAngles = true;
 
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,
@@ -69,6 +70,24 @@ public:
 		// add PHASE gates
 		MatrixType phaseGate;
 		OneBitGateLibraryType::fillPhase(phaseGate);
+		for (SizeType i = 0; i < numberOfBits; ++i) {
+			NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
+			nodes_.push_back(phase);
+		}
+
+		// add rotation gates
+		for (SizeType dir = 0; dir < 3; ++dir) {
+			MatrixType rotation;
+			OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
+			PsimagLite::String rDir("R ");
+			rDir[1] = OneBitGateLibraryType::directionIntegerToChar(dir);
+
+			for (SizeType i = 0; i < numberOfBits; ++i) {
+				NodeType* phase = new QuantumOneBitGateType(rDir, i, numberOfBits, phaseGate);
+				nodes_.push_back(phase);
+			}
+		}
+
 		for (SizeType i = 0; i < numberOfBits; ++i) {
 			NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
 			nodes_.push_back(phase);

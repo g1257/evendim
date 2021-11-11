@@ -60,10 +60,29 @@ public:
 			return;
 		}
 	}
+
+	static SizeType directionCharToInteger(char c)
+	{
+		int val = c - 120;
+		if (val >= 0 && val < 3) return val;
+
+		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
+	}
+
+	static char directionIntegerToChar(SizeType ind)
+	{
+		if (ind < 3) {
+			char c = ind + 120;
+			return c;
+		}
+
+		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
+	}
 }; // class GateLibrary
 
 template<typename VectorValueType>
-class QuantumOneBitGate : public Node<VectorValueType> {
+class QuantumOneBitGate : public Node<VectorValueType,
+        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 public:
 
@@ -73,8 +92,6 @@ public:
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 	typedef OneBitGateLibrary<ComplexOrRealType> OneBitGateLibraryType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
-
-	static const bool hasAngles = true;
 
 	QuantumOneBitGate(PsimagLite::String cr,
 	                  SizeType bitNumber,
@@ -101,7 +118,7 @@ public:
 		assert(currentIndex < angles->size());
 		SizeType angleToUse = angles->operator[](currentIndex++);
 		assert(code_.size() > 1);
-		SizeType ind = findDirectionOfRotation(code_[1]);
+		SizeType ind = OneBitGateLibraryType::directionCharToInteger(code_[1]);
 		OneBitGateLibraryType::rotation(gateMatrix_, ind, angleToUse);
 		return exec(v);
 	}
@@ -139,17 +156,6 @@ private:
 		const SizeType mask = (1 << bitNumber_);
 		const SizeType result = ind & mask;
 		return (result > 0) ? 1 : 0;
-	}
-
-	static SizeType findDirectionOfRotation(char c)
-	{
-		if (c == 'x') return 0;
-
-		if (c == 'y') return 1;
-
-		if (c == 'z') return 2;
-
-		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
 	}
 
 	static SizeType numberOfBits_;

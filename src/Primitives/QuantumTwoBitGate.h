@@ -21,7 +21,8 @@ public:
 }; // class GateLibrary
 
 template<typename VectorValueType>
-class QuantumTwoBitGate : public Node<VectorValueType> {
+class QuantumTwoBitGate : public Node<VectorValueType,
+        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 public:
 

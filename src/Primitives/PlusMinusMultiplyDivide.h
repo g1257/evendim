@@ -41,7 +41,8 @@ public:
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
-	typedef int AnglesType;
+
+	static const bool hasAngles = false;
 
 	PlusMinusMultiplyDivide(SizeType inputs,
 	                        SizeType genes,

@@ -5,7 +5,8 @@
 namespace Gep {
 
 template<typename VectorValueType>
-class QuantumInput : public Node<VectorValueType> {
+class QuantumInput : public Node<VectorValueType,
+        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 	typedef typename VectorValueType::value_type ValueType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
