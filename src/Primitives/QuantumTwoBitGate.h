@@ -29,6 +29,9 @@ public:
 	typedef typename VectorValueType::value_type ValueType;
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
+	typedef Node<VectorValueType,
+	typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> NodeType;
+	typedef typename NodeType::VectorAnglesType VectorAnglesType;
 
 	QuantumTwoBitGate(PsimagLite::String cr,
 	                  SizeType bitNumber1,
@@ -51,6 +54,13 @@ public:
 	virtual PsimagLite::String code() const { return code_; }
 
 	virtual SizeType arity() const { return 1; }
+
+	virtual ValueType exec(const VectorValueType& v,
+	                       const VectorAnglesType*,
+	                       SizeType&) const
+	{
+		return exec(v);
+	}
 
 	virtual ValueType exec(const VectorValueType& v) const
 	{

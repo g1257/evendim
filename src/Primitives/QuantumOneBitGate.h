@@ -114,7 +114,8 @@ public:
 	                       const VectorRealType* angles,
 	                       SizeType& currentIndex) const
 	{
-		assert(code_.size() > 0 && code_[0] == 'R');
+		if (!hasAngles()) return exec(v);
+
 		assert(currentIndex < angles->size());
 		SizeType angleToUse = angles->operator[](currentIndex++);
 		assert(code_.size() > 1);
@@ -156,6 +157,12 @@ private:
 		const SizeType mask = (1 << bitNumber_);
 		const SizeType result = ind & mask;
 		return (result > 0) ? 1 : 0;
+	}
+
+	bool hasAngles() const
+	{
+		assert(code_.size() > 0);
+		return (code_[0] == 'R');
 	}
 
 	static SizeType numberOfBits_;

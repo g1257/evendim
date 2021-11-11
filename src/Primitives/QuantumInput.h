@@ -1,6 +1,7 @@
 #ifndef QUANTUMINPUT_H
 #define QUANTUMINPUT_H
 #include "Vector.h"
+#include "Node.h"
 
 namespace Gep {
 
@@ -8,6 +9,10 @@ template<typename VectorValueType>
 class QuantumInput : public Node<VectorValueType,
         typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
+	typedef Node<VectorValueType,
+	        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type>
+	NodeType;
+	typedef typename NodeType::VectorAnglesType VectorAnglesType;
 	typedef typename VectorValueType::value_type ValueType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 
@@ -26,6 +31,13 @@ public:
 	{
 		assert(v.size() == 0);
 		return input_;
+	}
+
+	virtual ValueType exec(const VectorValueType& v,
+	                       const VectorAnglesType*,
+	                       SizeType&) const
+	{
+		return exec(v);
 	}
 
 	virtual void set(const ValueType& x) const { input_ = x; }
