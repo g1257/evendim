@@ -71,6 +71,8 @@ public:
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 
+	static const bool hasAngles = true;
+
 	QuantumOneBitGate(char c,
 	           SizeType bitNumber,
 	           SizeType numberOfBits,

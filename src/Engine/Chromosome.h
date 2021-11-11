@@ -32,6 +32,8 @@ public:
 	typedef Gene<TreeType,EvolutionType> GeneType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType ValueType;
+	typedef typename PrimitivesType::AnglesType AnglesType;
+	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
 	typedef typename PsimagLite::Vector<GeneType*>::Type VectorGeneType;
 	typedef typename GeneType::VectorStringType VectorStringType;
@@ -147,13 +149,22 @@ public:
 		return effectiveVecStr_;
 	}
 
+	// convenience funciton
 	ValueType exec(SizeType outputIndex) const
+	{
+		SizeType currentIndex = 0;
+		return exec(outputIndex, nullptr, currentIndex);
+	}
+
+	ValueType exec(SizeType outputIndex,
+	               const VectorAnglesType* angles,
+	               SizeType& currentIndex) const
 	{
 		assert(genes_.size() > 0);
 		assert(outputIndex < genes_.size());
 		VectorValueType values(genes_.size());
 		for (SizeType i = 0; i < values.size(); i++) {
-			values[i] = genes_[i]->getExpression().exec();
+			values[i] = genes_[i]->getExpression().exec(angles, currentIndex);
 		}
 
 		if (adfs_.size() == 0) return values[outputIndex];
@@ -169,7 +180,7 @@ public:
 		if (adfs_.size() != 1)
 			throw PsimagLite::RuntimeError(msg + "adfs must be 1\n");
 
-		ValueType tmp = adfs_[0]->getExpression().exec();
+		ValueType tmp = adfs_[0]->getExpression().exec(angles, currentIndex);
 
 		return tmp;
 	}

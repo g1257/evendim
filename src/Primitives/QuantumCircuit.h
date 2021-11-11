@@ -48,6 +48,9 @@ public:
 	typedef typename QuantumOneBitGateType::MatrixType MatrixType;
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
 	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
+	typedef typename ValueType_::value_type ComplexType;
+	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
+	typedef RealType AnglesType;
 
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,

@@ -21,12 +21,15 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename VectorValueType>
+template<typename VectorValueType, typename AnglesType = int>
 class Node {
 
 public:
 
 	typedef typename VectorValueType::value_type ValueType;
+	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
+
+	static const bool hasAngles = false;
 
 	virtual ~Node() {}
 
@@ -34,18 +37,23 @@ public:
 
 	virtual SizeType arity() const = 0;
 
-	virtual ValueType exec(const VectorValueType& v) const = 0;
+	virtual ValueType exec(const VectorValueType&) const = 0;
 
-	virtual void set(const ValueType& x) const
+	virtual ValueType exec(const VectorValueType&,
+	                       const VectorAnglesType*,
+	                       SizeType&) const
+	{
+		throw PsimagLite::RuntimeError("node::exec() long form\n");
+	}
+
+	virtual void set(const ValueType&) const
 	{
 		throw PsimagLite::RuntimeError("node::set\n");
 	}
 
-	virtual void print(std::ostream& os)
-	{
-	}
+	virtual void print(std::ostream&) {}
 
-	virtual void setDcValue(const ValueType& value) const
+	virtual void setDcValue(const ValueType&) const
 	{
 		throw PsimagLite::RuntimeError("node::setDcValue\n");
 	}

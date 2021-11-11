@@ -48,10 +48,16 @@ public:
 
 	SizeType size() const { return numberOfAngles_; }
 
-	RealType operator()(const VectorRealType& angles) const
+	RealType operator()(const VectorRealType& angles)
 	{
-		err("FunctionToMinimize::operator(): unimplementd\n");
-		return 0;
+		// the case without angles is handled elsewhere
+		// if it reaches here, it's an internal error
+		assert(numberOfAngles_ > 0);
+
+		assert(angles.size() == numberOfAngles_);
+
+		// false means don't be verbose here
+		return fitness(&angles, false);
 	}
 
 	void df(VectorRealType& dest, const VectorRealType& src) const
@@ -69,8 +75,9 @@ public:
 
 			functionF(outVector_, inVector_);
 
-			RealType tmp = vectorDiff2(chromosome_.exec(0), outVector_);
-
+			SizeType currentIndex = 0;
+			RealType tmp = vectorDiff2(chromosome_.exec(0, angles, currentIndex), outVector_);
+			assert(!angles || currentIndex == angles->size());
 			sum += (1.0 - fabs(tmp));
 		}
 
@@ -110,7 +117,6 @@ private:
 		if (str.length() == 0) return 0;
 		return (str[0] == 'R') ? 1 : 0;
 	}
-
 
 	// Flip the first bit
 	// 0.1*|0000> -0.2|1110>
