@@ -24,17 +24,24 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename ChromosomeType, typename ComplexOrRealType>
+template<typename ChromosomeType, typename EvolutionType, typename ComplexType>
 class FunctionToMinimize {
 public:
 
-	typedef typename PsimagLite::Real<ComplexOrRealType>::Type RealType;
+	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef RealType FieldType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 
-	FunctionToMinimize(const ChromosomeType& chromosome)
-	    : chromosome_(chromosome)
+	FunctionToMinimize(const EvolutionType& evolution,
+	                   const ChromosomeType& chromosome,
+	                   SizeType samples)
+	    : evolution_(evolution),
+	      chromosome_(chromosome),
+	      samples_(samples),
+	      inVector_((1 << evolution.primitives().numberOfBits())),
+	      outVector_(inVector_.size())
 	{
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
 	}
@@ -43,16 +50,48 @@ public:
 
 	RealType operator()(const VectorRealType& angles) const
 	{
-		err("testing\n");
+		err("FunctionToMinimize::operator(): unimplementd\n");
 		return 0;
 	}
 
 	void df(VectorRealType& dest, const VectorRealType& src) const
 	{
-		err("testing\n");
+		err("FunctionToMinimize::df(): unimplemented\n");
+	}
+
+	RealType fitness(const VectorRealType* angles, bool verbose)
+	{
+		RealType sum = 0;
+		for (SizeType i = 0; i < samples_; ++i) {
+			fillRandomVector();
+			evolution_.setInput(0, inVector_);
+			if (verbose) evolution_.printInputs(std::cout);
+
+			functionF(outVector_, inVector_);
+
+			RealType tmp = vectorDiff2(chromosome_.exec(0), outVector_);
+
+			sum += (1.0 - fabs(tmp));
+		}
+
+		return sum/samples_;
 	}
 
 private:
+
+	void fillRandomVector()
+	{
+		const SizeType n = inVector_.size();
+		ComplexType sum = 0;
+		for (SizeType i = 0; i < n; ++i) {
+			inVector_[i] = 2.0*evolution_.primitives().rng() - 1.0;
+			sum += inVector_[i]*PsimagLite::conj(inVector_[i]);
+		}
+
+		RealType factor = 1.0/sqrt(PsimagLite::real(sum));
+		for (SizeType i = 0; i < n; ++i)
+			inVector_[i] *= factor;
+	}
 
 	static SizeType findNumberOfAngles(const VectorStringType& vstr)
 	{
@@ -72,8 +111,43 @@ private:
 		return (str[0] == 'R') ? 1 : 0;
 	}
 
+
+	// Flip the first bit
+	// 0.1*|0000> -0.2|1110>
+	// src[0] = 0.1;   src[14] = -0.2 src[..] = 0
+	// 0.1*|0001> - 0.2|1111>
+	// dest[1] = 0.1;  dest[15] = -0.2 dest[...] = 0
+	// Flip the first bit
+	// 1111 <--- 15 --> i
+	// 0001 <--- 1
+	// 1110 <--- 14 --> j
+	static void functionF(VectorType& dest, const VectorType& src)
+	{
+		const SizeType n = dest.size();
+		assert(n == src.size());
+		for (SizeType i = 0; i < n; ++i) {
+			SizeType j = i ^ 1;
+			dest[j] = src[i];
+		}
+	}
+
+	static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
+	{
+		const SizeType n = v1.size();
+		assert(n == v2.size());
+		RealType sum = 0;
+		for (SizeType i = 0; i < n; ++i)
+			sum += fabs(v2[i] - v1[i]);
+
+		return sum/n;
+	}
+
+	const EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
+	SizeType samples_;
 	SizeType numberOfAngles_;
+	VectorType inVector_;
+	VectorType outVector_;
 };
 
 template<typename EvolutionType_>
@@ -93,9 +167,7 @@ public:
 	QuantumOracle(SizeType samples, const EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
-	      minParams_(*minParams),
-	      inVector_((1 << evolution.primitives().numberOfBits())),
-	      outVector_(inVector_.size())
+	      minParams_(*minParams)
 	{
 		if (evolution.inputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
@@ -104,41 +176,14 @@ public:
 	template<typename SomeChromosomeType>
 	RealType getFitness(const SomeChromosomeType& chromosome)
 	{
-		const bool verbose = evolution_.verbose();
-
-		RealType sum = 0;
-		VectorType outputFromIndividual(inVector_.size());
-		for (SizeType i = 0; i < maxFitness(); i++) {
-			fillRandomVector();
-			evolution_.setInput(0, inVector_);
-			if (verbose) evolution_.printInputs(std::cout);
-
-			functionF(outVector_, inVector_);
-
-			findAnglesMax(outputFromIndividual, chromosome);
-			RealType tmp = vectorDiff2(outputFromIndividual, outVector_);
-
-			sum += (1.0 - fabs(tmp));
-		}
-
-		return sum/samples_;
-	}
-
-	RealType maxFitness() const { return samples_; }
-
-private:
-
-	template<typename SomeChromosomeType>
-	int findAnglesMax(VectorType& output, const SomeChromosomeType& chromosome)
-	{
-		typedef FunctionToMinimize<SomeChromosomeType, ComplexType> FunctionToMinimizeType;
+		typedef FunctionToMinimize<SomeChromosomeType, EvolutionType, ComplexType>
+		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 
-		FunctionToMinimizeType f(chromosome);
+		FunctionToMinimizeType f(evolution_, chromosome, samples_);
 
 		if (f.size() == 0) {
-			output = chromosome.exec(0);
-			return 0;
+			return f.fitness(nullptr, evolution_.verbose());
 		}
 
 		MinimizerType min(f, minParams_.maxIter, minParams_.verbose);
@@ -173,57 +218,16 @@ private:
 		std::cerr<<used<<" iterations.\n";
 
 		return returnStatus;
+		throw PsimagLite::RuntimeError("Unimplemented rotation gates\n");
 	}
 
-	// Flip the first bit
-	// 0.1*|0000> -0.2|1110>
-	// src[0] = 0.1;   src[14] = -0.2 src[..] = 0
-	// 0.1*|0001> - 0.2|1111>
-	// dest[1] = 0.1;  dest[15] = -0.2 dest[...] = 0
-	// Flip the first bit
-	// 1111 <--- 15 --> i
-	// 0001 <--- 1
-	// 1110 <--- 14 --> j
-	static void functionF(VectorType& dest, const VectorType& src)
-	{
-		const SizeType n = dest.size();
-		assert(n == src.size());
-		for (SizeType i = 0; i < n; ++i) {
-			SizeType j = i ^ 1;
-			dest[j] = src[i];
-		}
-	}
+	RealType maxFitness() const { return samples_; }
 
-	void fillRandomVector()
-	{
-		const SizeType n = inVector_.size();
-		ComplexType sum = 0;
-		for (SizeType i = 0; i < n; ++i) {
-			inVector_[i] = 2.0*evolution_.primitives().rng() - 1.0;
-			sum += inVector_[i]*PsimagLite::conj(inVector_[i]);
-		}
-
-		RealType factor = 1.0/sqrt(PsimagLite::real(sum));
-		for (SizeType i = 0; i < n; ++i)
-			inVector_[i] *= factor;
-	}
-
-	static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
-	{
-		const SizeType n = v1.size();
-		assert(n == v2.size());
-		RealType sum = 0;
-		for (SizeType i = 0; i < n; ++i)
-			sum += fabs(v2[i] - v1[i]);
-
-		return sum/n;
-	}
+private:
 
 	SizeType samples_;
 	const EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
-	VectorType inVector_;
-	VectorType outVector_;
 }; // class QuantumOracle
 
 } // namespace Gep
