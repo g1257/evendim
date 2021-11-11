@@ -69,30 +69,42 @@ public:
 
 	typedef typename VectorValueType::value_type ValueType;
 	typedef typename ValueType::value_type ComplexOrRealType;
+	typedef typename PsimagLite::Real<ComplexOrRealType>::Type RealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
+	typedef OneBitGateLibrary<ComplexOrRealType> OneBitGateLibraryType;
+	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 	static const bool hasAngles = true;
 
-	QuantumOneBitGate(char c,
-	           SizeType bitNumber,
-	           SizeType numberOfBits,
-	           const MatrixType& gateMatrix)
-	    : code_("FF"),
+	QuantumOneBitGate(PsimagLite::String cr,
+	                  SizeType bitNumber,
+	                  SizeType numberOfBits,
+	                  const MatrixType& gateMatrix)
+	    : code_(cr),
 	      bitNumber_(bitNumber),
 	      gateMatrix_(gateMatrix),
 	      w_(1 << numberOfBits)
 	{
-		code_[0] = c;
-		assert(bitNumber < 10);
-		PsimagLite::String c1 = ttos(bitNumber);
-		assert(c1.length() == 1);
-		code_[1] = c1[0];
+		code_ += ttos(bitNumber);
 		numberOfBits_ = numberOfBits;
 	}
 
 	virtual PsimagLite::String code() const { return code_; }
 
 	virtual SizeType arity() const { return 1; }
+
+	virtual ValueType exec(const VectorValueType& v,
+	                       const VectorRealType* angles,
+	                       SizeType& currentIndex) const
+	{
+		assert(code_.size() > 0 && code_[0] == 'R');
+		assert(currentIndex < angles->size());
+		SizeType angleToUse = angles->operator[](currentIndex++);
+		assert(code_.size() > 1);
+		SizeType ind = findDirectionOfRotation(code_[1]);
+		OneBitGateLibraryType::rotation(gateMatrix_, ind, angleToUse);
+		return exec(v);
+	}
 
 	virtual ValueType exec(const VectorValueType& v) const
 	{
@@ -129,10 +141,21 @@ private:
 		return (result > 0) ? 1 : 0;
 	}
 
+	static SizeType findDirectionOfRotation(char c)
+	{
+		if (c == 'x') return 0;
+
+		if (c == 'y') return 1;
+
+		if (c == 'z') return 2;
+
+		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
+	}
+
 	static SizeType numberOfBits_;
 	PsimagLite::String code_;
 	SizeType bitNumber_;
-	MatrixType gateMatrix_;
+	mutable MatrixType gateMatrix_;
 	mutable ValueType w_;
 
 }; // class QuantumOneBitGate

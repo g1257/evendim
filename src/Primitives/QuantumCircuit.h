@@ -62,7 +62,7 @@ public:
 		MatrixType hadamardGate;
 		OneBitGateLibraryType::fillHadamard(hadamardGate);
 		for (SizeType i = 0; i < numberOfBits; ++i) {
-			NodeType* hadamard = new QuantumOneBitGateType('H', i, numberOfBits, hadamardGate);
+			NodeType* hadamard = new QuantumOneBitGateType("H", i, numberOfBits, hadamardGate);
 			nodes_.push_back(hadamard);
 		}
 
@@ -70,7 +70,7 @@ public:
 		MatrixType phaseGate;
 		OneBitGateLibraryType::fillPhase(phaseGate);
 		for (SizeType i = 0; i < numberOfBits; ++i) {
-			NodeType* phase = new QuantumOneBitGateType('P', i, numberOfBits, phaseGate);
+			NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
 			nodes_.push_back(phase);
 		}
 
@@ -79,7 +79,7 @@ public:
 		TwoBitGateLibraryType::fillCnot(cnotGate);
 		for (SizeType i = 0; i < numberOfBits; ++i) {
 			for (SizeType j = i + 1; j < numberOfBits; ++j) {
-				NodeType* cnot = new QuantumTwoBitGateType('C', i, j, numberOfBits, cnotGate);
+				NodeType* cnot = new QuantumTwoBitGateType("C", i, j, numberOfBits, cnotGate);
 				nodes_.push_back(cnot);
 			}
 		}

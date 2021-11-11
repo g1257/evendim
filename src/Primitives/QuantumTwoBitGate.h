@@ -29,28 +29,21 @@ public:
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 
-	QuantumTwoBitGate(char c,
+	QuantumTwoBitGate(PsimagLite::String cr,
 	                  SizeType bitNumber1,
 	                  SizeType bitNumber2,
 	                  SizeType numberOfBits,
 	                  const MatrixType& gateMatrix)
-	    : code_("FFF"),
+	    : code_(cr),
 	      bitNumber1_(bitNumber1),
 	      bitNumber2_(bitNumber2),
 	      gateMatrix_(gateMatrix),
 	      w_(1 << numberOfBits)
 	{
-		code_[0] = c;
+		code_ += ttos(bitNumber1);
+		code_ += "_";
+		code_ += ttos(bitNumber2);
 
-		assert(bitNumber1 < 10);
-		PsimagLite::String c1 = ttos(bitNumber1);
-		assert(c1.length() == 1);
-		code_[1] = c1[0];
-
-		assert(bitNumber2 < 10);
-		PsimagLite::String c2 = ttos(bitNumber2);
-		assert(c2.length() == 1);
-		code_[2] = c2[0];
 		numberOfBits_ = numberOfBits;
 	}
 
