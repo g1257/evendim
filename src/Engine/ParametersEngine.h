@@ -17,6 +17,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef PARAMETERSENGINE_H
 #define PARAMETERSENGINE_H
+#include "PsimagLite.h"
 
 namespace Gep {
 
@@ -28,14 +29,16 @@ struct Options
 	        SizeType ch = 0,
 	        SizeType adfs1 = 0,
 			SizeType samples1 = 50,
-	        bool se = false)
+	        bool se = false,
+	        PsimagLite::String prim = "")
 	    : population(p),
 		  head(h),
 		  genes(g),
 		  chead(ch),
 		  adfs(adfs1),
 		  samples(samples1),
-		  stopEarly(se)
+		  stopEarly(se),
+	      primitives(prim)
 	{}
 
 	SizeType population;
@@ -45,6 +48,7 @@ struct Options
 	SizeType adfs;
 	SizeType samples;
 	bool stopEarly;
+	PsimagLite::String primitives; // comma-separated list of primitives
 };
 
 template<typename RealType>

@@ -17,12 +17,13 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef EVENDIM_QUANTUM_CIRCUIT_H
 #define EVENDIM_QUANTUM_CIRCUIT_H
-#include "Vector.h"
+#include "PsimagLite.h"
 #include <cassert>
 #include "QuantumOneBitGate.h"
 #include "QuantumTwoBitGate.h"
 #include "MersenneTwister.h"
 #include "QuantumInput.h"
+#include <numeric>
 
 namespace Gep {
 
@@ -55,52 +56,79 @@ public:
 
 	QuantumCircuit(SizeType inputs,
 	               SizeType genes,
-	               SizeType numberOfBits)
+	               SizeType numberOfBits,
+	               PsimagLite::String gates)
 	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)
 	{
 
-		// add Hadamard gates
-		MatrixType hadamardGate;
-		OneBitGateLibraryType::fillHadamard(hadamardGate);
-		for (SizeType i = 0; i < numberOfBits; ++i) {
-			NodeType* hadamard = new QuantumOneBitGateType("H", i, numberOfBits, hadamardGate);
-			nodes_.push_back(hadamard);
-		}
+		if (genes != 1)
+			err("QuantumCircuit supports only one gene\n");
 
-		// add PHASE gates
-		MatrixType phaseGate;
-		OneBitGateLibraryType::fillPhase(phaseGate);
-		for (SizeType i = 0; i < numberOfBits; ++i) {
-			NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
-			nodes_.push_back(phase);
-		}
+		PsimagLite::split(gates_, gates, ",");
 
-		// add rotation gates
-		for (SizeType dir = 0; dir < 3; ++dir) {
-			MatrixType rotation;
-			OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
-			PsimagLite::String rDir("R ");
-			rDir[1] = OneBitGateLibraryType::directionIntegerToChar(dir);
-
+		VectorStringType tmpGates = gates_;
+		typename VectorStringType::const_iterator it = std::find(tmpGates.begin(),
+		                                                         tmpGates.end(),
+		                                                         "H");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add Hadamard gates
+			MatrixType hadamardGate;
+			OneBitGateLibraryType::fillHadamard(hadamardGate);
 			for (SizeType i = 0; i < numberOfBits; ++i) {
-				NodeType* phase = new QuantumOneBitGateType(rDir, i, numberOfBits, phaseGate);
+				NodeType* hadamard = new QuantumOneBitGateType("H", i, numberOfBits, hadamardGate);
+				nodes_.push_back(hadamard);
+			}
+		}
+
+		it = std::find(tmpGates.begin(), tmpGates.end(), "P");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add PHASE gates
+			MatrixType phaseGate;
+			OneBitGateLibraryType::fillPhase(phaseGate);
+			for (SizeType i = 0; i < numberOfBits; ++i) {
+				NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
 				nodes_.push_back(phase);
 			}
 		}
 
-		for (SizeType i = 0; i < numberOfBits; ++i) {
-			NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
-			nodes_.push_back(phase);
+		it = std::find(tmpGates.begin(), tmpGates.end(), "R");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add rotation gates
+			for (SizeType dir = 0; dir < 3; ++dir) {
+				MatrixType rotation;
+				OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
+				PsimagLite::String rDir("R ");
+				rDir[1] = OneBitGateLibraryType::directionIntegerToChar(dir);
+
+				for (SizeType i = 0; i < numberOfBits; ++i) {
+					NodeType* rot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
+					nodes_.push_back(rot);
+				}
+			}
 		}
 
-		// add CNOT gates
-		MatrixType cnotGate;
-		TwoBitGateLibraryType::fillCnot(cnotGate);
-		for (SizeType i = 0; i < numberOfBits; ++i) {
-			for (SizeType j = i + 1; j < numberOfBits; ++j) {
-				NodeType* cnot = new QuantumTwoBitGateType("C", i, j, numberOfBits, cnotGate);
-				nodes_.push_back(cnot);
+		it = std::find(tmpGates.begin(), tmpGates.end(), "C");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add CNOT gates
+			MatrixType cnotGate;
+			TwoBitGateLibraryType::fillCnot(cnotGate);
+			for (SizeType i = 0; i < numberOfBits; ++i) {
+				for (SizeType j = i + 1; j < numberOfBits; ++j) {
+					NodeType* cnot = new QuantumTwoBitGateType("C", i, j, numberOfBits, cnotGate);
+					nodes_.push_back(cnot);
+				}
 			}
+		}
+
+		if (tmpGates.size() > 0) {
+			PsimagLite::String tmp = std::accumulate(tmpGates.begin(),
+			                                         tmpGates.end(),
+			                                         PsimagLite::String(" "));
+			err("The following gates were not recognized: " + tmp + "\n");
 		}
 
 		for (SizeType i = 0; i < inputs; i++) {
@@ -178,6 +206,7 @@ private:
 	VectorNodeType nodes_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
+	VectorStringType gates_;
 }; // class QuantumCircuit
 
 } // namespace Gep

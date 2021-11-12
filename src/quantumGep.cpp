@@ -60,8 +60,9 @@ int main(int argc, char* argv[])
 
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);
-	strUsage += " -i inputs -h head -b numberOfBits -p population -t total [-g genes -H chead]\n";
-	while ((opt = getopt(argc, argv,"i:h:g:s:p:t:b:H:a:Sv")) != -1) {
+	strUsage += " -i inputs -h head -b numberOfBits -p population -t total ";
+	strUsage += " -G \"C,H,P,...\" [-g genes -H chead]\n";
+	while ((opt = getopt(argc, argv,"i:h:g:s:p:t:b:H:a:G:Sv")) != -1) {
 		switch (opt) {
 		case 'i':
 			inputs = atoi(optarg);
@@ -96,10 +97,24 @@ int main(int argc, char* argv[])
 		case 'S':
 			gepOptions.stopEarly = true;
 			break;
+		case 'G':
+			gepOptions.primitives = optarg;
+			break;
 		default:
 			throw PsimagLite::RuntimeError(strUsage);
 			return 1;
 		}
+	}
+
+	PsimagLite::String gates;
+	if (gepOptions.primitives == "" || gepOptions.primitives == "?")
+		gates = "C,H,P";
+	else
+		gates = gepOptions.primitives;
+
+	if (gepOptions.primitives == "?") {
+		std::cout<<"Default gates are: "<<gates<<"\n";
+		return 0;
 	}
 
 	// sanity checks here
@@ -119,8 +134,8 @@ int main(int argc, char* argv[])
 	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 
-	PrimitivesType primitives(inputs, gepOptions.genes, numberOfBits);
-	EvolutionType evolution(primitives,seed,verbose);
+	PrimitivesType primitives(inputs, gepOptions.genes, numberOfBits, gates);
+	EvolutionType evolution(primitives, seed, verbose);
 
-	main1<Gep::QuantumOracle,EvolutionType>(evolution,gepOptions,total);
+	main1<Gep::QuantumOracle,EvolutionType>(evolution, gepOptions, total);
 }
