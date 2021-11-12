@@ -34,6 +34,8 @@ public:
 	typedef RealType FieldType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 
+	enum class FunctionEnum {FITNESS, DIFFERENCE};
+
 	FunctionToMinimize(const EvolutionType& evolution,
 	                   const ChromosomeType& chromosome,
 	                   SizeType samples)
@@ -57,7 +59,7 @@ public:
 		assert(angles.size() == numberOfAngles_);
 
 		// false means don't be verbose here
-		return fitness(&angles, false);
+		return fitness(&angles, FunctionEnum::DIFFERENCE, false);
 	}
 
 	void df(VectorRealType& dest, const VectorRealType& src) const
@@ -65,7 +67,7 @@ public:
 		err("FunctionToMinimize::df(): unimplemented\n");
 	}
 
-	RealType fitness(const VectorRealType* angles, bool verbose)
+	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
 	{
 		RealType sum = 0;
 		for (SizeType i = 0; i < samples_; ++i) {
@@ -76,12 +78,13 @@ public:
 			functionF(outVector_, inVector_);
 
 			SizeType currentIndex = 0;
-			RealType tmp = vectorDiff2(chromosome_.exec(0, angles, currentIndex), outVector_);
+			const RealType tmp = vectorDiff2(chromosome_.exec(0, angles, currentIndex), outVector_);
 			assert(!angles || currentIndex == angles->size());
-			sum += (1.0 - fabs(tmp));
+			sum += fabs(tmp);
 		}
 
-		return sum/samples_;
+		sum /= samples_;
+		return (functionEnum == FunctionEnum::DIFFERENCE) ? sum : 1 - sum;
 	}
 
 private:
@@ -189,7 +192,9 @@ public:
 		FunctionToMinimizeType f(evolution_, chromosome, samples_);
 
 		if (f.size() == 0) {
-			return f.fitness(nullptr, evolution_.verbose());
+			return f.fitness(nullptr,
+			                 FunctionToMinimizeType::FunctionEnum::FITNESS,
+			                 evolution_.verbose());
 		}
 
 		MinimizerType min(f, minParams_.maxIter, minParams_.verbose);
