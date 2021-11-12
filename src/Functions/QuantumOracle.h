@@ -71,10 +71,9 @@ public:
 				evolution_.setInput(0, inVector_);
 				functionF(outVector_, inVector_);
 
-				SizeType currentIndex = 0;
-				computeDifferentialVector(differential_, angles, currentIndex);
+				computeDifferentialVector(differential_, angles);
 
-				currentIndex = 0;
+				SizeType currentIndex = 0;
 				const RealType tmp = diffVectorDiff2(chromosome_.exec(0, &angles, currentIndex),
 				                                     outVector_,
 				                                     differential_);
@@ -163,23 +162,31 @@ private:
 		assert(n == v2.size());
 		RealType sum = 0;
 		for (SizeType i = 0; i < n; ++i)
-			sum += fabs(v2[i] - v1[i]);
+			sum += std::abs(v2[i] - v1[i]);
 
 		return sum/n;
 	}
 
-	static RealType diffVectorDiff2(const VectorType& v1, const VectorType& v2, const VectorType& v3)
+	static RealType diffVectorDiff2(const VectorType& v1,
+	                                const VectorType& v2,
+	                                const VectorRealType& v3)
 	{
 		const SizeType n = v1.size();
 		assert(n == v2.size());
 		assert(n == v3.size());
 		RealType sum = 0;
 		for (SizeType i = 0; i < n; ++i) {
-			const RealType denom = fabs(v2[i] - v1[i]);
+			const RealType denom = std::abs(v2[i] - v1[i]);
 			sum += v3[i]/denom;
 		}
 
 		return sum/n;
+	}
+
+	static void computeDifferentialVector(VectorRealType& differential,
+	                                      const VectorRealType& angles)
+	{
+		err("computeDifferentialVector: not yet implemented (sorry)\n");
 	}
 
 	const EvolutionType& evolution_;
@@ -188,7 +195,7 @@ private:
 	SizeType numberOfAngles_;
 	VectorType inVector_;
 	VectorType outVector_;
-	VectorType differential_;
+	VectorRealType differential_;
 };
 
 template<typename EvolutionType_>
