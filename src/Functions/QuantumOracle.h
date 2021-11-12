@@ -62,9 +62,26 @@ public:
 		return fitness(&angles, FunctionEnum::DIFFERENCE, false);
 	}
 
-	void df(VectorRealType& dest, const VectorRealType& src) const
+	void df(VectorRealType& dest, const VectorRealType& angles)
 	{
-		err("FunctionToMinimize::df(): unimplemented\n");
+		dest.resize(angles.size());
+		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
+			for (SizeType i = 0; i < samples_; ++i) {
+				fillRandomVector();
+				evolution_.setInput(0, inVector_);
+				functionF(outVector_, inVector_);
+
+				SizeType currentIndex = 0;
+				computeDifferentialVector(differential_, angles, currentIndex);
+
+				currentIndex = 0;
+				const RealType tmp = diffVectorDiff2(chromosome_.exec(0, &angles, currentIndex),
+				                                     outVector_,
+				                                     differential_);
+				assert(currentIndex == angles.size());
+				dest[angleIndex] = tmp;
+			}
+		}
 	}
 
 	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
@@ -151,12 +168,27 @@ private:
 		return sum/n;
 	}
 
+	static RealType diffVectorDiff2(const VectorType& v1, const VectorType& v2, const VectorType& v3)
+	{
+		const SizeType n = v1.size();
+		assert(n == v2.size());
+		assert(n == v3.size());
+		RealType sum = 0;
+		for (SizeType i = 0; i < n; ++i) {
+			const RealType denom = fabs(v2[i] - v1[i]);
+			sum += v3[i]/denom;
+		}
+
+		return sum/n;
+	}
+
 	const EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
 	SizeType samples_;
 	SizeType numberOfAngles_;
 	VectorType inVector_;
 	VectorType outVector_;
+	VectorType differential_;
 };
 
 template<typename EvolutionType_>
