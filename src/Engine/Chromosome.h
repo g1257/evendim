@@ -278,6 +278,8 @@ public:
 		throw PsimagLite::RuntimeError("Chromosome::evolve()\n");
 	}
 
+	const ParametersType& params() const { return params_; }
+
 private:
 
 	VectorStringType swap(const VectorStringType& str,

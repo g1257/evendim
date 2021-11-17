@@ -71,7 +71,7 @@ public:
 				evolution_.setInput(0, inVector_);
 				functionF(outVector_, inVector_);
 
-				computeDifferentialVector(differential_, angles);
+				computeDifferentialVector(differential_, angles, angleIndex);
 
 				SizeType currentIndex = 0;
 				const RealType tmp = diffVectorDiff2(chromosome_.exec(0, &angles, currentIndex),
@@ -169,7 +169,7 @@ private:
 
 	static RealType diffVectorDiff2(const VectorType& v1,
 	                                const VectorType& v2,
-	                                const VectorRealType& v3)
+	                                const VectorType& v3)
 	{
 		const SizeType n = v1.size();
 		assert(n == v2.size());
@@ -177,16 +177,41 @@ private:
 		RealType sum = 0;
 		for (SizeType i = 0; i < n; ++i) {
 			const RealType denom = std::abs(v2[i] - v1[i]);
-			sum += v3[i]/denom;
+			const RealType re1 = PsimagLite::real(v2[i] - v1[i]);
+			const RealType im1 = PsimagLite::imag(v2[i] - v1[i]);
+			sum += (PsimagLite::real(v3[i])*re1 + PsimagLite::imag(v3[i])*im1)/denom;
 		}
 
 		return sum/n;
 	}
 
-	static void computeDifferentialVector(VectorRealType& differential,
-	                                      const VectorRealType& angles)
+	void computeDifferentialVector(VectorType& differential,
+	                               const VectorRealType& angles,
+	                               SizeType angleIndex)
 	{
-		err("computeDifferentialVector: not yet implemented (sorry)\n");
+		differential.resize(angles.size());
+		std::fill(differential.begin(), differential.end(), 0);
+
+		if (numberOfAngles_ == 0) return;
+
+		VectorStringType cString = chromosome_.effectiveVecString();
+
+		VectorStringType tmpString = replaceOneR(cString, angleIndex);
+
+		// Individual does not depend on this angle
+		if (tmpString.size() == 0) return;
+
+		// create derivative individual angle-th
+		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString);
+
+		// apply to inVector
+		SizeType currentIndex = 0;
+		differential = newChromosome.exec(0, &angles, currentIndex);
+	}
+
+	static VectorStringType replaceOneR(VectorStringType& v, SizeType angleIndex)
+	{
+		throw PsimagLite::RuntimeError("replaceOneR(): unimplemented\n");
 	}
 
 	const EvolutionType& evolution_;
@@ -195,7 +220,7 @@ private:
 	SizeType numberOfAngles_;
 	VectorType inVector_;
 	VectorType outVector_;
-	VectorRealType differential_;
+	VectorType differential_;
 };
 
 template<typename EvolutionType_>
