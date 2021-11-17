@@ -1,0 +1,12 @@
+##Ainur1.0
+
+HeadSize=10;
+#Seed=12345;
+Population=50;
+Generations=100;
+NumberOfBits=4;
+#CHeadSize=0;
+#AdfsSize=0;
+#StopEarly=false;
+#Gates="P,H,CNOT,R";
+#
