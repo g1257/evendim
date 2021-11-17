@@ -1,6 +1,8 @@
 #ifndef MINIMIZERPARAMS_H
 #define MINIMIZERPARAMS_H
 #include "Vector.h"
+#include "InputNg.h"
+#include "InputCheck.h"
 
 namespace Gep {
 
@@ -8,6 +10,8 @@ template<typename RealType_>
 struct MinimizerParams {
 
 	typedef RealType_ RealType;
+
+	typedef PsimagLite::InputNg<InputCheck>::Readable InputNgReadableType;
 
 	enum EnumAlgo {SIMPLEX, CONJUGATE_GRADIENT};
 
@@ -26,6 +30,58 @@ struct MinimizerParams {
 	      delta2(delta2_),
 	      tol(tol_)
 	{}
+
+	MinimizerParams(InputNgReadableType& io)
+	    : verbose(true),
+	      algo(EnumAlgo::CONJUGATE_GRADIENT),
+	      maxIter(100),
+	      saveEvery(0),
+	      delta(0.01),
+	      delta2(0.01),
+	      tol(1e-3)
+	{
+		try {
+			PsimagLite::String algoString;
+			io.readline(algoString, "MinimizerAlgorithm=");
+			setAlgo(algoString);
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(maxIter, "MinimizerMaxIterations=");
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(saveEvery, "MinimizerSaveEvery=");
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(delta, "MinimizerDelta=");
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(delta2, "MinimizerDelta2=");
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(tol, "MinimizerTolerance=");
+		} catch (std::exception&) {}
+
+		try {
+			int tmp = 0;
+			io.readline(tmp, "MinimizerVerbose=");
+			verbose = (tmp > 0);
+		} catch (std::exception&) {}
+	}
+
+	void setAlgo(PsimagLite::String algoString)
+	{
+		if (algoString == "ConjugateGradient")
+			algo = EnumAlgo::CONJUGATE_GRADIENT;
+		else if (algoString == "Simplex")
+			algo = EnumAlgo::SIMPLEX;
+		else
+			err("setAlgo(): Unknown minimizer algorithm " + algoString + "\n");
+	}
 
 	bool verbose;
 	EnumAlgo algo;

@@ -27,23 +27,18 @@ template<template<typename> class FitnessTemplate,
          typename EvolutionType>
 void main1(EvolutionType& evolution,
            const Gep::Options& gepOptions,
-           SizeType total)
+           PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	typedef FitnessTemplate<EvolutionType> FitnessType;
 	typedef Gep::Engine<FitnessType> EngineType;
 	typedef typename FitnessType::MinimizerParamsType MinimizerParamsType;
-	typedef typename MinimizerParamsType::RealType RealType;
 
-	// TODO FIXME Read from input file
-	typename MinimizerParamsType::EnumAlgo algo = MinimizerParamsType::EnumAlgo::CONJUGATE_GRADIENT;
-	SizeType maxIter = 100;
-	SizeType saveEvery = 0;
-	RealType delta = 0.01;
-	RealType delta2 = 0.01;
-	RealType tol = 1e-3;
-	bool verbose = true;
+	SizeType total = 0;
+	io.readline(total, "Generations=");
+	if (total == 0)
+		err("Generations must be greater than zero\n");
 
-	MinimizerParamsType minParams(algo, maxIter, delta, delta2, tol, saveEvery, verbose);
+	MinimizerParamsType minParams(io);
 	typename EngineType::ParametersEngineType params(gepOptions);
 	EngineType engine(params, evolution, &minParams);
 
@@ -93,11 +88,8 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	int total = 0;
-	io.readline(total, "Generations=");
-
 	// sanity checks here
-	if (gepOptions.head == 0 || gepOptions.population == 0 || total == 0) {
+	if (gepOptions.head == 0 || gepOptions.population == 0) {
 		throw PsimagLite::RuntimeError(strUsage);
 		return 1;
 	}
@@ -124,5 +116,5 @@ int main(int argc, char* argv[])
 	PrimitivesType primitives(numberOfBits, gates);
 	EvolutionType evolution(primitives, seed, verbose);
 
-	main1<Gep::QuantumOracle,EvolutionType>(evolution, gepOptions, total);
+	main1<Gep::QuantumOracle,EvolutionType>(evolution, gepOptions, io);
 }
