@@ -107,6 +107,14 @@ public:
 					NodeType* rot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
 					nodes_.push_back(rot);
 				}
+
+				OneBitGateLibraryType::diffRotation(rotation, dir, 0); // 0 == angle
+				rDir = "_R ";
+				rDir[2] = OneBitGateLibraryType::directionIntegerToChar(dir);
+				for (SizeType i = 0; i < numberOfBits; ++i) {
+					NodeType* drot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
+					nodes_.push_back(drot);
+				}
 			}
 		}
 
@@ -139,7 +147,7 @@ public:
 		for (SizeType i=0;i<nodes_.size();i++) {
 			if (nodes_[i]->isInput()) {
 				terminals_.push_back(nodes_[i]->code());
-			} else if (nodes_[i]->arity()>0) {
+			} else if (nodes_[i]->arity()>0 && nodes_[i]->code()[0] != '_') {
 				nonTerminals_.push_back(nodes_[i]->code());
 			}
 		}

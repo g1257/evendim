@@ -41,7 +41,7 @@ public:
 
 		gateMatrix.resize(2, 2);
 		if (ind == 0) {
-			gateMatrix(0, 0) = cos(angle);
+			gateMatrix(0, 0) = cosine;
 			gateMatrix(0, 1) = ComplexOrRealType(0, -sine);
 			gateMatrix(1, 0) = ComplexOrRealType(0, -sine);
 			gateMatrix(1, 1) = cos(angle);
@@ -57,6 +57,36 @@ public:
 			gateMatrix(0, 1) = 0;
 			gateMatrix(0, 1) = 0;
 			gateMatrix(1, 1) = ComplexOrRealType(cosine, sine);
+			return;
+		}
+	}
+
+	// ind = 0 means rotation around x
+	// ind = 1 means rotation around y
+	// ind = 2 means rotation around z
+	static void diffRotation(MatrixType& gateMatrix, SizeType ind, RealType angle)
+	{
+		const RealType cosine = cos(angle);
+		const RealType sine = sin(angle);
+
+		gateMatrix.resize(2, 2);
+		if (ind == 0) {
+			gateMatrix(0, 0) = -sine;
+			gateMatrix(0, 1) = ComplexOrRealType(0, -cosine);
+			gateMatrix(1, 0) = ComplexOrRealType(0, -cosine);
+			gateMatrix(1, 1) = cos(angle);
+			return;
+		} else if (ind == 1) {
+			gateMatrix(0, 0) = -sine;
+			gateMatrix(0, 1) = -cosine;
+			gateMatrix(0, 1) = cosine;
+			gateMatrix(1, 1) = -sine;
+			return;
+		} else if (ind == 2) {
+			gateMatrix(0, 0) = ComplexOrRealType(-sine, -cosine);
+			gateMatrix(0, 1) = 0;
+			gateMatrix(0, 1) = 0;
+			gateMatrix(1, 1) = ComplexOrRealType(-sine, cosine);
 			return;
 		}
 	}

@@ -78,8 +78,10 @@ public:
 				                                     outVector_,
 				                                     differential_);
 				assert(currentIndex == angles.size());
-				dest[angleIndex] = tmp;
+				dest[angleIndex] += tmp;
 			}
+
+			dest[angleIndex] /= samples_;
 		}
 	}
 
@@ -192,7 +194,7 @@ private:
 		differential.resize(angles.size());
 		std::fill(differential.begin(), differential.end(), 0);
 
-		if (numberOfAngles_ == 0) return;
+		assert(angles.size() == numberOfAngles_);
 
 		VectorStringType cString = chromosome_.effectiveVecString();
 
