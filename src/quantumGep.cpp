@@ -20,6 +20,8 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Engine.h"
 #include <unistd.h>
 #include "Functions/QuantumOracle.h"
+#include "InputNg.h"
+#include "InputCheck.h"
 
 template<template<typename> class FitnessTemplate,
          typename EvolutionType>
@@ -51,60 +53,34 @@ void main1(EvolutionType& evolution,
 
 int main(int argc, char* argv[])
 {
-	SizeType inputs = 0;
-	SizeType total = 0;
-	SizeType seed = 1000;
-	SizeType numberOfBits = 0;
+	PsimagLite::String filename;
 	bool verbose = false;
-	Gep::Options gepOptions;
 
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);
-	strUsage += " -i inputs -h head -b numberOfBits -p population -t total ";
-	strUsage += " -G \"C,H,P,...\" [-g genes -H chead]\n";
-	while ((opt = getopt(argc, argv,"i:h:g:s:p:t:b:H:a:G:Sv")) != -1) {
+	strUsage += " -f filename [-v]\n";
+	while ((opt = getopt(argc, argv,"f:v")) != -1) {
 		switch (opt) {
-		case 'i':
-			inputs = atoi(optarg);
-			break;
-		case 'h':
-			gepOptions.head = atoi(optarg);
-			break;
-		case 'g':
-			gepOptions.genes = atoi(optarg);
-			break;
-		case 's':
-			seed = atoi(optarg);
-			break;
-		case 'p':
-			gepOptions.population = atoi(optarg);
-			break;
-		case 't':
-			total = atoi(optarg);
+		case 'f':
+			filename = optarg;
 			break;
 		case 'v':
 			verbose = true;
-			break;
-		case 'b':
-			numberOfBits = atoi(optarg);
-			break;
-		case 'H':
-			gepOptions.chead = atoi(optarg);
-			break;
-		case 'a':
-			gepOptions.adfs = atoi(optarg);
-			break;
-		case 'S':
-			gepOptions.stopEarly = true;
-			break;
-		case 'G':
-			gepOptions.primitives = optarg;
 			break;
 		default:
 			throw PsimagLite::RuntimeError(strUsage);
 			return 1;
 		}
 	}
+
+	if (filename == "")
+		throw PsimagLite::RuntimeError(strUsage);
+
+	Gep::InputCheck inputCheck;
+	PsimagLite::InputNg<Gep::InputCheck>::Writeable input(filename, inputCheck);
+	PsimagLite::InputNg<Gep::InputCheck>::Readable io(input);
+
+	Gep::Options gepOptions(io);
 
 	PsimagLite::String gates;
 	if (gepOptions.primitives == "" || gepOptions.primitives == "?")
@@ -117,14 +93,25 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+	int total = 0;
+	io.readline(total, "Generations=");
+
 	// sanity checks here
-	if (inputs == 0 || gepOptions.head == 0 || gepOptions.population == 0 || total == 0) {
+	if (gepOptions.head == 0 || gepOptions.population == 0 || total == 0) {
 		throw PsimagLite::RuntimeError(strUsage);
 		return 1;
 	}
 
+	SizeType numberOfBits = 0;
+	io.readline(numberOfBits, "NumberOfBits=");
+
 	if (numberOfBits == 0)
-		err("You need -b numberOfBits\n");
+		err("You need numberOfBits > 0\n");
+
+	SizeType seed = 12345;
+	try {
+		io.readline(seed, "RngSeed=");
+	} catch (std::exception&) {}
 
 	if (gepOptions.genes > 1 && (gepOptions.chead == 0 || gepOptions.adfs == 0))
 		throw PsimagLite::RuntimeError(strUsage);
@@ -134,7 +121,7 @@ int main(int argc, char* argv[])
 	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 
-	PrimitivesType primitives(inputs, gepOptions.genes, numberOfBits, gates);
+	PrimitivesType primitives(numberOfBits, gates);
 	EvolutionType evolution(primitives, seed, verbose);
 
 	main1<Gep::QuantumOracle,EvolutionType>(evolution, gepOptions, total);

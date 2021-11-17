@@ -54,15 +54,11 @@ public:
 
 	static const bool hasAngles = true;
 
-	QuantumCircuit(SizeType inputs,
-	               SizeType genes,
-	               SizeType numberOfBits,
+	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates)
 	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)
 	{
-
-		if (genes != 1)
-			err("QuantumCircuit supports only one gene\n");
+		static const SizeType inputs = 1;
 
 		PsimagLite::split(gates_, gates, ",");
 

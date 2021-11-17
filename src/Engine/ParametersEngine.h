@@ -18,28 +18,61 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PARAMETERSENGINE_H
 #define PARAMETERSENGINE_H
 #include "PsimagLite.h"
+#include "InputNg.h"
+#include "InputCheck.h"
 
 namespace Gep {
 
-struct Options
-{
+struct Options {
+
+	typedef PsimagLite::InputNg<InputCheck> InputNgType;
+
 	Options(SizeType p = 0,
 	        SizeType h = 0,
 	        SizeType g = 1,
 	        SizeType ch = 0,
 	        SizeType adfs1 = 0,
-			SizeType samples1 = 50,
+	        SizeType samples1 = 50,
 	        bool se = false,
 	        PsimagLite::String prim = "")
 	    : population(p),
-		  head(h),
-		  genes(g),
-		  chead(ch),
-		  adfs(adfs1),
-		  samples(samples1),
-		  stopEarly(se),
+	      head(h),
+	      genes(g),
+	      chead(ch),
+	      adfs(adfs1),
+	      samples(samples1),
+	      stopEarly(se),
 	      primitives(prim)
 	{}
+
+	Options(InputNgType::Readable& io)
+	    : population(0),
+	      head(0),
+	      genes(1),
+	      chead(0),
+	      adfs(0),
+	      samples(50),
+	      stopEarly(false),
+	      primitives("")
+	{
+		io.readline(population, "Population=");
+
+		io.readline(head, "HeadSize=");
+
+		try {
+			io.readline(samples, "Samples=");
+		} catch (std::exception&) {}
+
+		try {
+			int tmp = 0;
+			io.readline(tmp, "StopEarly=");
+			stopEarly = (tmp > 0);
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(primitives, "Primitives=");
+		} catch (std::exception&) {}
+	}
 
 	SizeType population;
 	SizeType head;
