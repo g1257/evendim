@@ -196,10 +196,13 @@ private:
 
 		VectorStringType cString = chromosome_.effectiveVecString();
 
-		VectorStringType tmpString = replaceOneR(cString, angleIndex);
+		static const SizeType dc = 0;
+		SizeType geneLength = chromosome_.params().head +
+		        evolution_.tail(chromosome_.params().head) + dc;
 
-		// Individual does not depend on this angle
-		if (tmpString.size() == 0) return;
+		VectorStringType tmpString = replaceOneR(cString, angleIndex, geneLength);
+
+		assert(tmpString.size() == geneLength);
 
 		// create derivative individual angle-th
 		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString);
@@ -209,9 +212,30 @@ private:
 		differential = newChromosome.exec(0, &angles, currentIndex);
 	}
 
-	static VectorStringType replaceOneR(VectorStringType& v, SizeType angleIndex)
+	// adds padding as well
+	VectorStringType replaceOneR(VectorStringType& v, SizeType angleIndex, SizeType geneLength)
 	{
-		throw PsimagLite::RuntimeError("replaceOneR(): unimplemented\n");
+		VectorStringType w(geneLength);
+
+		const SizeType n = v.size();
+		assert(n <= geneLength);
+		SizeType count = 0;
+		for (SizeType i = 0; i < n; ++i) {
+			w[i] = v[i];
+			SizeType n = numberOfAnglesOneGate(v[i]);
+			if (n == 0) continue;
+			if (n == 1) {
+				if (count++ == angleIndex)
+					w[i] = "_" + v[i];
+			}
+		}
+
+		assert(count == numberOfAngles_);
+
+		for (SizeType i = n; i < geneLength; ++i)
+			w[i] = "0";
+
+		return w;
 	}
 
 	const EvolutionType& evolution_;
