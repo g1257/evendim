@@ -18,6 +18,9 @@ public:
 		str += "real MinimizerTolerance;\n";
 		str += "string Primitives;\n";
 		str += "string MinimizerAlgorithm;\n";
+		str += "real MinimizerDelta;\n";
+		str += "real MinimizerDelta2;\n";
+		str += "integer Samples;\n";
 
 		return str;
 	}

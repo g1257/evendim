@@ -44,7 +44,7 @@ public:
 			gateMatrix(0, 0) = cosine;
 			gateMatrix(0, 1) = ComplexOrRealType(0, -sine);
 			gateMatrix(1, 0) = ComplexOrRealType(0, -sine);
-			gateMatrix(1, 1) = cos(angle);
+			gateMatrix(1, 1) = cosine;
 			return;
 		} else if (ind == 1) {
 			gateMatrix(0, 0) = cosine;
@@ -74,7 +74,7 @@ public:
 			gateMatrix(0, 0) = -sine;
 			gateMatrix(0, 1) = ComplexOrRealType(0, -cosine);
 			gateMatrix(1, 0) = ComplexOrRealType(0, -cosine);
-			gateMatrix(1, 1) = cos(angle);
+			gateMatrix(1, 1) = -sine;
 			return;
 		} else if (ind == 1) {
 			gateMatrix(0, 0) = -sine;

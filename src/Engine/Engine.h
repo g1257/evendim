@@ -200,7 +200,10 @@ private:
 			if (evolution_.verbose())
 				std::cout<<"About to exec chromosome= "<<newChromosomes[i]<<"\n";
 			fitness[i] = -fitness_.getFitness(chromosome);
+			std::cerr<<"*";
 		}
+
+		std::cerr<<"\n";
 
 		PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
 		PsimagLite::Vector<SizeType>::Type iperm(fitness.size());

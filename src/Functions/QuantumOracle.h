@@ -21,6 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Minimizer.h"
 #include "MinimizerParams.h"
 #include "BaseFitness.h"
+#include "MersenneTwister.h"
 
 namespace Gep {
 
@@ -292,6 +293,7 @@ public:
 
 		int used = 0;
 		VectorRealType angles(f.size());
+		fillAnglesRandomly(angles);
 		if (minParams_.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams_.delta,
@@ -332,10 +334,21 @@ public:
 
 private:
 
+	static void fillAnglesRandomly(VectorRealType& angles)
+	{
+		const SizeType n = angles.size();
+		for (SizeType i = 0; i < n; ++i)
+			angles[i] = 2*M_PI*rng_();
+	}
+
+	static PsimagLite::MersenneTwister rng_;
 	SizeType samples_;
 	const EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
 }; // class QuantumOracle
+
+template<typename T>
+PsimagLite::MersenneTwister QuantumOracle<T>::rng_(1234);
 
 } // namespace Gep
 
