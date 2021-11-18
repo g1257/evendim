@@ -89,28 +89,30 @@ public:
 			}
 		}
 
-		it = std::find(tmpGates.begin(), tmpGates.end(), "R");
-		if (it != tmpGates.end()) {
+		// add rotation gates
+		for (SizeType dir = 0; dir < 3; ++dir) {
+			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
+			PsimagLite::String rDir("R ");
+			rDir[1] = charDir;
+			it = std::find(tmpGates.begin(), tmpGates.end(), rDir);
+			if (it == tmpGates.end())
+				continue;
+
 			tmpGates.erase(it);
-			// add rotation gates
-			for (SizeType dir = 0; dir < 3; ++dir) {
-				MatrixType rotation;
-				OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
-				PsimagLite::String rDir("R ");
-				rDir[1] = OneBitGateLibraryType::directionIntegerToChar(dir);
+			MatrixType rotation;
+			OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
 
-				for (SizeType i = 0; i < numberOfBits; ++i) {
-					NodeType* rot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
-					nodes_.push_back(rot);
-				}
+			for (SizeType i = 0; i < numberOfBits; ++i) {
+				NodeType* rot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
+				nodes_.push_back(rot);
+			}
 
-				OneBitGateLibraryType::diffRotation(rotation, dir, 0); // 0 == angle
-				rDir = "_R ";
-				rDir[2] = OneBitGateLibraryType::directionIntegerToChar(dir);
-				for (SizeType i = 0; i < numberOfBits; ++i) {
-					NodeType* drot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
-					nodes_.push_back(drot);
-				}
+			OneBitGateLibraryType::diffRotation(rotation, dir, 0); // 0 == angle
+			rDir = "_R ";
+			rDir[2] = charDir;
+			for (SizeType i = 0; i < numberOfBits; ++i) {
+				NodeType* drot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
+				nodes_.push_back(drot);
 			}
 		}
 
