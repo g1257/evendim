@@ -13,7 +13,7 @@ struct MinimizerParams {
 
 	typedef PsimagLite::InputNg<InputCheck>::Readable InputNgReadableType;
 
-	enum EnumAlgo {SIMPLEX, CONJUGATE_GRADIENT};
+	enum EnumAlgo {NONE, SIMPLEX, CONJUGATE_GRADIENT};
 
 	MinimizerParams(EnumAlgo algo_,
 	                SizeType maxIter_,
@@ -79,6 +79,8 @@ struct MinimizerParams {
 			algo = EnumAlgo::CONJUGATE_GRADIENT;
 		else if (algoString == "Simplex")
 			algo = EnumAlgo::SIMPLEX;
+		else if (algoString == "None")
+			algo = EnumAlgo::NONE;
 		else
 			err("setAlgo(): Unknown minimizer algorithm " + algoString + "\n");
 	}

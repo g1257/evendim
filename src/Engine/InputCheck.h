@@ -17,6 +17,7 @@ public:
 		str += "integer NumberOfBits;\n";
 		str += "real MinimizerTolerance;\n";
 		str += "string Primitives;\n";
+		str += "string MinimizerAlgorithm;\n";
 
 		return str;
 	}

@@ -296,6 +296,8 @@ public:
 			used = min.simplex(angles,
 			                   minParams_.delta,
 			                   minParams_.tol);
+		} else if (minParams_.algo == MinimizerParamsType::NONE) {
+			used = 1;
 		} else {
 			used = min.conjugateGradient(angles,
 			                             minParams_.delta,
