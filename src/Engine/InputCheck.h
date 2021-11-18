@@ -15,6 +15,8 @@ public:
 		str += "integer Population;\n";
 		str += "integer Generations;\n";
 		str += "integer NumberOfBits;\n";
+		str += "real MinimizerTolerance;\n";
+		str += "string Primitives;\n";
 
 		return str;
 	}

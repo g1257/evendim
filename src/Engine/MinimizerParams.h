@@ -32,12 +32,12 @@ struct MinimizerParams {
 	{}
 
 	MinimizerParams(InputNgReadableType& io)
-	    : verbose(true),
+	    : verbose(false),
 	      algo(EnumAlgo::CONJUGATE_GRADIENT),
 	      maxIter(100),
 	      saveEvery(0),
-	      delta(0.01),
-	      delta2(0.01),
+	      delta(0.1),
+	      delta2(0.1),
 	      tol(1e-3)
 	{
 		try {

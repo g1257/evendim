@@ -178,7 +178,8 @@ private:
 		assert(n == v3.size());
 		RealType sum = 0;
 		for (SizeType i = 0; i < n; ++i) {
-			const RealType denom = std::abs(v2[i] - v1[i]);
+			RealType denom = std::abs(v2[i] - v1[i]);
+			if (denom == 0) denom = 1;
 			const RealType re1 = PsimagLite::real(v2[i] - v1[i]);
 			const RealType im1 = PsimagLite::imag(v2[i] - v1[i]);
 			sum += (PsimagLite::real(v3[i])*re1 + PsimagLite::imag(v3[i])*im1)/denom;
@@ -290,7 +291,7 @@ public:
 		MinimizerType min(f, minParams_.maxIter, minParams_.verbose);
 
 		int used = 0;
-		VectorRealType angles;
+		VectorRealType angles(f.size());
 		if (minParams_.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams_.delta,
@@ -304,9 +305,13 @@ public:
 		}
 
 		const bool printFooter = minParams_.verbose;
-		const int returnStatus = (used > 0) ? 0 : 1;
+		//const int returnStatus = (used > 0) ? 0 : 1;
 
-		if (!printFooter) return returnStatus; // <--- EARLY EXIT HERE
+		RealType value = f.fitness(&angles,
+		                           FunctionToMinimizeType::FunctionEnum::FITNESS,
+		                           evolution_.verbose());
+
+		if (!printFooter) return value; // <--- EARLY EXIT HERE
 
 		std::cerr<<"QuantumOracle::minimize(): ";
 		if (min.status() == MinimizerType::GSL_SUCCESS) {
@@ -318,8 +323,7 @@ public:
 		++used;
 		std::cerr<<used<<" iterations.\n";
 
-		return returnStatus;
-		throw PsimagLite::RuntimeError("Unimplemented rotation gates\n");
+		return value;
 	}
 
 	RealType maxFitness() const { return samples_; }

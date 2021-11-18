@@ -22,6 +22,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Functions/QuantumOracle.h"
 #include "InputNg.h"
 #include "InputCheck.h"
+#include "FloatingPoint.h"
 
 template<template<typename> class FitnessTemplate,
          typename EvolutionType>
@@ -50,6 +51,8 @@ int main(int argc, char* argv[])
 {
 	PsimagLite::String filename;
 	bool verbose = false;
+
+	PsimagLite::FloatingPoint::enableExcept();
 
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);

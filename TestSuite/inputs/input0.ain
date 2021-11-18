@@ -5,6 +5,7 @@ HeadSize=10;
 Population=50;
 Generations=100;
 NumberOfBits=4;
+
 #CHeadSize=0;
 #AdfsSize=0;
 #StopEarly=false;
