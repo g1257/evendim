@@ -42,8 +42,6 @@ public:
 	typedef ValueType_ ValueType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 
-	static const bool hasAngles = false;
-
 	PlusMinusMultiplyDivide(SizeType inputs,
 	                        SizeType genes,
 	                        SizeType constants)

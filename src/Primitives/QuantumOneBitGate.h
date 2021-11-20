@@ -140,19 +140,6 @@ public:
 
 	virtual SizeType arity() const { return 1; }
 
-	virtual ValueType exec(const VectorValueType& v,
-	                       const VectorRealType* angles,
-	                       SizeType& currentIndex) const
-	{
-		if (!hasAngles()) return exec(v);
-
-		assert(currentIndex < angles->size());
-		SizeType angleToUse = angles->operator[](currentIndex++);
-		assert(code_.size() > 1);
-		SizeType ind = OneBitGateLibraryType::directionCharToInteger(code_[1]);
-		OneBitGateLibraryType::rotation(gateMatrix_, ind, angleToUse);
-		return exec(v);
-	}
 
 	virtual ValueType exec(const VectorValueType& v) const
 	{
@@ -163,6 +150,7 @@ public:
 		assert(n == (1 << numberOfBits_));  // 2^N
 
 		std::fill(w_.begin(), w_.end(), 0);
+
 		for (int i = 0; i < n; ++i) {
 			SizeType j = findBasisState(i);
 			SizeType bitI = getBitForIndex(i);
@@ -172,6 +160,28 @@ public:
 		}
 
 		return w_;
+	}
+
+	void setAngle(PsimagLite::String str) const
+	{
+		PsimagLite::String base;
+		PsimagLite::String angleStr;
+		extractAngle(base, angleStr, str);
+
+		assert(base == code_);
+
+		const bool hA = hasAngles();
+
+		assert(angleStr == "" || hA);
+
+		if (!hA) return;
+
+		if (angleStr == "") angleStr = "0";
+
+		RealType angleToUse = std::stod(angleStr);
+		assert(code_.size() > 1);
+		SizeType ind = OneBitGateLibraryType::directionCharToInteger(code_[1]);
+		OneBitGateLibraryType::rotation(gateMatrix_, ind, angleToUse);
 	}
 
 private:
@@ -193,6 +203,25 @@ private:
 	{
 		assert(code_.size() > 0);
 		return (code_[0] == 'R');
+	}
+
+	static void extractAngle(PsimagLite::String& base,
+	                         PsimagLite::String& angleStr,
+	                         PsimagLite::String str)
+	{
+		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
+		                                                           str.end(),
+		                                                           ':');
+
+		if (it == str.end()) {
+			angleStr = "";
+			base = str;
+			return;
+		}
+
+		base = str.substr(0, it - str.begin());
+		angleStr = str.substr(it - str.begin() + 1, str.end() - it - 1);
+
 	}
 
 	static SizeType numberOfBits_;

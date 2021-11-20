@@ -52,8 +52,6 @@ public:
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
 	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
 
-	static const bool hasAngles = true;
-
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates)
 	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)

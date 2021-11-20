@@ -69,6 +69,7 @@ public:
 			if (isCell && nodes[i]->isInput()) continue;
 			if (nodes[i]->code() == codeStripped) {
 				if (codeStr == "?") nodes[i]->setDcValue(value);
+				nodes[i]->setAngle(codeStr);
 				return *nodes[i];
 			}
 		}
