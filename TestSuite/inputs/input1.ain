@@ -14,5 +14,4 @@ Samples=20;
 #CHeadSize=0;
 #AdfsSize=0;
 #StopEarly=false;
-#Gates="P,H,CNOT,R";
 #

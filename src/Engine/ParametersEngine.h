@@ -34,6 +34,7 @@ struct Options {
 	        SizeType adfs1 = 0,
 	        SizeType samples1 = 50,
 	        bool se = false,
+	        bool pb = false,
 	        PsimagLite::String prim = "")
 	    : population(p),
 	      head(h),
@@ -42,6 +43,7 @@ struct Options {
 	      adfs(adfs1),
 	      samples(samples1),
 	      stopEarly(se),
+	      progressBar(pb),
 	      primitives(prim)
 	{}
 
@@ -53,6 +55,7 @@ struct Options {
 	      adfs(0),
 	      samples(50),
 	      stopEarly(false),
+	      progressBar(false),
 	      primitives("")
 	{
 		io.readline(population, "Population=");
@@ -70,6 +73,12 @@ struct Options {
 		} catch (std::exception&) {}
 
 		try {
+			int tmp = 0;
+			io.readline(tmp, "ProgressBar=");
+			progressBar = (tmp > 0);
+		} catch (std::exception&) {}
+
+		try {
 			io.readline(primitives, "Primitives=");
 		} catch (std::exception&) {}
 	}
@@ -81,6 +90,7 @@ struct Options {
 	SizeType adfs;
 	SizeType samples;
 	bool stopEarly;
+	bool progressBar;
 	PsimagLite::String primitives; // comma-separated list of primitives
 };
 
@@ -102,7 +112,8 @@ public:
 	      mutation(static_cast<SizeType>(op.population*m)),
 	      inversion(static_cast<SizeType>(op.population*i)),
 	      samples(op.samples),
-	      stopEarly(op.stopEarly)
+	      stopEarly(op.stopEarly),
+	      progressBar(op.progressBar)
 	{}
 
 	SizeType population;
@@ -115,7 +126,7 @@ public:
 	SizeType inversion;
 	SizeType samples;
 	bool stopEarly;
-
+	bool progressBar;
 }; // class ParametersEngine
 
 } // namespace Gep

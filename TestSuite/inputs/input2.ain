@@ -10,10 +10,11 @@ Primitives="Ry,H";
 MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
 Samples=50;
+MinimizerVerbose=0;
+ProgressBar=0;
 #MinimizerAlgorithm="Simplex";
 
 #CHeadSize=0;
 #AdfsSize=0;
 #StopEarly=false;
-#Gates="P,H,CNOT,R";
 #

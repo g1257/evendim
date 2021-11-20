@@ -22,7 +22,7 @@ public:
 		str += "real MinimizerDelta2;\n";
 		str += "integer Samples;\n";
 		str += "integer MinimizerVerbose;\n";
-
+		str += "integer ProgressBar;\n";
 		return str;
 	}
 

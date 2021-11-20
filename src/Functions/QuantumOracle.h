@@ -308,14 +308,14 @@ public:
 			                             minParams_.saveEvery);
 		}
 
-		//const bool printFooter = minParams_.verbose;
+		const bool printFooter = minParams_.verbose;
 		//const int returnStatus = (used > 0) ? 0 : 1;
 
 		RealType value = f.fitness(&angles,
 		                           FunctionToMinimizeType::FunctionEnum::FITNESS,
 		                           evolution_.verbose());
 
-		//if (!printFooter) return value; // <--- EARLY EXIT HERE
+		if (!printFooter) return value; // <--- EARLY EXIT HERE
 
 		std::cerr<<"QuantumOracle::minimize(): ";
 		if (min.status() == MinimizerType::GSL_SUCCESS) {
