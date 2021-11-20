@@ -21,59 +21,6 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename PrimitivesType, bool>
-class LeafEvaluator {
-
-public:
-
-	typedef typename PrimitivesType::ValueType ValueType;
-	typedef typename PrimitivesType::NodeType NodeType;
-	typedef typename NodeType::AnglesType AnglesType;
-	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
-	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
-
-	LeafEvaluator(const NodeType& node) : node_(node)
-	{}
-
-	ValueType operator()(VectorValueType& values,
-	                     const VectorAnglesType*,
-	                     SizeType&) const
-	{
-		return node_.exec(values);
-	}
-
-private:
-
-	const NodeType& node_;
-};
-
-
-template<typename PrimitivesType>
-class LeafEvaluator<PrimitivesType, true> {
-
-public:
-
-	typedef typename PrimitivesType::ValueType ValueType;
-	typedef typename PrimitivesType::NodeType NodeType;
-	typedef typename NodeType::AnglesType AnglesType;
-	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
-	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
-
-	LeafEvaluator(const NodeType& node) : node_(node)
-	{}
-
-	ValueType operator()(VectorValueType& values,
-	                     const VectorAnglesType* angles,
-	                     SizeType& currentIndex) const
-	{
-		return node_.exec(values, angles, currentIndex);
-	}
-
-private:
-
-	const NodeType& node_;
-};
-
 template<typename PrimitivesType>
 class Tree {
 
@@ -86,7 +33,6 @@ public:
 	typedef typename NodeType::AnglesType AnglesType;
 	typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
-	typedef LeafEvaluator<PrimitivesType, PrimitivesType::hasAngles> LeafEvaluatorType;
 
 	Tree(const PrimitivesType& primitives,const NodeType& node, bool verbose)
 	    : primitives_(primitives),
@@ -97,14 +43,13 @@ public:
 	~Tree()
 	{}
 
-	ValueType exec(const VectorAnglesType* angles,
-	               SizeType& currentIndex) const
+	ValueType exec() const
 	{
 		if (verbose_) std::cout<<" type= "<<node_.code()<<"\n";
 		VectorValueType values(descendants_.size());
 
 		for (SizeType i = 0; i < descendants_.size(); i++) {
-			values[i] = descendants_[i]->exec(angles, currentIndex);
+			values[i] = descendants_[i]->exec();
 		}
 
 //		for (SizeType i = 0; i < values.size(); i++) {
@@ -112,8 +57,7 @@ public:
 //			throw std::runtime_error("exec\n");
 //		}
 
-		LeafEvaluatorType leafEvaluator(node_);
-		ValueType tmp = leafEvaluator(values, angles, currentIndex);
+		ValueType tmp = node_.exec(values);
 		if (verbose_) {
 			std::cout<<"tmp= "<<tmp<<" type= "<<node_.code();
 			for (SizeType i = 0; i < values.size(); i++)

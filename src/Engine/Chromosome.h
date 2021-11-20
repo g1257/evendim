@@ -150,22 +150,14 @@ public:
 		return effectiveVecStr_;
 	}
 
-	// convenience funciton
 	ValueType exec(SizeType outputIndex) const
-	{
-		SizeType currentIndex = 0;
-		return exec(outputIndex, nullptr, currentIndex);
-	}
-
-	ValueType exec(SizeType outputIndex,
-	               const VectorAnglesType* angles,
-	               SizeType& currentIndex) const
 	{
 		assert(genes_.size() > 0);
 		assert(outputIndex < genes_.size());
+
 		VectorValueType values(genes_.size());
 		for (SizeType i = 0; i < values.size(); i++) {
-			values[i] = genes_[i]->getExpression().exec(angles, currentIndex);
+			values[i] = genes_[i]->getExpression().exec();
 		}
 
 		if (adfs_.size() == 0) return values[outputIndex];
@@ -181,7 +173,7 @@ public:
 		if (adfs_.size() != 1)
 			throw PsimagLite::RuntimeError(msg + "adfs must be 1\n");
 
-		ValueType tmp = adfs_[0]->getExpression().exec(angles, currentIndex);
+		ValueType tmp = adfs_[0]->getExpression().exec();
 
 		return tmp;
 	}
@@ -374,7 +366,6 @@ private:
 	VectorStringType adfsVecStr_;
 	VectorGeneType genes_;
 	VectorGeneType adfs_;
-
 }; // class Fitness
 
 } // namespace Gep

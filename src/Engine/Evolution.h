@@ -63,9 +63,11 @@ public:
 	{
 		const VectorNodeType& nodes = primitives_.nodes();
 
+		PsimagLite::String codeStripped = stripPreviousAngleIfAny(codeStr);
+
 		for (SizeType i = 0; i < nodes.size(); i++) {
 			if (isCell && nodes[i]->isInput()) continue;
-			if (nodes[i]->code() == codeStr) {
+			if (nodes[i]->code() == codeStripped) {
 				if (codeStr == "?") nodes[i]->setDcValue(value);
 				return *nodes[i];
 			}
@@ -281,6 +283,16 @@ public:
 			errorMessage += " string " + vecStrToStr(str, "") + "\n";
 			err(errorMessage);
 		}
+	}
+
+	static PsimagLite::String stripPreviousAngleIfAny(PsimagLite::String str)
+	{
+		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
+		                                                           str.end(),
+		                                                           ':');
+		if (it == str.end()) return str; // no angle found
+
+		return str.substr(0, it - str.begin());
 	}
 
 private:

@@ -65,7 +65,12 @@ public:
 
 	void df(VectorRealType& dest, const VectorRealType& angles)
 	{
+		VectorStringType vecStr = chromosome_.vecString();
+		encodeAngles(vecStr, angles);
+		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+
 		dest.resize(angles.size());
+
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
 			for (SizeType i = 0; i < samples_; ++i) {
 				fillRandomVector();
@@ -74,11 +79,9 @@ public:
 
 				computeDifferentialVector(differential_, angles, angleIndex);
 
-				SizeType currentIndex = 0;
-				const RealType tmp = diffVectorDiff2(chromosome_.exec(0, &angles, currentIndex),
+				const RealType tmp = diffVectorDiff2(chromosome->exec(0),
 				                                     outVector_,
 				                                     differential_);
-				assert(currentIndex == angles.size());
 				dest[angleIndex] += tmp;
 			}
 
@@ -88,6 +91,17 @@ public:
 
 	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
 	{
+		const ChromosomeType* chromosome = nullptr;
+
+		VectorStringType vecStr = chromosome_.vecString();
+
+		if (angles) {
+			encodeAngles(vecStr, *angles);
+			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+		} else {
+			chromosome = &chromosome_;
+		}
+
 		RealType sum = 0;
 		for (SizeType i = 0; i < samples_; ++i) {
 			fillRandomVector();
@@ -96,10 +110,14 @@ public:
 
 			functionF(outVector_, inVector_);
 
-			SizeType currentIndex = 0;
-			const RealType tmp = vectorDiff2(chromosome_.exec(0, angles, currentIndex), outVector_);
-			assert(!angles || currentIndex == angles->size());
+			const RealType tmp = vectorDiff2(chromosome->exec(0),
+			                                 outVector_);
 			sum += fabs(tmp);
+		}
+
+		if (angles) {
+			delete chromosome;
+			chromosome = nullptr;
 		}
 
 		sum /= samples_;
@@ -138,6 +156,12 @@ private:
 	{
 		if (str.length() == 0) return 0;
 		return (str[0] == 'R') ? 1 : 0;
+	}
+
+	static bool isInputGate(PsimagLite::String str)
+	{
+		if (str.length() == 0) return false;
+		return (str[0] == '0') ? true : false;
 	}
 
 	// Flip the first bit
@@ -212,8 +236,7 @@ private:
 		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString);
 
 		// apply to inVector
-		SizeType currentIndex = 0;
-		differential = newChromosome.exec(0, &angles, currentIndex);
+		differential = newChromosome.exec(0);
 	}
 
 	// adds padding as well
@@ -240,6 +263,31 @@ private:
 			w[i] = "0";
 
 		return w;
+	}
+
+	void encodeAngles(VectorStringType& vecStr, const VectorRealType& angles)
+	{
+		const SizeType n = vecStr.size();
+		SizeType currentIndex = 0;
+		bool flag = true;
+		for (SizeType i = 0; i < n; ++i) {
+
+			if (isInputGate(vecStr[i])) {
+				flag = false;
+				continue;
+			}
+
+			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
+			PsimagLite::String str = vecStr[i];
+			str = EvolutionType::stripPreviousAngleIfAny(str);
+			if (angles.size() < currentIndex)
+				err("encodeAngles: too many angles for rotations in this individual!?\n");
+			str += ":" + ttos(angles[currentIndex++]);
+			vecStr[i] = str;
+		}
+
+		if (currentIndex != angles.size())
+			err("encodeAngles: too few angles for rotations in this individual!?\n");
 	}
 
 	const EvolutionType& evolution_;

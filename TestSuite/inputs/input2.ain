@@ -2,14 +2,14 @@
 
 HeadSize=10;
 #Seed=12345;
-Population=100;
+Population=50;
 Generations=1000;
 NumberOfBits=4;
 MinimizerTolerance=0.1;
-Primitives="Ry,H";
+Primitives="Ry,P";
 MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
-Samples=50;
+Samples=30;
 MinimizerVerbose=0;
 ProgressBar=1;
 #MinimizerAlgorithm="Simplex";

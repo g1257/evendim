@@ -43,6 +43,7 @@ class Engine {
 	typedef typename ChromosomeType::PairVectorStringType PairVectorStringType;
 	typedef typename ChromosomeType::PairVectorVectorStringType PairVectorVectorStringType;
 	typedef typename ChromosomeType::VectorVectorStringType VectorVectorStringType;
+	typedef typename ChromosomeType::VectorAnglesType VectorAnglesType;
 
 public:
 
@@ -246,7 +247,9 @@ private:
 	void addChromosome(const VectorStringType& str, const RealType& f)
 	{
 		ChromosomeType* chromosome = new ChromosomeType(params_,evolution_,str);
+
 		chromosomes_.push_back(chromosome);
+
 		std::cout<<"Added "<<vecStrToStr(chromosome->vecString(), " ");
 		std::cout<<" with fitness "<<f<<" ";
 		std::cout<<"effective size= "<<chromosome->effectiveSize()<<"\n";
