@@ -11,7 +11,7 @@ MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
 Samples=50;
 MinimizerVerbose=0;
-ProgressBar=0;
+ProgressBar=1;
 #MinimizerAlgorithm="Simplex";
 
 #CHeadSize=0;

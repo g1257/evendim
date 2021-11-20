@@ -268,7 +268,8 @@ public:
 	QuantumOracle(SizeType samples, const EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
-	      minParams_(*minParams)
+	      minParams_(*minParams),
+	      status_(0)
 	{
 		if (evolution.inputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
@@ -307,6 +308,8 @@ public:
 			                             minParams_.tol,
 			                             minParams_.saveEvery);
 		}
+
+		status_ = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
 
 		const bool printFooter = minParams_.verbose;
 		//const int returnStatus = (used > 0) ? 0 : 1;
@@ -354,6 +357,7 @@ private:
 	SizeType samples_;
 	const EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
+	int status_;
 }; // class QuantumOracle
 
 template<typename T>

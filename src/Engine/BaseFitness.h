@@ -10,6 +10,9 @@ class BaseFitness {
 public:
 
 	typedef NullClass FitnessParamsType;
+
+	const SizeType status() const { return 0; }
+
 };
 }
 #endif // BASEFITNESS_H
