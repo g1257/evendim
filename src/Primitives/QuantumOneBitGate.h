@@ -49,13 +49,13 @@ public:
 		} else if (ind == 1) {
 			gateMatrix(0, 0) = cosine;
 			gateMatrix(0, 1) = -sine;
-			gateMatrix(0, 1) = sine;
+			gateMatrix(1, 0) = sine;
 			gateMatrix(1, 1) = cosine;
 			return;
 		} else if (ind == 2) {
 			gateMatrix(0, 0) = ComplexOrRealType(cosine, -sine);
 			gateMatrix(0, 1) = 0;
-			gateMatrix(0, 1) = 0;
+			gateMatrix(1, 0) = 0;
 			gateMatrix(1, 1) = ComplexOrRealType(cosine, sine);
 			return;
 		}
@@ -79,13 +79,13 @@ public:
 		} else if (ind == 1) {
 			gateMatrix(0, 0) = -sine;
 			gateMatrix(0, 1) = -cosine;
-			gateMatrix(0, 1) = cosine;
+			gateMatrix(1, 0) = cosine;
 			gateMatrix(1, 1) = -sine;
 			return;
 		} else if (ind == 2) {
 			gateMatrix(0, 0) = ComplexOrRealType(-sine, -cosine);
 			gateMatrix(0, 1) = 0;
-			gateMatrix(0, 1) = 0;
+			gateMatrix(1, 0) = 0;
 			gateMatrix(1, 1) = ComplexOrRealType(-sine, cosine);
 			return;
 		}
