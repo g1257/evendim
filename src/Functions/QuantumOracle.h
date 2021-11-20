@@ -149,6 +149,38 @@ public:
 			err("encodeAngles: too few angles for rotations in this individual!?\n");
 	}
 
+	template<typename SomeRngType>
+	static void initAngles(VectorRealType& angles, const VectorStringType& vStr, SomeRngType& rng)
+	{
+		const SizeType n = vStr.size();
+		SizeType currentIndex = 0;
+		for (SizeType i = 0; i < n; ++i) {
+			if (numberOfAnglesOneGate(vStr[i]) == 0) continue;
+			if (angles.size() < currentIndex)
+				err("initAngles: too few angles for individual\n");
+
+			initAngle(angles[currentIndex++], vStr[i], rng);
+		}
+
+		if (angles.size() != currentIndex)
+			err("initAngles: too many angles for individual\n");
+	}
+
+	template<typename SomeRngType>
+	static void initAngle(RealType& angle, PsimagLite::String str, SomeRngType& rng)
+	{
+		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
+		                                                           str.end(),
+		                                                           ':');
+		if (it == str.end()) {
+			angle = 2*M_PI*rng();
+			return;
+		}
+
+		PsimagLite::String angleStr = str.substr(it - str.begin() + 1, str.end() - it - 1);
+		angle = std::stod(angleStr);
+	}
+
 private:
 
 	void fillRandomVector()
@@ -343,7 +375,7 @@ public:
 
 		int used = 0;
 		VectorRealType angles(f.size());
-		fillAnglesRandomly(angles);
+		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng_);
 		if (minParams_.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams_.delta,
@@ -397,13 +429,6 @@ public:
 	RealType maxFitness() const { return samples_; }
 
 private:
-
-	static void fillAnglesRandomly(VectorRealType& angles)
-	{
-		const SizeType n = angles.size();
-		for (SizeType i = 0; i < n; ++i)
-			angles[i] = 2*M_PI*rng_();
-	}
 
 	static PsimagLite::String toString(const VectorRealType& angles)
 	{
