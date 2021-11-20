@@ -308,14 +308,14 @@ public:
 			                             minParams_.saveEvery);
 		}
 
-		const bool printFooter = minParams_.verbose;
+		//const bool printFooter = minParams_.verbose;
 		//const int returnStatus = (used > 0) ? 0 : 1;
 
 		RealType value = f.fitness(&angles,
 		                           FunctionToMinimizeType::FunctionEnum::FITNESS,
 		                           evolution_.verbose());
 
-		if (!printFooter) return value; // <--- EARLY EXIT HERE
+		//if (!printFooter) return value; // <--- EARLY EXIT HERE
 
 		std::cerr<<"QuantumOracle::minimize(): ";
 		if (min.status() == MinimizerType::GSL_SUCCESS) {
@@ -325,7 +325,7 @@ public:
 		}
 
 		++used;
-		std::cerr<<used<<" iterations.\n";
+		std::cerr<<used<<" iterations. "<<toString(angles)<<"\n";
 
 		return value;
 	}
@@ -339,6 +339,15 @@ private:
 		const SizeType n = angles.size();
 		for (SizeType i = 0; i < n; ++i)
 			angles[i] = 2*M_PI*rng_();
+	}
+
+	static PsimagLite::String toString(const VectorRealType& angles)
+	{
+		const SizeType n = angles.size();
+		PsimagLite::String str;
+		for (SizeType i = 0; i < n; ++i)
+			str += ttos(angles[i]) + " ";
+		return str;
 	}
 
 	static PsimagLite::MersenneTwister rng_;

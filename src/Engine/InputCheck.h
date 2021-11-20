@@ -21,6 +21,7 @@ public:
 		str += "real MinimizerDelta;\n";
 		str += "real MinimizerDelta2;\n";
 		str += "integer Samples;\n";
+		str += "integer MinimizerVerbose;\n";
 
 		return str;
 	}
