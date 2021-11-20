@@ -201,6 +201,7 @@ private:
 			if (evolution_.verbose())
 				std::cout<<"About to exec chromosome= "<<newChromosomes[i]<<"\n";
 			fitness[i] = -fitness_.getFitness(chromosome);
+			newChromosomes[i] = chromosome.vecString();
 			const int status = fitness_.status();
 			const PsimagLite::String symbol = (status == 0) ? "." : "*";
 			if (params_.progressBar) std::cerr<<symbol;

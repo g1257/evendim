@@ -67,7 +67,8 @@ public:
 
 		for (SizeType i = 0; i < nodes.size(); i++) {
 			if (isCell && nodes[i]->isInput()) continue;
-			if (nodes[i]->code() == codeStripped) {
+			PsimagLite::String ncode = stripPreviousAngleIfAny(nodes[i]->code());
+			if (ncode == codeStripped) {
 				if (codeStr == "?") nodes[i]->setDcValue(value);
 				nodes[i]->setAngle(codeStr);
 				return *nodes[i];

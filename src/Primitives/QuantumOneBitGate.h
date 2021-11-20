@@ -140,7 +140,6 @@ public:
 
 	virtual SizeType arity() const { return 1; }
 
-
 	virtual ValueType exec(const VectorValueType& v) const
 	{
 		assert(v.size() == 1);
@@ -168,7 +167,12 @@ public:
 		PsimagLite::String angleStr;
 		extractAngle(base, angleStr, str);
 
-		assert(base == code_);
+#ifndef NDEBUG
+		PsimagLite::String oldAngle;
+		PsimagLite::String base2;
+		extractAngle(base2, oldAngle, code_);
+		assert(base == base2);
+#endif
 
 		const bool hA = hasAngles();
 
@@ -176,11 +180,14 @@ public:
 
 		if (!hA) return;
 
+		code_ = str;
+
 		if (angleStr == "") angleStr = "0";
 
 		RealType angleToUse = std::stod(angleStr);
 		assert(code_.size() > 1);
-		SizeType ind = OneBitGateLibraryType::directionCharToInteger(code_[1]);
+		char cDir = directionOfRotation();
+		SizeType ind = OneBitGateLibraryType::directionCharToInteger(cDir);
 		OneBitGateLibraryType::rotation(gateMatrix_, ind, angleToUse);
 	}
 
@@ -202,7 +209,14 @@ private:
 	bool hasAngles() const
 	{
 		assert(code_.size() > 0);
-		return (code_[0] == 'R');
+		return (code_[0] == 'R' || code_.substr(0, 2) == "_R");
+	}
+
+	char directionOfRotation() const
+	{
+		if (code_[0] == 'R') return code_[1];
+		if (code_.substr(0, 2) == "_R") return code_[2];
+		throw PsimagLite::RuntimeError("directionOfRotation\n");
 	}
 
 	static void extractAngle(PsimagLite::String& base,
@@ -221,11 +235,10 @@ private:
 
 		base = str.substr(0, it - str.begin());
 		angleStr = str.substr(it - str.begin() + 1, str.end() - it - 1);
-
 	}
 
 	static SizeType numberOfBits_;
-	PsimagLite::String code_;
+	mutable PsimagLite::String code_;
 	SizeType bitNumber_;
 	mutable MatrixType gateMatrix_;
 	mutable ValueType w_;

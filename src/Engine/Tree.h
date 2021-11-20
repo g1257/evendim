@@ -98,6 +98,8 @@ public:
 
 private:
 
+	Tree& operator=(const Tree&) = delete;
+
 	const PrimitivesType& primitives_;
 	const NodeType& node_;
 	bool verbose_;

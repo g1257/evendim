@@ -124,6 +124,31 @@ public:
 		return (functionEnum == FunctionEnum::DIFFERENCE) ? sum : 1 - sum;
 	}
 
+	static void encodeAngles(VectorStringType& vecStr, const VectorRealType& angles)
+	{
+		const SizeType n = vecStr.size();
+		SizeType currentIndex = 0;
+		bool flag = true;
+		for (SizeType i = 0; i < n; ++i) {
+
+			if (isInputGate(vecStr[i])) {
+				flag = false;
+				continue;
+			}
+
+			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
+			PsimagLite::String str = vecStr[i];
+			str = EvolutionType::stripPreviousAngleIfAny(str);
+			if (angles.size() < currentIndex)
+				err("encodeAngles: too many angles for rotations in this individual!?\n");
+			str += ":" + ttos(angles[currentIndex++]);
+			vecStr[i] = str;
+		}
+
+		if (currentIndex != angles.size())
+			err("encodeAngles: too few angles for rotations in this individual!?\n");
+	}
+
 private:
 
 	void fillRandomVector()
@@ -265,31 +290,6 @@ private:
 		return w;
 	}
 
-	void encodeAngles(VectorStringType& vecStr, const VectorRealType& angles)
-	{
-		const SizeType n = vecStr.size();
-		SizeType currentIndex = 0;
-		bool flag = true;
-		for (SizeType i = 0; i < n; ++i) {
-
-			if (isInputGate(vecStr[i])) {
-				flag = false;
-				continue;
-			}
-
-			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
-			PsimagLite::String str = vecStr[i];
-			str = EvolutionType::stripPreviousAngleIfAny(str);
-			if (angles.size() < currentIndex)
-				err("encodeAngles: too many angles for rotations in this individual!?\n");
-			str += ":" + ttos(angles[currentIndex++]);
-			vecStr[i] = str;
-		}
-
-		if (currentIndex != angles.size())
-			err("encodeAngles: too few angles for rotations in this individual!?\n");
-	}
-
 	const EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
 	SizeType samples_;
@@ -324,11 +324,12 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome)
+	RealType getFitness(SomeChromosomeType& chromosome)
 	{
 		typedef FunctionToMinimize<SomeChromosomeType, EvolutionType, ComplexType>
 		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
+		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
 
 		FunctionToMinimizeType f(evolution_, chromosome, samples_);
 
@@ -358,6 +359,18 @@ public:
 		}
 
 		status_ = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
+
+		if (status_ == 0) {
+			VectorStringType vecStr = chromosome.vecString();
+			FunctionToMinimizeType::encodeAngles(vecStr, angles);
+			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
+			                                                              evolution_,
+			                                                              vecStr);
+			chromosome = *chromosome2;
+
+			delete chromosome2;
+			chromosome2 = nullptr;
+		}
 
 		const bool printFooter = minParams_.verbose;
 		//const int returnStatus = (used > 0) ? 0 : 1;

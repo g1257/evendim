@@ -12,7 +12,7 @@ MinimizerDelta2=0.01;
 Samples=30;
 MinimizerVerbose=0;
 ProgressBar=1;
-#MinimizerAlgorithm="Simplex";
+MinimizerAlgorithm="Simplex";
 
 #CHeadSize=0;
 #AdfsSize=0;

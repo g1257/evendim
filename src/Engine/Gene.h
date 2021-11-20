@@ -36,6 +36,18 @@ public:
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef Gene<TreeType,EvolutionType> GeneType;
 
+	Gene(const Gene& other)
+	    : head_ (other.head_),
+	      tail_(other.tail_),
+	      vecStr_(other.vecStr_),
+	      vt_(other.vt_.size(), nullptr)
+	{
+		const SizeType  n = vt_.size();
+		for (SizeType i = 0; i < n; ++i) {
+			vt_[i] = new TreeType(*other.vt_[i]);
+		}
+	}
+
 	Gene(SizeType head,
 	     bool isCell,
 	     const EvolutionType& evolution,
@@ -127,6 +139,8 @@ public:
 	}
 
 private:
+
+	Gene& operator=(const Gene& other) = delete;
 
 	void deleteAll()
 	{

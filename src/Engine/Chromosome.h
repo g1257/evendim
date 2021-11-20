@@ -122,6 +122,31 @@ public:
 		adfs_.clear();
 	}
 
+	Chromosome& operator=(const Chromosome& other)
+	{
+//		evolution_ = other.evolution_;
+
+//		params_ = other.params_;
+
+		effectiveVecStr_ = other.effectiveVecStr_;
+
+		adfsVecStr_ = other.adfsVecStr_;
+
+		const SizeType n = genes_.size();
+		for (SizeType i = 0; i < n; ++i) {
+			delete genes_[i];
+			genes_[i] = new GeneType(*other.genes_[i]);
+		}
+
+		const SizeType m = adfs_.size();
+		for (SizeType i = 0; i < m; ++i) {
+			delete adfs_[i];
+			adfs_[i] = new GeneType(*other.adfs_[i]);
+		}
+
+		return *this;
+	}
+
 	VectorStringType vecString() const
 	{
 		VectorStringType ret;
@@ -273,6 +298,8 @@ public:
 	const ParametersType& params() const { return params_; }
 
 private:
+
+	Chromosome(const Chromosome&) = delete;
 
 	VectorStringType swap(const VectorStringType& str,
 	                      SizeType head,
