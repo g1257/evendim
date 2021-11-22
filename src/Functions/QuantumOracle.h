@@ -34,6 +34,7 @@ public:
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef RealType FieldType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
+	typedef PsimagLite::Matrix<ComplexType> MatrixType;
 
 	enum class FunctionEnum {FITNESS, DIFFERENCE};
 
@@ -42,11 +43,13 @@ public:
 	                   SizeType samples)
 	    : evolution_(evolution),
 	      chromosome_(chromosome),
-	      samples_(samples),
-	      inVector_((1 << evolution.primitives().numberOfBits())),
-	      outVector_(inVector_.size())
+	      inMatrix_((1 << evolution.primitives().numberOfBits()), samples),
+	      inVector_(inMatrix_.rows()),
+	      outVector_(inMatrix_.rows())
 	{
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
+		for (SizeType i = 0; i < inMatrix_.cols(); ++i)
+			fillRandomVector(i);
 	}
 
 	SizeType size() const { return numberOfAngles_; }
@@ -71,9 +74,10 @@ public:
 
 		dest.resize(angles.size());
 
+		const SizeType samples = inMatrix_.cols();
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
-			for (SizeType i = 0; i < samples_; ++i) {
-				fillRandomVector();
+			for (SizeType i = 0; i < samples; ++i) {
+				setInVector(i);
 				evolution_.setInput(0, inVector_);
 				functionF(outVector_, inVector_);
 
@@ -85,7 +89,7 @@ public:
 				dest[angleIndex] += tmp;
 			}
 
-			dest[angleIndex] /= samples_;
+			dest[angleIndex] /= samples;
 		}
 	}
 
@@ -102,9 +106,10 @@ public:
 			chromosome = &chromosome_;
 		}
 
+		const SizeType samples = inMatrix_.cols();
 		RealType sum = 0;
-		for (SizeType i = 0; i < samples_; ++i) {
-			fillRandomVector();
+		for (SizeType i = 0; i < samples; ++i) {
+			setInVector(i);
 			evolution_.setInput(0, inVector_);
 			if (verbose) evolution_.printInputs(std::cout);
 
@@ -120,7 +125,7 @@ public:
 			chromosome = nullptr;
 		}
 
-		sum /= samples_;
+		sum /= samples;
 		return (functionEnum == FunctionEnum::DIFFERENCE) ? sum : 1 - sum;
 	}
 
@@ -183,18 +188,18 @@ public:
 
 private:
 
-	void fillRandomVector()
+	void fillRandomVector(SizeType jnd)
 	{
-		const SizeType n = inVector_.size();
+		const SizeType n = inMatrix_.rows();
 		ComplexType sum = 0;
 		for (SizeType i = 0; i < n; ++i) {
-			inVector_[i] = 2.0*evolution_.primitives().rng() - 1.0;
-			sum += inVector_[i]*PsimagLite::conj(inVector_[i]);
+			inMatrix_(i, jnd) = 2.0*evolution_.primitives().rng() - 1.0;
+			sum += inMatrix_(i, jnd)*PsimagLite::conj(inMatrix_(i, jnd));
 		}
 
-		RealType factor = 1.0/sqrt(PsimagLite::real(sum));
+		RealType factor = 1/sqrt(PsimagLite::real(sum));
 		for (SizeType i = 0; i < n; ++i)
-			inVector_[i] *= factor;
+			inMatrix_(i, jnd) *= factor;
 	}
 
 	static SizeType findNumberOfAngles(const VectorStringType& vstr)
@@ -322,10 +327,18 @@ private:
 		return w;
 	}
 
+	void setInVector(SizeType jnd)
+	{
+		const SizeType n = inMatrix_.rows();
+		assert(inVector_.size() == n);
+		for (SizeType i = 0; i < n; ++i)
+			inVector_[i] = inMatrix_(i, jnd);
+	}
+
 	const EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
-	SizeType samples_;
 	SizeType numberOfAngles_;
+	MatrixType inMatrix_;
 	VectorType inVector_;
 	VectorType outVector_;
 	VectorType differential_;
