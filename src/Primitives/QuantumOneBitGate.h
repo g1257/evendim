@@ -36,8 +36,8 @@ public:
 	// ind = 2 means rotation around z
 	static void rotation(MatrixType& gateMatrix, SizeType ind, RealType angle)
 	{
-		const RealType cosine = cos(angle);
-		const RealType sine = sin(angle);
+		const RealType cosine = cos(0.5*angle);
+		const RealType sine = sin(0.5*angle);
 
 		gateMatrix.resize(2, 2);
 		if (ind == 0) {
@@ -66,8 +66,8 @@ public:
 	// ind = 2 means rotation around z
 	static void diffRotation(MatrixType& gateMatrix, SizeType ind, RealType angle)
 	{
-		const RealType cosine = cos(angle);
-		const RealType sine = sin(angle);
+		const RealType cosine = cos(0.5*angle);
+		const RealType sine = sin(0.5*angle);
 
 		gateMatrix.resize(2, 2);
 		if (ind == 0) {
