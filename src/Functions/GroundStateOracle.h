@@ -103,7 +103,7 @@ public:
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
-		RealType e = computeEnergy(chromosome->exec(0));
+		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0));
 
 		if (angles) {
 			delete chromosome;
@@ -155,6 +155,8 @@ public:
 			err("initAngles: too many angles for individual\n");
 	}
 
+private:
+
 	template<typename SomeRngType>
 	static void initAngle(RealType& angle, PsimagLite::String str, SomeRngType& rng)
 	{
@@ -168,13 +170,6 @@ public:
 
 		PsimagLite::String angleStr = str.substr(it - str.begin() + 1, str.end() - it - 1);
 		angle = std::stod(angleStr);
-	}
-
-private:
-
-	RealType computeEnergy(const VectorType&) const
-	{
-		throw PsimagLite::RuntimeError("computeEnergy(): unimplemented yet, sorry!\n");
 	}
 
 	static SizeType findNumberOfAngles(const VectorStringType& vstr)

@@ -27,5 +27,32 @@ static PsimagLite::String vecStrToStr(const PsimagLite::Vector<PsimagLite::Strin
 	return ret;
 }
 
+template<typename SomeType>
+static void readVector(std::vector<SomeType>& inVector, PsimagLite::String vectorFilename)
+{
+	std::ifstream fin(vectorFilename);
+	if (!fin || !fin.good() || fin.bad())
+		err("Could not open file " + vectorFilename + "\n");
+	int x = 0;
+	fin>>x;
+	if (x <= 0) {
+		fin.close();
+		err("First entry of file " + vectorFilename + " should be vector size\n");
+	}
+
+	inVector.resize(x);
+	int i = 0;
+	for (; i < x; ++i) {
+		fin>>inVector[i];
+		if (fin.eof())
+			break;
+	}
+
+	if (i == x) return;
+
+	fin.close();
+	err("File " + vectorFilename + " should contain " + ttos(x) + " vector entries.\n");
+}
+
 }
 #endif // PROGRAMGLOBALS_H

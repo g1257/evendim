@@ -47,17 +47,19 @@ void main2(typename FitnessType::EvolutionType& evolution,
 		if (engine.evolve() && gepOptions.stopEarly) break;
 }
 
-template<template<typename, typename> class FitnessTemplate, typename EvolutionType>
+template<template<typename, typename> class FitnessTemplate,
+         typename EvolutionType,
+         typename ComplexType>
 void mainGroundState(EvolutionType& evolution,
-           const Gep::Options& gepOptions,
-           PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
+                     const Gep::Options& gepOptions,
+                     PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	PsimagLite::String ham;
 	io.readline(ham, "Hamiltonian=");
 	if (ham != "HamiltonianExample")
 		err("Hamiltonian=HamiltonianExample expected, but not " + ham + "\n");
 
-	typedef Gep::HamiltonianExample HamiltonianType;
+	typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
 	main2<FitnessTemplate<EvolutionType, HamiltonianType> >(evolution, gepOptions, io);
 }
 
@@ -136,10 +138,14 @@ int main(int argc, char* argv[])
 	PsimagLite::String runType;
 	io.readline(runType, "RunType=");
 
-	if (runType == "FunctionFit")
+	if (runType == "FunctionFit") {
 		main2<Gep::QuantumOracle<EvolutionType> >(evolution, gepOptions, io);
-	else if (runType == "GroundState")
-		mainGroundState<Gep::GroundStateOracle,EvolutionType>(evolution, gepOptions, io);
-	else
+	} else if (runType == "GroundState") {
+		gepOptions.samples = 1;
+		mainGroundState<Gep::GroundStateOracle, EvolutionType, ComplexType>(evolution,
+		                                                                    gepOptions,
+		                                                                    io);
+	} else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
+	}
 }

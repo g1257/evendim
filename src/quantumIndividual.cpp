@@ -23,6 +23,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "FloatingPoint.h"
+#include "ProgramGlobals.h"
 
 template<typename SomeType, typename SomeRngType>
 void randomVector(std::vector<SomeType>& outVector, SomeRngType& rng)
@@ -52,33 +53,6 @@ void writeVector(std::ostream& os, const std::vector<SomeType>& outVector)
 	for (SizeType i = 0; i < n; ++i)
 		os<<outVector[i]<<" ";
 	os<<"\n";
-}
-
-template<typename SomeType>
-void readVector(std::vector<SomeType>& inVector, PsimagLite::String vectorFilename)
-{
-	std::ifstream fin(vectorFilename);
-	if (!fin || !fin.good() || fin.bad())
-		err("Could not open file " + vectorFilename + "\n");
-	int x = 0;
-	fin>>x;
-	if (x <= 0) {
-		fin.close();
-		err("First entry of file " + vectorFilename + " should be vector size\n");
-	}
-
-	inVector.resize(x);
-	int i = 0;
-	for (; i < x; ++i) {
-		fin>>inVector[i];
-		if (fin.eof())
-			break;
-	}
-
-	if (i == x) return;
-
-	fin.close();
-	err("File " + vectorFilename + " should contain " + ttos(x) + " vector entries.\n");
 }
 
 int main(int argc, char* argv[])
@@ -192,7 +166,7 @@ int main(int argc, char* argv[])
 	                           tokens);
 
 	VectorType inVector;
-	readVector(inVector, vectorFilename);
+	Gep::readVector(inVector, vectorFilename);
 	const SizeType x = (1 << numberOfBits);
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");

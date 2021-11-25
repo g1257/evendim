@@ -3,6 +3,7 @@
 #include "InputCheck.h"
 #include "InputNg.h"
 #include "MinimizerParams.h"
+#include "ProgramGlobals.h"
 
 namespace Gep {
 
@@ -18,14 +19,9 @@ struct GroundStateParams {
 	GroundStateParams(typename InputNgType::Readable& io)
 	    : minParams(io), hamiltonian(io)
 	{
-		PsimagLite::String infile;
-		io.readline(infile, "InVectorFile=");
-		fillInVector(infile);
-	}
-
-	void fillInVector(PsimagLite::String)
-	{
-		err("fillInVector unimplemented, sorry!\n");
+		PsimagLite::String vectorFilename;
+		io.readline(vectorFilename, "InVectorFile=");
+		Gep::readVector(inVector, vectorFilename);
 	}
 
 	MinimizerParamsType minParams;

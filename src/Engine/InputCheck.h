@@ -23,6 +23,8 @@ public:
 		str += "string Primitives;\n";
 		str += "string MinimizerAlgorithm;\n";
 		str += "string RunType;\n";
+		str += "string Hamiltonian;\n";
+		str += "string InVectorFile;\n";
 
 		str += "real MinimizerTolerance;\n";
 		str += "real MinimizerDelta;\n";
