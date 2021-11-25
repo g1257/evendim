@@ -53,6 +53,8 @@ public:
 				SizeType j = i ^ maskSite;
 				SizeType site2 = site + 1;
 				if (site2 >= bits && !periodic) continue;
+				assert(site2 <= bits);
+				if (site2 == bits) site2 = 0;
 				SizeType maskSite2 = (1 << site2);
 				j ^= maskSite2;
 				v[j] += coupling;

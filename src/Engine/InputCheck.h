@@ -19,6 +19,7 @@ public:
 		str += "integer Samples;\n";
 		str += "integer MinimizerVerbose;\n";
 		str += "integer ProgressBar;\n";
+		str += "integer HamiltonianIsPeriodic;\n";
 
 		str += "string Primitives;\n";
 		str += "string MinimizerAlgorithm;\n";
