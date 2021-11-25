@@ -29,6 +29,7 @@ public:
 		str += "real MinimizerTolerance;\n";
 		str += "real MinimizerDelta;\n";
 		str += "real MinimizerDelta2;\n";
+		str += "real HamiltonianCoupling;\n";
 
 		return str;
 	}
