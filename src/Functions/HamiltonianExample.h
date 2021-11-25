@@ -21,21 +21,45 @@ public:
 	typedef PsimagLite::CrsMatrix<RealType> SparseMatrixType;
 
 	HamiltonianExample(typename InputNgType::Readable& io)
+	    : isxx_(false), periodic_(false), coupling_(1)
 	{
-		SizeType bits = 0;
-		io.readline(bits, "NumberOfBits="); // == number of "sites"
+		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 
-		bool periodic = false;
 		try {
 			int tmp = 0;
 			io.readline(tmp, "HamiltonianIsPeriodic=");
-			periodic = (tmp > 0);
+			periodic_ = (tmp > 0);
 		} catch (std::exception&) {}
 
-		RealType coupling = 0;
-		io.readline(coupling, "HamiltonianCoupling=");
+		try {
+			io.readline(coupling_, "HamiltonianCoupling=");
+		} catch (std::exception&) {}
 
-		SizeType hilbertSpace = (1 << bits);
+		PsimagLite::String ham;
+		io.readline(ham, "Hamiltonian=");
+
+		isxx_ = (ham == "xx");
+
+		if (ham == "xx")
+			fillHxx();
+		else if (ham != "zz")
+			err("Hamiltonian=xx or yy but not " + ham + "\n");
+	}
+
+	RealType energy(const VectorType& y) const
+	{
+		if (!isxx_) return energyZZ(y);
+
+		std::fill(cacheVector_.begin(), cacheVector_.end(), 0);
+		matrix_.matrixVectorProduct(cacheVector_, y);
+		return PsimagLite::real(y*cacheVector_); // does conjugation of first vector
+	}
+
+private:
+
+	void fillHxx()
+	{
+		SizeType hilbertSpace = (1 << bits_);
 		matrix_.resize(hilbertSpace, hilbertSpace);
 		cacheVector_.resize(hilbertSpace);
 
@@ -47,17 +71,17 @@ public:
 			matrix_.setRow(i, counter);
 			std::fill(v.begin(), v.end(), 0);
 			std::fill(bcol.begin(), bcol.end(), false);
-			for (SizeType site = 0; site < bits; ++site) {
+			for (SizeType site = 0; site < bits_; ++site) {
 				// Flip bit at site
 				SizeType maskSite = (1 << site);
 				SizeType j = i ^ maskSite;
 				SizeType site2 = site + 1;
-				if (site2 >= bits && !periodic) continue;
-				assert(site2 <= bits);
-				if (site2 == bits) site2 = 0;
+				if (site2 >= bits_ && !periodic_) continue;
+				assert(site2 <= bits_);
+				if (site2 == bits_) site2 = 0;
 				SizeType maskSite2 = (1 << site2);
 				j ^= maskSite2;
-				v[j] += coupling;
+				v[j] += coupling_;
 				bcol[j] = true;
 			}
 
@@ -71,17 +95,7 @@ public:
 		PsimagLite::Matrix<RealType> a = matrix_.toDense();
 		diag(a, eigs, 'V');
 		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
-
 	}
-
-	RealType energy(const VectorType& y) const
-	{
-		std::fill(cacheVector_.begin(), cacheVector_.end(), 0);
-		matrix_.matrixVectorProduct(cacheVector_, y);
-		return PsimagLite::real(y*cacheVector_); // does conjugation of first vector
-	}
-
-private:
 
 	SizeType fillThisRow(VectorRealType& v, VectorBoolType& bcols)
 	{
@@ -99,6 +113,36 @@ private:
 
 		return counter;
 	}
+
+	RealType energyZZ(const VectorType& v) const
+	{
+		const SizeType hilbertSpace = v.size();
+		RealType e = 0;
+		for (SizeType i = 0; i < hilbertSpace; ++i) {
+			for (SizeType site = 0; site < bits_; ++site) {
+				SizeType maskSite = (1 << site);
+				SizeType j = i & maskSite;
+				SizeType site2 = site + 1;
+				if (site2 >= bits_ && !periodic_) continue;
+				assert(site2 <= bits_);
+				if (site2 == bits_) site2 = 0;
+				SizeType maskSite2 = (1 << site2);
+				SizeType k = i & maskSite2;
+				SizeType jj = (j > 0);
+				SizeType kk = (k > 0);
+				RealType tmp = PsimagLite::real(PsimagLite::conj(v[i])*v[i]);
+				RealType value = (jj == kk) ? tmp : -tmp;
+				e += value;
+			}
+		}
+
+		return e*coupling_;
+	}
+
+	bool isxx_;
+	bool periodic_;
+	SizeType bits_;
+	RealType coupling_;
 	SparseMatrixType matrix_;
 	mutable VectorType cacheVector_;
 };

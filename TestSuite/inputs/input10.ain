@@ -13,9 +13,9 @@ MinimizerVerbose=0;
 ProgressBar=1;
 MinimizerAlgorithm="Simplex";
 RunType="GroundState";
-Hamiltonian="HamiltonianExample";
+Hamiltonian="xx";
 HamiltonianCoupling=1;
-HamiltonianIsPeriodic=1;
+#HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
 
 #CHeadSize=0;

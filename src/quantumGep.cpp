@@ -56,8 +56,8 @@ void mainGroundState(EvolutionType& evolution,
 {
 	PsimagLite::String ham;
 	io.readline(ham, "Hamiltonian=");
-	if (ham != "HamiltonianExample")
-		err("Hamiltonian=HamiltonianExample expected, but not " + ham + "\n");
+	if (ham != "xx" && ham != "zz")
+		err("Hamiltonian=xx or zz expected, but not " + ham + "\n");
 
 	typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
 	main2<FitnessTemplate<EvolutionType, HamiltonianType> >(evolution, gepOptions, io);
