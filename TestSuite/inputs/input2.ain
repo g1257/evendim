@@ -13,6 +13,7 @@ Samples=50;
 MinimizerVerbose=0;
 ProgressBar=1;
 MinimizerAlgorithm="Simplex";
+RunType="FunctionFit";
 
 #CHeadSize=0;
 #AdfsSize=0;

@@ -11,18 +11,23 @@ public:
 	PsimagLite::String import() const
 	{
 		PsimagLite::String str;
+
 		str += "integer HeadSize;\n";
 		str += "integer Population;\n";
 		str += "integer Generations;\n";
 		str += "integer NumberOfBits;\n";
-		str += "real MinimizerTolerance;\n";
-		str += "string Primitives;\n";
-		str += "string MinimizerAlgorithm;\n";
-		str += "real MinimizerDelta;\n";
-		str += "real MinimizerDelta2;\n";
 		str += "integer Samples;\n";
 		str += "integer MinimizerVerbose;\n";
 		str += "integer ProgressBar;\n";
+
+		str += "string Primitives;\n";
+		str += "string MinimizerAlgorithm;\n";
+		str += "string RunType;\n";
+
+		str += "real MinimizerTolerance;\n";
+		str += "real MinimizerDelta;\n";
+		str += "real MinimizerDelta2;\n";
+
 		return str;
 	}
 

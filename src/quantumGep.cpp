@@ -20,31 +20,45 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Engine.h"
 #include <unistd.h>
 #include "Functions/QuantumOracle.h"
+#include "Functions/GroundStateOracle.h"
+#include "Functions/HamiltonianExample.h"
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "FloatingPoint.h"
 
-template<template<typename> class FitnessTemplate,
-         typename EvolutionType>
-void main1(EvolutionType& evolution,
+template<typename FitnessType>
+void main2(typename FitnessType::EvolutionType& evolution,
            const Gep::Options& gepOptions,
            PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
-	typedef FitnessTemplate<EvolutionType> FitnessType;
 	typedef Gep::Engine<FitnessType> EngineType;
-	typedef typename FitnessType::MinimizerParamsType MinimizerParamsType;
+	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 
 	SizeType total = 0;
 	io.readline(total, "Generations=");
 	if (total == 0)
 		err("Generations must be greater than zero\n");
 
-	MinimizerParamsType minParams(io);
+	FitnessParamsType fitParams(io);
 	typename EngineType::ParametersEngineType params(gepOptions);
-	EngineType engine(params, evolution, &minParams);
+	EngineType engine(params, evolution, &fitParams);
 
 	for (SizeType i = 0; i < total; i++)
 		if (engine.evolve() && gepOptions.stopEarly) break;
+}
+
+template<template<typename, typename> class FitnessTemplate, typename EvolutionType>
+void mainGroundState(EvolutionType& evolution,
+           const Gep::Options& gepOptions,
+           PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
+{
+	PsimagLite::String ham;
+	io.readline(ham, "Hamiltonian=");
+	if (ham != "HamiltonianExample")
+		err("Hamiltonian=HamiltonianExample expected, but not " + ham + "\n");
+
+	typedef Gep::HamiltonianExample HamiltonianType;
+	main2<FitnessTemplate<EvolutionType, HamiltonianType> >(evolution, gepOptions, io);
 }
 
 int main(int argc, char* argv[])
@@ -119,5 +133,13 @@ int main(int argc, char* argv[])
 	PrimitivesType primitives(numberOfBits, gates);
 	EvolutionType evolution(primitives, seed, verbose);
 
-	main1<Gep::QuantumOracle,EvolutionType>(evolution, gepOptions, io);
+	PsimagLite::String runType;
+	io.readline(runType, "RunType=");
+
+	if (runType == "FunctionFit")
+		main2<Gep::QuantumOracle<EvolutionType> >(evolution, gepOptions, io);
+	else if (runType == "GroundState")
+		mainGroundState<Gep::GroundStateOracle,EvolutionType>(evolution, gepOptions, io);
+	else
+		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
 }
