@@ -71,13 +71,18 @@ public:
 		assert(n == (1 << numberOfBits_));  // 2^N
 
 		std::fill(w_.begin(), w_.end(), 0);
+		const SizeType mask2 = (1 << bitNumber2_);
 		for (int i = 0; i < n; ++i) {
-			SizeType twoBitI = getTwoBitForIndex(i);
-			for (SizeType content = 0; content < 4; ++content) {
-				SizeType j = findBasisState(i, content);
-				SizeType twoBitJ = getTwoBitForIndex(j);
-				w_[j] += gateMatrix_(twoBitI, twoBitJ)*vv[i];
-			}
+			const SizeType oldContent1 = getBitForIndex(i, bitNumber1_);
+			assert(oldContent1 < 2);
+			const SizeType oldContent2 = getBitForIndex(i, bitNumber2_);
+			assert(oldContent2 < 2);
+			const SizeType content2 = (oldContent1 + oldContent2) % 2;
+			assert(content2 < 2);
+
+			const SizeType j = (content2 == oldContent2) ? i : (i ^ mask2);
+
+			w_[j] += vv[i];
 		}
 
 		return w_;

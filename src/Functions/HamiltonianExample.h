@@ -168,6 +168,9 @@ private:
 			for (SizeType j = 0; j < cols; ++j)
 				fin >> mat(i, j);
 		fullMatrixToCrsMatrix(matrix_, mat);
+		VectorRealType eigs(hilbertSpace);
+		diag(mat, eigs, 'V');
+		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
 	}
 
 	TypeEnum hamTipo;
