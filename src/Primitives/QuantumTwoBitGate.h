@@ -90,36 +90,6 @@ public:
 
 private:
 
-	SizeType findBasisState(SizeType ind, SizeType content) const
-	{
-		SizeType mask = 0;
-		switch (content) {
-		case 0:
-			return ind;
-		case 1:
-			mask = 1 << bitNumber1_;
-			return ind ^ mask;
-		case 2:
-			mask = 1 << bitNumber2_;
-			return ind;
-		case 3:
-			mask = 1 << bitNumber1_;
-			mask |= 1 << bitNumber2_;
-			return ind ^ mask;
-		default:
-			err("findBasisState\n");
-		}
-
-		throw PsimagLite::RuntimeError("findBasisState\n");
-	}
-
-	SizeType getTwoBitForIndex(SizeType ind) const
-	{
-		const SizeType bit1 = getBitForIndex(ind, bitNumber1_);
-		const SizeType bit2 = getBitForIndex(ind, bitNumber2_);
-		return bit1 + bit2*2;
-	}
-
 	static SizeType getBitForIndex(SizeType ind, SizeType bitNumber)
 	{
 		const SizeType mask = (1 << bitNumber);
