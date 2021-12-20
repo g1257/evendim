@@ -2,7 +2,7 @@
 
 HeadSize=4;
 #Seed=12345;
-Population=100;
+Population=100; #Pop
 Generations=200;
 NumberOfBits=4;
 MinimizerTolerance=0.1;

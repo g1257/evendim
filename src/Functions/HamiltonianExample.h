@@ -13,17 +13,29 @@ class HamiltonianExample {
 
 public:
 
+	enum class TypeEnum {FILE, XX, ZZ};
+
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
-	typedef PsimagLite::CrsMatrix<RealType> SparseMatrixType;
+	typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 
 	HamiltonianExample(typename InputNgType::Readable& io)
-	    : isxx_(false), periodic_(false), coupling_(1)
+	    : hamTipo(TypeEnum::XX), periodic_(false), coupling_(1)
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
+
+		PsimagLite::String ham;
+		io.readline(ham, "Hamiltonian=");
+		if (ham.substr(0, 5) == "file:") {
+			fillFromFile(ham.substr(5, ham.length() - 5));
+			const SizeType hilbert = 1<<bits_;
+			if (matrix_.rows() != hilbert)
+				err("Matrix rows = " + ttos(matrix_.rows()) + " but " + ttos(hilbert) + " expected.\n");
+			return;
+		}
 
 		try {
 			int tmp = 0;
@@ -35,20 +47,19 @@ public:
 			io.readline(coupling_, "HamiltonianCoupling=");
 		} catch (std::exception&) {}
 
-		PsimagLite::String ham;
-		io.readline(ham, "Hamiltonian=");
 
-		isxx_ = (ham == "xx");
 
-		if (ham == "xx")
+		hamTipo = (ham == "xx") ? TypeEnum::XX : TypeEnum::ZZ;
+
+		if (hamTipo == TypeEnum::XX)
 			fillHxx();
-		else if (ham != "zz")
+		else if (hamTipo != TypeEnum::ZZ)
 			err("Hamiltonian=xx or yy but not " + ham + "\n");
 	}
 
 	RealType energy(const VectorType& y) const
 	{
-		if (!isxx_) return energyZZ(y);
+		if (hamTipo == TypeEnum::ZZ) return energyZZ(y);
 
 		std::fill(cacheVector_.begin(), cacheVector_.end(), 0);
 		matrix_.matrixVectorProduct(cacheVector_, y);
@@ -92,7 +103,7 @@ private:
 		matrix_.checkValidity();
 
 		VectorRealType eigs(hilbertSpace);
-		PsimagLite::Matrix<RealType> a = matrix_.toDense();
+		PsimagLite::Matrix<ComplexType> a = matrix_.toDense();
 		diag(a, eigs, 'V');
 		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
 	}
@@ -139,7 +150,27 @@ private:
 		return e*coupling_;
 	}
 
-	bool isxx_;
+	void fillFromFile(PsimagLite::String filename)
+	{
+		SizeType hilbertSpace = (1 << bits_);
+		cacheVector_.resize(hilbertSpace);
+		std::ifstream fin(filename);
+		if (!fin || !fin.good())
+			err("Could not open file " + filename + "\n");
+
+		SizeType rows = 0;
+		fin>>rows;
+
+		SizeType cols =0;
+		fin>>cols;
+		PsimagLite::Matrix<ComplexType> mat(rows, cols);
+		for (SizeType i = 0; i < rows; ++i)
+			for (SizeType j = 0; j < cols; ++j)
+				fin >> mat(i, j);
+		fullMatrixToCrsMatrix(matrix_, mat);
+	}
+
+	TypeEnum hamTipo;
 	bool periodic_;
 	SizeType bits_;
 	RealType coupling_;
