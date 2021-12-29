@@ -31,6 +31,27 @@ public:
 		gateMatrix(1, 1) = ComplexOrRealType(0, 1);
 	}
 
+	static void fillPauli(MatrixType& gateMatrix, SizeType dir)
+	{
+		gateMatrix.resize(2, 2);
+
+		switch (dir) {
+		case 0:
+			gateMatrix(0, 1) = gateMatrix(1, 0) = 1;
+			break;
+		case 1:
+			gateMatrix(0, 1) = ComplexOrRealType(0, -1);
+			gateMatrix(0, 1) = ComplexOrRealType(0, 1);
+			break;
+		case 2:
+			gateMatrix(0, 0) = 1;
+			gateMatrix(1, 1) = -1;
+			break;
+		default:
+			err("Direction can only be 0, 1, or 2\n");
+		}
+	}
+
 	// ind = 0 means rotation around x
 	// ind = 1 means rotation around y
 	// ind = 2 means rotation around z

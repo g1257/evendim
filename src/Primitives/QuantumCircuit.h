@@ -87,6 +87,24 @@ public:
 			}
 		}
 
+		// add Pauli matrices
+		for (SizeType dir = 0; dir < 3; ++dir) {
+			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
+			PsimagLite::String rDir("S ");
+			rDir[1] = charDir;
+			it = std::find(tmpGates.begin(), tmpGates.end(), rDir);
+			if (it == tmpGates.end())
+				continue;
+
+			tmpGates.erase(it);
+			MatrixType pauli;
+			OneBitGateLibraryType::fillPauli(pauli, dir);
+			for (SizeType i = 0; i < numberOfBits; ++i) {
+				NodeType* pauliNode = new QuantumOneBitGateType(rDir, i, numberOfBits, pauli);
+				nodes_.push_back(pauliNode);
+			}
+		}
+
 		// add rotation gates
 		for (SizeType dir = 0; dir < 3; ++dir) {
 			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
