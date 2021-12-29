@@ -75,7 +75,7 @@ public:
 			break;
 		case 1:
 			gateMatrix(0, 1) = ComplexOrRealType(0, -1);
-			gateMatrix(0, 1) = ComplexOrRealType(0, 1);
+			gateMatrix(1, 0) = ComplexOrRealType(0, 1);
 			break;
 		case 2:
 			gateMatrix(0, 0) = 1;
