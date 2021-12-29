@@ -13,6 +13,40 @@ public:
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 	typedef typename PsimagLite::Real<ComplexOrRealType>::Type RealType;
 
+	static void fillAnyGate(MatrixType& gateMatrix, PsimagLite::String name)
+	{
+		if (name == "H") {
+			fillHadamard(gateMatrix);
+			return;
+		}
+
+		if (name == "P") {
+			fillPhase(gateMatrix);
+			return;
+		}
+
+		if (name.length() == 2 && name[0] == 'S') {
+			SizeType ind = directionCharToInteger(name[1]);
+			fillPauli(gateMatrix, ind);
+			return;
+		}
+
+		if (name.length() >= 2 && name[1] == 'R') {
+			SizeType ind = directionCharToInteger(name[1]);
+			RealType angle = 0;
+			if (name.length() >= 4) {
+				if (name[2] != ':')
+					err("Expected : in rotation gate name " + name + "\n");
+				PsimagLite::String angleStr = name.substr(3, name.length() - 3);
+				angle = PsimagLite::atof(angleStr);
+			}
+
+			rotation(gateMatrix, ind, angle);
+			return;
+		}
+
+	}
+
 	static void fillHadamard(MatrixType& gateMatrix)
 	{
 		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);

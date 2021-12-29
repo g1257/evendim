@@ -4,6 +4,7 @@
 #include "InputCheck.h"
 #include "PsimagLite.h"
 #include "CrsMatrix.h"
+#include "HamiltonianFromExpression.h"
 
 namespace Gep {
 
@@ -13,7 +14,7 @@ class HamiltonianExample {
 
 public:
 
-	enum class TypeEnum {FILE, XX, ZZ};
+	enum class TypeEnum {FILE, XX, ZZ, EXPRESSION};
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
@@ -21,6 +22,7 @@ public:
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
 	typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
+	typedef HamiltonianFromExpression<ComplexType> HamiltonianFromExpressionType;
 
 	HamiltonianExample(typename InputNgType::Readable& io)
 	    : hamTipo(TypeEnum::XX), periodic_(false), coupling_(1)
@@ -32,8 +34,18 @@ public:
 		if (ham.substr(0, 5) == "file:") {
 			fillFromFile(ham.substr(5, ham.length() - 5));
 			const SizeType hilbert = 1<<bits_;
+			hamTipo = TypeEnum::FILE;
 			if (matrix_.rows() != hilbert)
-				err("Matrix rows = " + ttos(matrix_.rows()) + " but " + ttos(hilbert) + " expected.\n");
+				err("Matrix rows = " + ttos(matrix_.rows()) + " but " +
+				    ttos(hilbert) + " expected.\n");
+			return;
+		}
+
+		if (ham != "xx" && ham != "yy") {
+			HamiltonianFromExpressionType hamExpression(ham, bits_);
+			hamExpression.fillMatrix(matrix_);
+			cacheVector_.resize(matrix_.rows());
+			hamTipo = TypeEnum::EXPRESSION;
 			return;
 		}
 
@@ -46,8 +58,6 @@ public:
 		try {
 			io.readline(coupling_, "HamiltonianCoupling=");
 		} catch (std::exception&) {}
-
-
 
 		hamTipo = (ham == "xx") ? TypeEnum::XX : TypeEnum::ZZ;
 

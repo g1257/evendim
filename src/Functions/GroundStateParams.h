@@ -22,6 +22,13 @@ struct GroundStateParams {
 		PsimagLite::String vectorFilename;
 		io.readline(vectorFilename, "InVectorFile=");
 		Gep::readVector(inVector, vectorFilename);
+		SizeType bits = 0;
+		io.readline(bits, "NumberOfBits=");
+		const SizeType hilbert = (1<<bits);
+		if (hilbert != inVector.size())
+			err("Initial vector has " + ttos(inVector.size()) +
+			    " entries, but I was expecting " + ttos(hilbert) + "\n");
+
 	}
 
 	MinimizerParamsType minParams;
