@@ -3,6 +3,22 @@
 \usepackage{amsmath}
 \usetikzlibrary{shapes, arrows, chains}
 \tikzstyle{line} = [draw, -latex']
+
+% Taken from https://colorpalettes.net/color-palette-4317/
+\definecolor{pala}{HTML}{F6D2AC}
+\definecolor{palb}{HTML}{E6AE74}
+\definecolor{palc}{HTML}{D6834F}
+\definecolor{pald}{HTML}{A35233}
+\definecolor{pale}{HTML}{42281C}
+\definecolor{mygray}{HTML}{EEEEEE}
+
+\colorlet{colora}{pala}
+\colorlet{colorb}{palb}
+\colorlet{colorc}{palc}
+\colorlet{colord}{pald}
+\colorlet{colore}{pale}
+\colorlet{fontD}{mygray}
+
 \begin{document}
 
 \begin{tikzpicture}
@@ -22,15 +38,15 @@
 	\draw (x1) -- (l1);
 	\draw (x2) -- (l2);
 	\draw (x3) -- (l3);
-	\node[rectangle,draw=black,fill=white] at (0.2*\xl+\mx, \my) {D};
-	\draw[fill=white] (0.4*\xl+\mx, 0.6*\yl+\my) -- (0.5*\xl+\mx, 0.6*\yl+\my) -- 
+	\node[rectangle,draw=black,fill=colord] at (0.2*\xl+\mx, \my) {\textcolor{fontD}{D}};
+	\draw[fill=colorb] (0.4*\xl+\mx, 0.6*\yl+\my) -- (0.5*\xl+\mx, 0.6*\yl+\my) -- 
 	(0.5*\xl+\mx, 2.4*\yl+\my) -- (0.4*\xl+\mx, 2.4*\yl+\my) -- cycle;
 	\node at (0.45*\xl+\mx, 1.5*\yl+\my) {B};
-	\draw[fill=white] (0.2*\xl+\mx, 1.6*\yl+\my) -- (0.3*\xl+\mx, 1.6*\yl+\my) -- 
+	\draw[fill=colorc] (0.2*\xl+\mx, 1.6*\yl+\my) -- (0.3*\xl+\mx, 1.6*\yl+\my) -- 
 	(0.3*\xl+\mx, 3.4*\yl+\my) -- (0.2*\xl+\mx, 3.4*\yl+\my) -- cycle;
 	\node at (0.25*\xl+\mx, 2.5*\yl+\my) {C};
-	\node[circle, draw=black, minimum size=0.4cm, fill=white] (A0) at (0.8*\xl, \my) {};
-	\node[circle, draw=black, minimum size=0.4cm, fill=white] (A1) at (0.8*\xl, 2*\yl+\my) {};
+	\node[circle, draw=black, minimum size=0.4cm, fill=colora] (A0) at (0.8*\xl, \my) {};
+	\node[circle, draw=black, minimum size=0.4cm, fill=colora] (A1) at (0.8*\xl, 2*\yl+\my) {};
 	\draw[dashed] (A0.north west) to[out=160, in=150] (A1.south west);
 	\draw[dashed] (A0.north east) to[out=10, in=150] (A1.north east);
 	\node at (0.75*\xl+\mx, 0.75*\yl+\my) {A};
@@ -38,10 +54,10 @@
 	\def\yn{1.1}
 	\def\xn{2.5}
 	\node[circle, draw=black] (x0) at (0, 0) {$\psi_0$};
-	\node[rectangle,draw=black,fill=white] (D) at (0, \yn) {D$_0$};
-	\node[rectangle,draw=black,fill=white] (C) at (0, 2*\yn) {C$_{2,3}$};
-	\node[rectangle,draw=black,fill=white] (B) at (0, 3*\yn) {B$_{1,2}$};
-	\node[rectangle,draw=black,fill=white] (A) at (0, 4*\yn) {A$_{0,2}$};
+	\node[rectangle,draw=black,fill=colord] (D) at (0, \yn) {\textcolor{fontD}{D$_0$}};
+	\node[rectangle,draw=black,fill=colorc] (C) at (0, 2*\yn) {C$_{2,3}$};
+	\node[rectangle,draw=black,fill=colorb] (B) at (0, 3*\yn) {B$_{1,2}$};
+	\node[rectangle,draw=black,fill=colora] (A) at (0, 4*\yn) {A$_{0,2}$};
 	\draw (x0) -- (D);	
 	\draw (D) -- (C);
 	\draw (C) -- (B);
