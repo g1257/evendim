@@ -1,0 +1,20 @@
+\documentclass[border=5pt]{standalone}
+\usepackage{pgfplots}
+\usetikzlibrary{matrix}
+\input{palette.tex}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[xlabel={Population}, ylabel={Ground State Energy}]
+	\addplot [mark=+, pald]
+		table [x index=0, y index=1] {fitness.txt};
+	\addplot[myblack,thick,dashed,samples=2,domain=0:3200] {-4.62};	
+\end{axis}
+\matrix[matrix of nodes, row sep=0.2pt, column sep=0.2pt,
+column 1/.style={anchor = base east}] at (4,4.5)
+{
+	$H=4.2 P_3 H_1-0.42 R_{x_0}(1.57) H_2$\\
+	$E_{gs}=-4.62$\\
+};
+\end{tikzpicture}
+\end{document}

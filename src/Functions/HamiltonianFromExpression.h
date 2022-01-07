@@ -34,6 +34,8 @@ public:
 		typename HamiltonianSpecType::ResultType emptyMatrix(bits_);
 		canonicalExpression(quasiMatrix, hamString_, emptyMatrix, aux);
 		matrix = quasiMatrix.getCRS();
+
+		solveIt(matrix); // just for checking
 	}
 
 private:
@@ -45,6 +47,16 @@ private:
 		for (SizeType i = 0; i < n; ++i)
 			if (str[i] != ' ') buffer += str[i];
 		return buffer;
+	}
+
+	static void solveIt(const SparseMatrixType& matrix)
+	{
+		typedef typename PsimagLite::Real<ComplexType>::Type RealType;
+		PsimagLite::Matrix<ComplexType> dense;
+		crsMatrixToFullMatrix(dense, matrix);
+		typename PsimagLite::Vector<RealType>::Type eigs(dense.rows());
+		diag(dense, eigs, 'V');
+		std::cout<<"gs energy="<<eigs[0]<<"\n";
 	}
 
 	PsimagLite::String hamString_;
