@@ -65,6 +65,7 @@ private:
 		constexpr bool isCell = false;
 		VectorQueueStringType v(100);
 		VectorSizeType order(effective.size(), maxConstant);
+		VectorSizeType bits;
 		bool flag = false;
 
 		for (auto it = effective.begin(); it != effective.end(); ++it) {
@@ -75,9 +76,11 @@ private:
 
 			if (node.isInput()) continue;
 
-			if (node.arity() > 1) continue; // FIXME TODO more than one bit gates
+			getBits(bits, node.code());
+			if (bits.size() > 1) return false;// FIXME TODO: consider more than one bit gates
 
-			SizeType bit = getBit(node.code());
+			assert(bits.size() == 1);
+			const SizeType bit = bits[0];
 			assert(bit < v.size());
 			v[bit].push(*it);
 			order[it - effective.begin()] = bit;
@@ -114,7 +117,7 @@ private:
 		return true;
 	}
 
-	static SizeType getBit(PsimagLite::String code)
+	static void getBits(VectorSizeType& bits, PsimagLite::String code)
 	{
 		VectorStringType tokens;
 		PsimagLite::split(tokens, code, ":");
@@ -123,17 +126,33 @@ private:
 
 		if (tokens.size() == 2) code = tokens[0]; // ignore angles
 
-		PsimagLite::String buffer;
+		bits.clear();
+
+		while (true) {
+			const SizeType n = code.size();
+			const SizeType bp = getBreakpoint(code);
+			if (bp == n) break;
+			if (n  == bp + 1)
+				err("getBits: Internal error\n");
+			const PsimagLite::String buffer = code.substr(bp + 1, n - bp - 1);
+			const SizeType bit = PsimagLite::atoi(buffer);
+			bits.push_back(bit);
+			if (code[bp] != '_') break;
+			code = code.substr(0, bp);
+		}
+	}
+
+	static SizeType getBreakpoint(PsimagLite::String code)
+	{
 		const SizeType n = code.size();
-		for (SizeType i = 0; i < n; ++i) {
-			const SizeType j = n - i - 1;
+		SizeType ind = 0;
+		for (; ind < n; ++ind) {
+			const SizeType j = n - ind - 1;
 			unsigned char c = code[j];
 			if (!std::isdigit(c)) break;
-			buffer += c;
 		}
 
-		std::reverse(buffer.begin(), buffer.end());
-		return PsimagLite::atoi(buffer);
+		return n - ind - 1;
 	}
 
 	static bool isEqual(const VectorStringType& v1, const VectorStringType& v2)
