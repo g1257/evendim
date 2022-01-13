@@ -13,7 +13,7 @@ public:
 	template<typename T>
 	CanonicalFormEmpty(const VectorStringType&, const T&) {}
 
-	void changeIfNeeded(VectorStringType&, VectorStringType&) const {}
+	void changeIfNeeded(VectorStringType&) const {}
 
 };
 }

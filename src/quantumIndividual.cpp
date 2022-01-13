@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 	                           tokens);
 
 	VectorType inVector;
-	Gep::readVector(inVector, vectorFilename);
+	Gep::ProgramGlobals::readVector(inVector, vectorFilename);
 	const SizeType x = (1 << numberOfBits);
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
