@@ -101,7 +101,8 @@ public:
 		evolve(newChromosomes,"swap");
 
 		for (SizeType i = 0; i < newChromosomes.first.size(); i++) {
-			CanonicalFormType canonicalForm(newChromosomes.second[i]);
+			CanonicalFormType canonicalForm(newChromosomes.second[i],
+			                                evolution_.primitives().nodes());
 			canonicalForm.changeIfNeeded(newChromosomes.first[i], newChromosomes.second[i]);
 		}
 

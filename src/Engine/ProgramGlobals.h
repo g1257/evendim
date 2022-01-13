@@ -4,6 +4,9 @@
 
 namespace Gep {
 
+//namespace ProgramGlobals {
+
+//}
 static void pushVector(PsimagLite::Vector<PsimagLite::String>::Type& dest,
                        const PsimagLite::Vector<PsimagLite::String>::Type& src,
                        SizeType upTo = 0)
@@ -52,6 +55,37 @@ static void readVector(std::vector<SomeType>& inVector, PsimagLite::String vecto
 
 	fin.close();
 	err("File " + vectorFilename + " should contain " + ttos(x) + " vector entries.\n");
+}
+
+static PsimagLite::String stripPreviousAngleIfAny(PsimagLite::String str)
+{
+	typename PsimagLite::String::const_iterator it = std::find(str.begin(),
+	                                                           str.end(),
+	                                                           ':');
+	if (it == str.end()) return str; // no angle found
+
+	return str.substr(0, it - str.begin());
+}
+
+template<typename NodeType>
+static const NodeType& findNodeFromCode(PsimagLite::String codeStr,
+                                        const typename PsimagLite::Vector<NodeType*>::Type& nodes,
+                                        const typename NodeType::ValueType& value,
+                                        bool isCell)
+{
+	PsimagLite::String codeStripped = stripPreviousAngleIfAny(codeStr);
+
+	for (SizeType i = 0; i < nodes.size(); i++) {
+		if (isCell && nodes[i]->isInput()) continue;
+		PsimagLite::String ncode = stripPreviousAngleIfAny(nodes[i]->code());
+		if (ncode == codeStripped) {
+			if (codeStr == "?") nodes[i]->setDcValue(value);
+			nodes[i]->setAngle(codeStr);
+			return *nodes[i];
+		}
+	}
+
+	throw PsimagLite::RuntimeError("findNodeWithCode\n");
 }
 
 }

@@ -61,21 +61,7 @@ public:
 	                                 const ValueType& value = 0,
 	                                 bool isCell = false) const
 	{
-		const VectorNodeType& nodes = primitives_.nodes();
-
-		PsimagLite::String codeStripped = stripPreviousAngleIfAny(codeStr);
-
-		for (SizeType i = 0; i < nodes.size(); i++) {
-			if (isCell && nodes[i]->isInput()) continue;
-			PsimagLite::String ncode = stripPreviousAngleIfAny(nodes[i]->code());
-			if (ncode == codeStripped) {
-				if (codeStr == "?") nodes[i]->setDcValue(value);
-				nodes[i]->setAngle(codeStr);
-				return *nodes[i];
-			}
-		}
-
-		throw PsimagLite::RuntimeError("findNodeWithCode\n");
+		return findNodeFromCode<NodeType>(codeStr, primitives_.nodes(), value, isCell);
 	}
 
 	void setInput(SizeType i, ValueType x) const
@@ -285,16 +271,6 @@ public:
 			errorMessage += " string " + vecStrToStr(str, "") + "\n";
 			err(errorMessage);
 		}
-	}
-
-	static PsimagLite::String stripPreviousAngleIfAny(PsimagLite::String str)
-	{
-		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
-		                                                           str.end(),
-		                                                           ':');
-		if (it == str.end()) return str; // no angle found
-
-		return str.substr(0, it - str.begin());
 	}
 
 private:

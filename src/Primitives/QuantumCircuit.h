@@ -52,7 +52,7 @@ public:
 	typedef typename QuantumOneBitGateType::MatrixType MatrixType;
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
 	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
-	typedef CanonicalFormQuantum CanonicalFormType;
+	typedef CanonicalFormQuantum<ValueType_, RealType> CanonicalFormType;
 
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates)
