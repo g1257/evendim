@@ -21,6 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Vector.h"
 #include "TypeToString.h"
 #include "PsimagLite.h"
+#include "ProgramGlobals.h"
 
 namespace Gep {
 
@@ -84,9 +85,13 @@ public:
 		const VectorValueType& dcArray = evolution.primitives().dcValues();
 		assert(dcLength == 0 || dcNumber < dcArray.size());
 		ValueType dcValue = (dcLength > 0) ? dcArray[dcNumber] : ValueType(0);
+		const auto& nodes = evolution.primitives().nodes();
 		for (SizeType i = 0; i < effectiveSize; i++) {
 			PsimagLite::String cStr = vecStr[i];
-			const NodeType& node = evolution.findNodeWithCode(cStr, dcValue, isCell);
+			const NodeType& node = ProgramGlobals::findNodeFromCode<NodeType>(cStr,
+			                                                                  nodes,
+			                                                                  dcValue,
+			                                                                  isCell);
 			if (cStr == "?") {
 				assert(dcLength > 0);
 				dcIndex++;

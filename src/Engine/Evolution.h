@@ -57,16 +57,6 @@ public:
 
 	bool verbose() const { return verbose_; }
 
-	const NodeType& findNodeWithCode(PsimagLite::String codeStr,
-	                                 const ValueType& value = 0,
-	                                 bool isCell = false) const
-	{
-		return ProgramGlobals::findNodeFromCode<NodeType>(codeStr,
-		                                                  primitives_.nodes(),
-		                                                  value,
-		                                                  isCell);
-	}
-
 	void setInput(SizeType i, ValueType x) const
 	{
 		assert(i < inputs_.size());
