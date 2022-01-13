@@ -127,7 +127,7 @@ public:
 
 			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
 			PsimagLite::String str = vecStr[i];
-			str = stripPreviousAngleIfAny(str);
+			str = ProgramGlobals::stripPreviousAngleIfAny(str);
 			if (angles.size() < currentIndex)
 				err("encodeAngles: too many angles for rotations in this individual!?\n");
 			str += ":" + ttos(angles[currentIndex++]);

@@ -22,6 +22,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "MinimizerParams.h"
 #include "BaseFitness.h"
 #include "MersenneTwister.h"
+#include "ProgramGlobals.h"
 
 namespace Gep {
 
@@ -143,7 +144,7 @@ public:
 
 			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
 			PsimagLite::String str = vecStr[i];
-			str = stripPreviousAngleIfAny(str);
+			str = ProgramGlobals::stripPreviousAngleIfAny(str);
 			if (angles.size() < currentIndex)
 				err("encodeAngles: too many angles for rotations in this individual!?\n");
 			str += ":" + ttos(angles[currentIndex++]);

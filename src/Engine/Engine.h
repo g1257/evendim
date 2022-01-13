@@ -60,9 +60,9 @@ public:
 		for (SizeType i = 0; i< params_.population; ++i) {
 			VectorStringType vecStr;
 			for (SizeType j = 0; j < params_.genes; ++j)
-				pushVector(vecStr, evolution_.randomGene(params_.head));
+				ProgramGlobals::pushVector(vecStr, evolution_.randomGene(params_.head));
 			for (SizeType j = 0; j < params_.adfs; ++j)
-				pushVector(vecStr, evolution_.randomAdf(params_.chead, params_.genes));
+				ProgramGlobals::pushVector(vecStr, evolution_.randomAdf(params_.chead, params_.genes));
 			ChromosomeType* chromosome = new ChromosomeType(params_, evolution_, vecStr);
 			chromosomes_.push_back(chromosome);
 		}
@@ -258,7 +258,7 @@ private:
 
 		chromosomes_.push_back(chromosome);
 
-		std::cout<<"Added "<<vecStrToStr(chromosome->vecString(), " ");
+		std::cout<<"Added "<<ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
 		std::cout<<" with fitness "<<f<<" ";
 		std::cout<<"effective size= "<<chromosome->effectiveSize()<<"\n";
 	}

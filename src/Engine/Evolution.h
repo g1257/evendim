@@ -61,7 +61,10 @@ public:
 	                                 const ValueType& value = 0,
 	                                 bool isCell = false) const
 	{
-		return findNodeFromCode<NodeType>(codeStr, primitives_.nodes(), value, isCell);
+		return ProgramGlobals::findNodeFromCode<NodeType>(codeStr,
+		                                                  primitives_.nodes(),
+		                                                  value,
+		                                                  isCell);
 	}
 
 	void setInput(SizeType i, ValueType x) const
@@ -97,13 +100,13 @@ public:
 	{
 		const SizeType tail1 = tail(head);
 		VectorStringType str = primitives_.nonTerminals();
-		pushVector(str, primitives_.terminals());
+		ProgramGlobals::pushVector(str, primitives_.terminals());
 		VectorStringType str1 = selectRandomFrom(head,str);
 		const VectorStringType str2 = selectRandomFrom(tail1, primitives_.terminals());
 		const SizeType dc = (primitives_.hasDc()) ? tail1 : 0;
 		const VectorStringType str3 = selectRandomFrom(dc, primitives_.dcArray());
-		pushVector(str1, str2);
-		pushVector(str1, str3);
+		ProgramGlobals::pushVector(str1, str2);
+		ProgramGlobals::pushVector(str1, str3);
 		return str1;
 	}
 
@@ -114,10 +117,10 @@ public:
 			terminals[i] = ttos(i);
 		SizeType ctail = tail(chead);
 		VectorStringType str = primitives_.nonTerminals();
-		pushVector(str, terminals);
+		ProgramGlobals::pushVector(str, terminals);
 		VectorStringType str1 = selectRandomFrom(chead, str);
 		const VectorStringType str2 = selectRandomFrom(ctail, terminals);
-		pushVector(str1, str2);
+		ProgramGlobals::pushVector(str1, str2);
 		return str1;
 	}
 
@@ -139,7 +142,7 @@ public:
 			ret[i] = str[i];
 
 		VectorStringType vRandom = selectRandomFrom(1, something);
-		pushVector(ret, vRandom);
+		ProgramGlobals::pushVector(ret, vRandom);
 
 		for (SizeType i = index + 1; i < str.size(); ++i)
 			ret.push_back(str[i]);
@@ -164,7 +167,7 @@ public:
 		SizeType tail1 = tail(head);
 		if (index < head) {
 			VectorStringType ret = primitives_.terminals();
-			pushVector(ret, primitives_.nonTerminals());
+			ProgramGlobals::pushVector(ret, primitives_.nonTerminals());
 			return ret;
 		}
 
@@ -184,7 +187,7 @@ public:
 			terminals[i] = ttos(i);
 
 		if (index < head)
-			pushVector(terminals, primitives_.nonTerminals());
+			ProgramGlobals::pushVector(terminals, primitives_.nonTerminals());
 
 		return terminals;
 	}
@@ -221,7 +224,7 @@ public:
 			PsimagLite::String errorMessage(__FILE__);
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "head= " + ttos(head);
-			errorMessage += " string " + vecStrToStr(vecStr, "") + "\n";
+			errorMessage += " string " + ProgramGlobals::vecStrToStr(vecStr, "") + "\n";
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
@@ -268,7 +271,7 @@ public:
 			PsimagLite::String errorMessage(__FILE__);
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "head= " + ttos(head);
-			errorMessage += " string " + vecStrToStr(str, "") + "\n";
+			errorMessage += " string " + ProgramGlobals::vecStrToStr(str, "") + "\n";
 			err(errorMessage);
 		}
 	}

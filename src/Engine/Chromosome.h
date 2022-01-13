@@ -97,7 +97,7 @@ public:
 
 		for (SizeType i = 0; i < genes_.size(); i++) {
 			const SizeType effectiveSize = genes_[i]->effectiveSize();
-			pushVector(effectiveVecStr_, genes_[i]->vecString(), effectiveSize);
+			ProgramGlobals::pushVector(effectiveVecStr_, genes_[i]->vecString(), effectiveSize);
 		}
 
 		assert(adfs_.size() == params.adfs);
@@ -108,7 +108,7 @@ public:
 		const SizeType adfsEffective = adfs_[0]->effectiveSize();
 		const VectorStringType& adfsVec = adfs_[0]->vecString();
 
-		pushVector(effectiveVecStr_, adfsVec, adfsEffective);
+		ProgramGlobals::pushVector(effectiveVecStr_, adfsVec, adfsEffective);
 	}
 
 	~Chromosome()
@@ -124,9 +124,9 @@ public:
 
 	Chromosome& operator=(const Chromosome& other)
 	{
-//		evolution_ = other.evolution_;
+		//		evolution_ = other.evolution_;
 
-//		params_ = other.params_;
+		//		params_ = other.params_;
 
 		effectiveVecStr_ = other.effectiveVecStr_;
 
@@ -152,10 +152,10 @@ public:
 		VectorStringType ret;
 
 		for (SizeType i = 0; i < genes_.size(); i++) {
-			pushVector(ret, genes_[i]->vecString());
+			ProgramGlobals::pushVector(ret, genes_[i]->vecString());
 		}
 
-		pushVector(ret, adfsVecStr_);
+		ProgramGlobals::pushVector(ret, adfsVecStr_);
 
 		return ret;
 	}
@@ -220,16 +220,16 @@ public:
 
 		VectorStringType firstVec;
 		for (SizeType i = 0; i < indexCorrected; i++) {
-			pushVector(firstVec, genes_[i]->vecString());
+			ProgramGlobals::pushVector(firstVec, genes_[i]->vecString());
 		}
 
 		VectorStringType lastVec;
 		if (!isCell) {
 			for (SizeType i = index+1; i < genes_.size(); i++) {
-				pushVector(lastVec, genes_[i]->vecString());
+				ProgramGlobals::pushVector(lastVec, genes_[i]->vecString());
 			}
 
-			pushVector(lastVec, adfsVecStr_);
+			ProgramGlobals::pushVector(lastVec, adfsVecStr_);
 		}
 
 		PairVectorStringType p = (points == 1) ?
@@ -237,12 +237,12 @@ public:
 		            recombine2(gene->vecString(), other.vecString(index));
 
 		VectorStringType vecStr1 = firstVec;
-		pushVector(vecStr1, p.first);
-		pushVector(vecStr1, lastVec);
+		ProgramGlobals::pushVector(vecStr1, p.first);
+		ProgramGlobals::pushVector(vecStr1, lastVec);
 
 		VectorStringType vecStr2 = firstVec;
-		pushVector(vecStr2, p.second);
-		pushVector(vecStr2, lastVec);
+		ProgramGlobals::pushVector(vecStr2, p.second);
+		ProgramGlobals::pushVector(vecStr2, lastVec);
 
 		return PairVectorStringType(vecStr1, vecStr2);
 	}
@@ -259,36 +259,36 @@ public:
 
 		VectorStringType firstVec;
 		for (SizeType i = 0; i < index; i++) {
-			pushVector(firstVec, genes_[i]->vecString());
+			ProgramGlobals::pushVector(firstVec, genes_[i]->vecString());
 		}
 
 		VectorStringType lastVec;
 
 		if (!isCell) {
 			for (SizeType i = index + 1; i < genes_.size(); ++i) {
-				pushVector(lastVec, genes_[i]->vecString());
+				ProgramGlobals::pushVector(lastVec, genes_[i]->vecString());
 			}
 
-			pushVector(lastVec, adfsVecStr_);
+			ProgramGlobals::pushVector(lastVec, adfsVecStr_);
 		}
 
 		VectorStringType ret = firstVec;
 		if (action == "mutate") {
-			pushVector(ret, evolution_.mutate(gene->vecString(),
-			                                  gene->head(),
-			                                  genes,
-			                                  isCell));
-			pushVector(ret, lastVec);
+			ProgramGlobals::pushVector(ret, evolution_.mutate(gene->vecString(),
+			                                                  gene->head(),
+			                                                  genes,
+			                                                  isCell));
+			ProgramGlobals::pushVector(ret, lastVec);
 			return ret;
 		} else if (action == "invert") {
-			pushVector(ret, evolution_.invert(gene->vecString(),
-			                                  gene->head()));
-			pushVector(ret, lastVec);
+			ProgramGlobals::pushVector(ret, evolution_.invert(gene->vecString(),
+			                                                  gene->head()));
+			ProgramGlobals::pushVector(ret, lastVec);
 			return ret;
 		} else if (action == "swap") {
-			pushVector(ret, swap(gene->vecString(),
-			                     gene->head(),isCell));
-			pushVector(ret, lastVec);
+			ProgramGlobals::pushVector(ret, swap(gene->vecString(),
+			                                     gene->head(),isCell));
+			ProgramGlobals::pushVector(ret, lastVec);
 			return ret;
 		}
 
@@ -309,9 +309,9 @@ private:
 		const PrimitivesType& primitives = evolution_.primitives();
 		SizeType index = static_cast<SizeType>(primitives.rng() * str.size());
 		if (index + 1 >= head) index -= (head - 1);
-//		if (index+1 == str.size())
-//			index--;
-//		if (index+1 == head + evolution_.tail(head)) index = 0;
+		//		if (index+1 == str.size())
+		//			index--;
+		//		if (index+1 == head + evolution_.tail(head)) index = 0;
 		ret[index] = str[index+1];
 		ret[index+1] = str[index];
 

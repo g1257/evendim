@@ -4,9 +4,8 @@
 
 namespace Gep {
 
-//namespace ProgramGlobals {
+namespace ProgramGlobals {
 
-//}
 static void pushVector(PsimagLite::Vector<PsimagLite::String>::Type& dest,
                        const PsimagLite::Vector<PsimagLite::String>::Type& src,
                        SizeType upTo = 0)
@@ -87,6 +86,6 @@ static const NodeType& findNodeFromCode(PsimagLite::String codeStr,
 
 	throw PsimagLite::RuntimeError("findNodeWithCode\n");
 }
-
+}
 }
 #endif // PROGRAMGLOBALS_H
