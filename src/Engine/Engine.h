@@ -32,7 +32,8 @@ class Engine {
 	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename FitnessType::RealType RealType;
-	typedef typename EvolutionType::PrimitivesType::ValueType ValueType;
+	typedef typename PrimitivesType::ValueType ValueType;
+	typedef typename PrimitivesType::CanonicalFormType CanonicalFormType;
 	typedef Tree<PrimitivesType> TreeType;
 	typedef ParametersEngine<RealType> ParametersEngineType_;
 	typedef Chromosome<TreeType,EvolutionType,ParametersEngineType_> ChromosomeType;
@@ -98,6 +99,11 @@ public:
 		evolve(newChromosomes,"invert");
 
 		evolve(newChromosomes,"swap");
+
+		for (SizeType i = 0; i < newChromosomes.first.size(); i++) {
+			CanonicalFormType canonicalForm(newChromosomes.second[i]);
+			canonicalForm.changeIfNeeded(newChromosomes.first[i], newChromosomes.second[i]);
+		}
 
 		return selectBest(newChromosomes.first);
 	}

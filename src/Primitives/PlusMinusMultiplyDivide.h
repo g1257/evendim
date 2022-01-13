@@ -21,6 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include "Node.h"
 #include "MersenneTwister.h"
+#include "CanonicalFormEmpty.h"
 
 namespace Gep {
 
@@ -41,6 +42,7 @@ public:
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
+	typedef CanonicalFormEmpty CanonicalFormType;
 
 	PlusMinusMultiplyDivide(SizeType inputs,
 	                        SizeType genes,

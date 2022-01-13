@@ -24,6 +24,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "MersenneTwister.h"
 #include "QuantumInput.h"
 #include <numeric>
+#include "CanonicalFormQuantum.h"
 
 namespace Gep {
 
@@ -51,6 +52,7 @@ public:
 	typedef typename QuantumOneBitGateType::MatrixType MatrixType;
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
 	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
+	typedef CanonicalFormQuantum CanonicalFormType;
 
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates)
