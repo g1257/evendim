@@ -64,15 +64,16 @@ struct ParametersInput {
 			io.readline(samples, "Samples=");
 		} catch (std::exception&) {}
 
-		bool hasOptions = false;
+		try {
+			io.readline(primitives, "Primitives=");
+		} catch (std::exception&) {}
+
 		PsimagLite::String str;
 		try {
 			io.readline(str, "EngineOptions=");
-			hasOptions = true;
 		} catch (std::exception&) {}
 
-		if (hasOptions)
-			options = new Options(str);
+		options = new Options(str);
 	}
 
 	~ParametersInput()

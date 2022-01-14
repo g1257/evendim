@@ -24,12 +24,15 @@ public:
 	typedef PsimagLite::Vector<QueueStringType>::Type VectorQueueStringType;
 	typedef PsimagLite::Vector<bool>::Type VectorBoolType;
 
+	enum class RotationEnum {INVALID, X, Y, Z};
+
 	CanonicalFormQuantum(const VectorStringType& data,
 	                     const VectorNodeType& nodes)
 	    : data_(data), needsChange_(false)
 	{
 		getEffectiveAndJunk();
 		needsChange_ |= orderGatesByBit(effective_, nodes);
+		needsChange_ |= compactifyRotations(effective_, nodes);
 	}
 
 	void changeIfNeeded(VectorStringType& vstr) const
@@ -153,6 +156,215 @@ private:
 		}
 
 		return n - ind - 1;
+	}
+
+	class Track {
+
+	public:
+
+		enum class StateEnum { COPY, IGNORE, NEW};
+
+		typedef typename PsimagLite::Vector<RotationEnum>::Type VectorRotationEnumType;
+		typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
+		typedef typename PsimagLite::Vector<StateEnum>::Type VectorStateEnumType;
+
+		Track(SizeType n)
+		    : data_(n, StateEnum::COPY),
+		      locations_(0),
+		      dirs_(n, RotationEnum::INVALID),
+		      angles_(n),
+		      bits_(n)
+		{}
+
+		StateEnum state(SizeType i) const
+		{
+			assert(i < data_.size());
+			return data_[i];
+		}
+
+		void increaseLocations()
+		{
+			++locations_;
+		}
+
+		void compactify(RotationEnum prevDir,
+		                SizeType bit,
+		                AnglesType prevAngle,
+		                SizeType ind)
+		{
+			if (locations_ == 0) return;
+
+			const SizeType start = ind - locations_ - 1;
+			assert(start >= 0 && ind > start);
+			for (SizeType i = start; i < ind; ++i)
+				data_[i] = StateEnum::IGNORE;
+
+			assert(ind > 0);
+			data_[ind - 1] = StateEnum::NEW;
+
+			dirs_[ind - 1] = prevDir;
+			bits_[ind - 1] = bit;
+			angles_[ind - 1] = prevAngle;
+
+			locations_ = 0;
+		}
+
+		PsimagLite::String code(SizeType ind)
+		{
+			assert(ind < dirs_.size());
+
+			RotationEnum dir = dirs_[ind];
+			PsimagLite::String str = "R";
+			switch (dir) {
+			case RotationEnum::X:
+				str += "x";
+				break;
+			case RotationEnum::Y:
+				str += "y";
+				break;
+			case RotationEnum::Z:
+				str += "z";
+				break;
+			default:
+				err("Canonicalization: Invalid direction for rotation\n");
+			}
+
+			assert(bits_.size() > ind);
+			SizeType bit = bits_[ind];
+			str += ttos(bit);
+
+			str += ":";
+
+			assert(angles_.size() > ind);
+			AnglesType angle = angles_[ind];
+			str += ttos(angle);
+			return str;
+		}
+
+	private:
+
+		VectorStateEnumType data_;
+		SizeType locations_;
+		VectorRotationEnumType dirs_;
+		VectorAnglesType angles_;
+		VectorSizeType bits_;
+	};
+
+	static bool compactifyRotations(VectorStringType& effective,
+	                                const VectorNodeType& nodes)
+	{
+		static const ValueType_ value;
+		constexpr bool isCell = false;
+		RotationEnum prevDir = RotationEnum::INVALID;
+		SizeType prevBit = 1e6;
+		AnglesType prevAngle = 0;
+		VectorSizeType bits;
+		const SizeType n = effective.size();
+		Track track(n);
+
+		for (SizeType i = 0; i < n; ++i) {
+			const NodeType& node = ProgramGlobals::findNodeFromCode<NodeType>(effective[i],
+			                                                                  nodes,
+			                                                                  value,
+			                                                                  isCell);
+
+			if (node.isInput()) {
+				track.compactify(prevDir, prevBit, prevAngle, i);
+				prevDir = RotationEnum::INVALID;
+				continue;
+			}
+
+			RotationEnum dir = getRotationDirection(node.code());
+			if (dir == RotationEnum::INVALID) {
+				track.compactify(prevDir, prevBit, prevAngle, i);
+				prevDir = RotationEnum::INVALID;
+				continue; // not a rotation gate
+			}
+
+			AnglesType angle = getAngle(node.code());
+
+			bool mayCompactify = true;
+			if (prevDir != dir) {
+
+				track.compactify(prevDir, prevBit, prevAngle, i);
+
+				mayCompactify = false;
+				prevDir = dir;
+				prevAngle = angle;
+			}
+
+			getBits(bits, node.code());
+			if (bits.size() != 1) err("Rotation gate must have one bit!?\n");
+
+			assert(bits.size() == 1);
+			const SizeType bit = bits[0];
+			if (prevBit != bit) {
+
+				track.compactify(prevDir, prevBit, prevAngle, i);
+
+				prevBit = bit;
+				prevAngle = angle;
+
+				continue;
+			}
+
+			if (!mayCompactify) continue; // dir doesn't match previous
+
+			track.increaseLocations();
+			prevAngle += angle;
+		}
+
+		bool needsChange = false;
+		VectorStringType newData;
+		for (SizeType i = 0; i < n; ++i) {
+			typename Track::StateEnum state = track.state(i);
+			switch (state) {
+			case Track::StateEnum::COPY:
+				newData.push_back(effective[i]);
+				break;
+			case Track::StateEnum::IGNORE:
+				break;
+			case Track::StateEnum::NEW:
+				PsimagLite::String newCode = track.code(i);
+				newData.push_back(newCode);
+				needsChange = true;
+			}
+		}
+
+		if (!needsChange) return false;
+
+		effective.swap(newData);
+		return true;
+	}
+
+	static RotationEnum getRotationDirection(PsimagLite::String code)
+	{
+		if (code.length() < 2)
+			err("getRotationDirection: code " + code + "\n");
+		if (code[0] != 'R') return RotationEnum::INVALID;
+
+		switch (code[1]) {
+		case 'x':
+			return RotationEnum::X;
+		case 'y':
+			return RotationEnum::Y;
+		case 'z':
+			return RotationEnum::Z;
+		default:
+			return RotationEnum::INVALID;
+		}
+	}
+
+	static AnglesType getAngle(PsimagLite::String code)
+	{
+		VectorStringType tokens;
+		PsimagLite::split(tokens, code, ":");
+		if (tokens.size() > 2)
+			err("getBit: code " + code + " with two or more colons\n");
+
+		PsimagLite::String angle = "0";
+		if (tokens.size() == 2) angle = tokens[1]; // ignore gate name and bit
+		return PsimagLite::atof(angle);
 	}
 
 	static bool isEqual(const VectorStringType& v1, const VectorStringType& v2)
