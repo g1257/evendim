@@ -20,42 +20,40 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "PsimagLite.h"
 #include "InputNg.h"
 #include "InputCheck.h"
+#include "Options.h"
 
 namespace Gep {
 
-struct Options {
+struct ParametersInput {
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 
-	Options(SizeType p = 0,
-	        SizeType h = 0,
-	        SizeType g = 1,
-	        SizeType ch = 0,
-	        SizeType adfs1 = 0,
-	        SizeType samples1 = 50,
-	        bool se = false,
-	        bool pb = false,
-	        PsimagLite::String prim = "")
+	ParametersInput(SizeType p = 0,
+	                SizeType h = 0,
+	                SizeType g = 1,
+	                SizeType ch = 0,
+	                SizeType adfs1 = 0,
+	                SizeType samples1 = 50,
+	                PsimagLite::String options1 = "",
+	                PsimagLite::String prim = "")
 	    : population(p),
 	      head(h),
 	      genes(g),
 	      chead(ch),
 	      adfs(adfs1),
 	      samples(samples1),
-	      stopEarly(se),
-	      progressBar(pb),
+	      options(new Options(options1)),
 	      primitives(prim)
 	{}
 
-	Options(InputNgType::Readable& io)
+	ParametersInput(InputNgType::Readable& io)
 	    : population(0),
 	      head(0),
 	      genes(1),
 	      chead(0),
 	      adfs(0),
 	      samples(50),
-	      stopEarly(false),
-	      progressBar(false),
+	      options(nullptr),
 	      primitives("")
 	{
 		io.readline(population, "Population=");
@@ -66,22 +64,26 @@ struct Options {
 			io.readline(samples, "Samples=");
 		} catch (std::exception&) {}
 
+		bool hasOptions = false;
+		PsimagLite::String str;
 		try {
-			int tmp = 0;
-			io.readline(tmp, "StopEarly=");
-			stopEarly = (tmp > 0);
+			io.readline(str, "EngineOptions=");
+			hasOptions = true;
 		} catch (std::exception&) {}
 
-		try {
-			int tmp = 0;
-			io.readline(tmp, "ProgressBar=");
-			progressBar = (tmp > 0);
-		} catch (std::exception&) {}
-
-		try {
-			io.readline(primitives, "Primitives=");
-		} catch (std::exception&) {}
+		if (hasOptions)
+			options = new Options(str);
 	}
+
+	~ParametersInput()
+	{
+		delete options;
+		options = nullptr;
+	}
+
+	ParametersInput(const ParametersInput&) = delete;
+
+	ParametersInput& operator=(const ParametersInput&) = delete;
 
 	SizeType population;
 	SizeType head;
@@ -89,8 +91,7 @@ struct Options {
 	SizeType chead;
 	SizeType adfs;
 	SizeType samples;
-	bool stopEarly;
-	bool progressBar;
+	Options* options;
 	PsimagLite::String primitives; // comma-separated list of primitives
 };
 
@@ -99,7 +100,7 @@ class ParametersEngine {
 
 public:
 
-	ParametersEngine(const Options& op,
+	ParametersEngine(const ParametersInput& op,
 	                 RealType d = 2.0,
 	                 RealType m = 0.5,
 	                 RealType i = 0.5)
@@ -112,8 +113,7 @@ public:
 	      mutation(static_cast<SizeType>(op.population*m)),
 	      inversion(static_cast<SizeType>(op.population*i)),
 	      samples(op.samples),
-	      stopEarly(op.stopEarly),
-	      progressBar(op.progressBar)
+	      options(*op.options)
 	{}
 
 	SizeType population;
@@ -125,8 +125,7 @@ public:
 	SizeType mutation;
 	SizeType inversion;
 	SizeType samples;
-	bool stopEarly;
-	bool progressBar;
+	const Options& options;
 }; // class ParametersEngine
 
 } // namespace Gep

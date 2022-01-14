@@ -203,6 +203,7 @@ private:
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
+		const bool withProgressBar = params_.options.isSet("progressBar");
 		for (SizeType i = 0; i < newChromosomes.size(); i++) {
 			ChromosomeType chromosome(params_,evolution_,newChromosomes[i]);
 			if (evolution_.verbose())
@@ -211,10 +212,10 @@ private:
 			newChromosomes[i] = chromosome.vecString();
 			const int status = fitness_.status();
 			const PsimagLite::String symbol = (status == 0) ? "." : "*";
-			if (params_.progressBar) std::cerr<<symbol;
+			if (withProgressBar) std::cerr<<symbol;
 		}
 
-		if (params_.progressBar) std::cerr<<"\n";
+		if (withProgressBar) std::cerr<<"\n";
 
 		PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
 		PsimagLite::Vector<SizeType>::Type iperm(fitness.size());

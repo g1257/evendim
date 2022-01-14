@@ -26,7 +26,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 template<template<typename> class FitnessTemplate,
          typename EvolutionType>
 void main1(EvolutionType& evolution,
-           const Gep::Options& gepOptions,
+           const Gep::ParametersInput& gepOptions,
            SizeType total)
 {
 	typedef FitnessTemplate<EvolutionType> FitnessType;
@@ -36,7 +36,7 @@ void main1(EvolutionType& evolution,
 	EngineType engine(params, evolution);
 
 	for (SizeType i = 0; i < total; i++)
-		if (engine.evolve() && gepOptions.stopEarly) break;
+		if (engine.evolve() && params.options.isSet("stopEarly")) break;
 }
 
 int main(int argc, char* argv[])
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	SizeType constants = 0;
 	SizeType example = 0;
 	bool verbose = false;
-	Gep::Options gepOptions;
+	Gep::ParametersInput gepOptions;
 
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 			gepOptions.samples = atoi(optarg);
 			break;
 		case 'S':
-			gepOptions.stopEarly = true;
+			*gepOptions.options += "stopEarly";
 			break;
 		default:
 			throw PsimagLite::RuntimeError(strUsage);

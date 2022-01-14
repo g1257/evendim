@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 	PsimagLite::InputNg<Gep::InputCheck>::Writeable input(filename, inputCheck);
 	PsimagLite::InputNg<Gep::InputCheck>::Readable io(input);
 
-	Gep::Options gepOptions(io);
+	Gep::ParametersInput gepOptions(io);
 
 	SizeType numberOfBits = 0;
 	io.readline(numberOfBits, "NumberOfBits=");

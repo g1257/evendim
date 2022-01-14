@@ -28,7 +28,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 template<typename FitnessType>
 void main2(typename FitnessType::EvolutionType& evolution,
-           const Gep::Options& gepOptions,
+           const Gep::ParametersInput& gepOptions,
            PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	typedef Gep::Engine<FitnessType> EngineType;
@@ -44,14 +44,14 @@ void main2(typename FitnessType::EvolutionType& evolution,
 	EngineType engine(params, evolution, &fitParams);
 
 	for (SizeType i = 0; i < total; i++)
-		if (engine.evolve() && gepOptions.stopEarly) break;
+		if (engine.evolve() && params.options.isSet("stopEarly")) break;
 }
 
 template<template<typename, typename> class FitnessTemplate,
          typename EvolutionType,
          typename ComplexType>
 void mainGroundState(EvolutionType& evolution,
-                     const Gep::Options& gepOptions,
+                     const Gep::ParametersInput& gepOptions,
                      PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 	PsimagLite::InputNg<Gep::InputCheck>::Writeable input(filename, inputCheck);
 	PsimagLite::InputNg<Gep::InputCheck>::Readable io(input);
 
-	Gep::Options gepOptions(io);
+	Gep::ParametersInput gepOptions(io);
 
 	PsimagLite::String gates;
 	if (gepOptions.primitives == "" || gepOptions.primitives == "?")
