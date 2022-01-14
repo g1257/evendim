@@ -36,7 +36,7 @@ void main1(EvolutionType& evolution,
 	EngineType engine(params, evolution);
 
 	for (SizeType i = 0; i < total; i++)
-		if (engine.evolve() && params.options.isSet("stopEarly")) break;
+		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
 }
 
 int main(int argc, char* argv[])

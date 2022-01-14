@@ -237,9 +237,7 @@ private:
 
 		VectorStringType cString = chromosome_.effectiveVecString();
 
-		static const SizeType dc = 0;
-		SizeType geneLength = chromosome_.params().head +
-		        evolution_.tail(chromosome_.params().head) + dc;
+		SizeType geneLength = chromosome_.length();
 
 		VectorStringType tmpString = replaceOneR(cString, angleIndex, geneLength);
 

@@ -54,8 +54,6 @@ public:
 
 		SizeType geneLength = params.head + evolution.tail(params.head) + dc;
 
-		if (geneLength > len) geneLength = len;
-
 		if (len == 0)
 			throw PsimagLite::RuntimeError("Chromosome::ctor()\n");
 
@@ -161,6 +159,8 @@ public:
 
 		return ret;
 	}
+
+	SizeType length() const { return genes_.size() + adfsVecStr_.size(); }
 
 	VectorStringType vecString(SizeType i) const
 	{

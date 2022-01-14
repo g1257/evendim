@@ -32,7 +32,7 @@ public:
 	{
 		getEffectiveAndJunk();
 		needsChange_ |= orderGatesByBit(effective_, nodes);
-		needsChange_ |= compactifyRotations(effective_, nodes);
+		needsChange_ |= compactifyRotations(effective_, junkDna_, nodes);
 	}
 
 	void changeIfNeeded(VectorStringType& vstr) const
@@ -251,6 +251,7 @@ private:
 	};
 
 	static bool compactifyRotations(VectorStringType& effective,
+	                                VectorStringType& junkDna,
 	                                const VectorNodeType& nodes)
 	{
 		static const ValueType_ value;
@@ -316,6 +317,7 @@ private:
 
 		bool needsChange = false;
 		VectorStringType newData;
+		SizeType ignored = 0;
 		for (SizeType i = 0; i < n; ++i) {
 			typename Track::StateEnum state = track.state(i);
 			switch (state) {
@@ -323,6 +325,8 @@ private:
 				newData.push_back(effective[i]);
 				break;
 			case Track::StateEnum::IGNORE:
+				++ignored;
+				needsChange = true;
 				break;
 			case Track::StateEnum::NEW:
 				PsimagLite::String newCode = track.code(i);
@@ -332,6 +336,10 @@ private:
 		}
 
 		if (!needsChange) return false;
+
+		// keep total size constant
+		for (SizeType i = 0; i < ignored; ++i)
+			junkDna.push_back("0");
 
 		effective.swap(newData);
 		return true;

@@ -44,7 +44,7 @@ void main2(typename FitnessType::EvolutionType& evolution,
 	EngineType engine(params, evolution, &fitParams);
 
 	for (SizeType i = 0; i < total; i++)
-		if (engine.evolve() && params.options.isSet("stopEarly")) break;
+		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
 }
 
 template<template<typename, typename> class FitnessTemplate,

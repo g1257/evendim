@@ -62,7 +62,8 @@ public:
 			for (SizeType j = 0; j < params_.genes; ++j)
 				ProgramGlobals::pushVector(vecStr, evolution_.randomGene(params_.head));
 			for (SizeType j = 0; j < params_.adfs; ++j)
-				ProgramGlobals::pushVector(vecStr, evolution_.randomAdf(params_.chead, params_.genes));
+				ProgramGlobals::pushVector(vecStr, evolution_.randomAdf(params_.chead,
+				                                                        params_.genes));
 			ChromosomeType* chromosome = new ChromosomeType(params_, evolution_, vecStr);
 			chromosomes_.push_back(chromosome);
 		}
@@ -73,7 +74,7 @@ public:
 		deleteAll();
 	}
 
-	bool evolve()
+	bool evolve(SizeType ind)
 	{
 		PairVectorVectorStringType newChromosomes;
 		VectorRealType parentFitness(chromosomes_.size());
@@ -100,7 +101,7 @@ public:
 
 		evolve(newChromosomes,"swap");
 
-		if (!params_.options.isSet("noncanonical"))
+		if (ind > 0 && !params_.options.isSet("noncanonical"))
 			canonicalizeAll(newChromosomes.first);
 
 		return selectBest(newChromosomes.first);

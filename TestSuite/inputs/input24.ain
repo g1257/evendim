@@ -17,6 +17,7 @@ Hamiltonian="4.2*P3*H1+-0.42*Rx0:1.57*H2";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector24.txt";
+#string EngineOptions="noncanonical";
 
 #CHeadSize=0;
 #AdfsSize=0;
