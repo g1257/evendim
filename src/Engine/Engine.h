@@ -100,16 +100,22 @@ public:
 
 		evolve(newChromosomes,"swap");
 
-		for (SizeType i = 0; i < newChromosomes.first.size(); i++) {
-			CanonicalFormType canonicalForm(newChromosomes.first[i],
-			                                evolution_.primitives().nodes());
-			canonicalForm.changeIfNeeded(newChromosomes.first[i]);
-		}
+		if (!params_.options.isSet("noncanonical"))
+			canonicalizeAll(newChromosomes.first);
 
 		return selectBest(newChromosomes.first);
 	}
 
 private:
+
+	void canonicalizeAll(VectorVectorStringType& newChromosomes)
+	{
+		for (SizeType i = 0; i < newChromosomes.size(); i++) {
+			CanonicalFormType canonicalForm(newChromosomes[i],
+			                                evolution_.primitives().nodes());
+			canonicalForm.changeIfNeeded(newChromosomes[i]);
+		}
+	}
 
 	void deleteAll()
 	{
