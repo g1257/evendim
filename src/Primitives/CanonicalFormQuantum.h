@@ -31,7 +31,7 @@ public:
 	    : data_(data), needsChange_(false)
 	{
 		getEffectiveAndJunk();
-		needsChange_ |= orderGatesByBit(effective_, nodes);
+		needsChange_ |= orderGatesByBitNg(effective_, nodes);
 		needsChange_ |= compactifyRotations(effective_, junkDna_, nodes);
 	}
 
@@ -61,62 +61,76 @@ private:
 		}
 	}
 
-	static bool orderGatesByBit(VectorStringType& effective, const VectorNodeType& nodes)
+	static bool orderGatesByBitNg(VectorStringType& effective, const VectorNodeType& nodes)
 	{
-		constexpr SizeType maxConstant = 12345;
-		static const ValueType_ value;
-		constexpr bool isCell = false;
-		VectorQueueStringType v(100);
-		VectorSizeType order(effective.size(), maxConstant);
-		VectorSizeType bits;
 		bool flag = false;
-
-		for (auto it = effective.begin(); it != effective.end(); ++it) {
-			const NodeType& node = ProgramGlobals::findNodeFromCode<NodeType>(*it,
-			                                                                  nodes,
-			                                                                  value,
-			                                                                  isCell);
-
-			if (node.isInput()) continue;
-
-			getBits(bits, node.code());
-			if (bits.size() > 1) return false;// FIXME TODO: consider more than one bit gates
-
-			assert(bits.size() == 1);
-			const SizeType bit = bits[0];
-			assert(bit < v.size());
-			v[bit].push(*it);
-			order[it - effective.begin()] = bit;
+		while (orderGatesByBitOneRound(effective, nodes)) {
 			flag = true;
 		}
 
-		if (!flag) return false;
+		return flag;
+	}
 
-		VectorSizeType iperm(order.size());
-		PsimagLite::Sort<VectorSizeType> sort;
-		sort.sort(order, iperm);
-
-		VectorStringType newData(effective.size());
-
+	static bool orderGatesByBitOneRound(VectorStringType& effective, const VectorNodeType& nodes)
+	{
+		bool flag = false;
 		const SizeType n = effective.size();
-		for (SizeType i = 0; i < n; ++i) {
-			const SizeType bit = order[i]; // order is ordered
-			if (bit >= maxConstant) {
-				newData[i] = effective[i];
-				continue;
-			}
-
-			assert(bit < v.size());
-			assert(v[bit].size() > 0);
-			newData[i] = v[bit].front();
-
-			v[bit].pop();
+		for (SizeType i = 1; i< n; ++i) {
+			bool gateMoved = moveThisGateIfPossible(effective, nodes, i);
+			flag |= gateMoved;
 		}
 
-		const bool b = isEqual(newData, effective);
-		if (b) return false;
+		return flag;
+	}
 
-		effective = newData;
+	static bool moveThisGateIfPossible(VectorStringType& effective,
+	                                   const VectorNodeType& nodes,
+	                                   SizeType ind)
+	{
+		if (ind == 0) return false;
+
+		static const ValueType_ value;
+		constexpr bool isCell = false;
+
+		const NodeType& node = ProgramGlobals::findNodeFromCode<NodeType>(effective[ind],
+		                                                                  nodes,
+		                                                                  value,
+		                                                                  isCell);
+		if (node.isInput()) return false;
+		VectorSizeType bits;
+		getBits(bits, node.code());
+
+		int jnd = ind - 1;
+		int location = -1;
+		for (; jnd >= 0; --jnd) {
+			const NodeType& nodePrev = ProgramGlobals::findNodeFromCode<NodeType>(effective[jnd],
+			                                                                      nodes,
+			                                                                      value,
+			                                                                      isCell);
+			if (nodePrev.isInput())
+				err("moveThisGateIfPossible: input found before gate!?\n");
+			VectorSizeType bitsPrev;
+
+			getBits(bitsPrev, nodePrev.code());
+
+			if (!isBefore(bitsPrev, bits)) break;
+			location = jnd;
+		}
+
+		if (location < 0) return false;
+
+		std::swap(effective[ind], effective[location]);
+		return true;
+	}
+
+	static bool isBefore(const VectorSizeType& bits1, const VectorSizeType& bits2)
+	{
+		const SizeType n1 = bits1.size();
+		const SizeType n2 = bits2.size();
+		for (SizeType i = 0; i < n2; ++i)
+			for (SizeType j = 0; j < n1; ++j)
+				if (bits1[j] <= bits2[i]) return false;
+
 		return true;
 	}
 
