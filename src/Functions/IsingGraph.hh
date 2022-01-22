@@ -16,11 +16,11 @@ public:
 	typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 
-	IsingGraph(SizeType bits, RealType coupling, PsimagLite::String graphFile)
+	IsingGraph(SizeType bits, RealType coupling, bool periodic, PsimagLite::String graphFile)
 	    : FILE_PREFIX("file:"),
 	      bits_(bits),
 	      coupling_(coupling),
-	      graph_(graphFile)
+	      graph_(graphFile, bits, periodic)
 	{
 		if (graph_.vertices() != bits)
 			err("Graph vertices != bits\n");
@@ -30,7 +30,7 @@ public:
 			err("Unimplemented\n");
 	}
 
-	RealType energyZZ(const VectorType& v, bool periodic) const
+	RealType energyZZ(const VectorType& v) const
 	{
 		const SizeType hilbertSpace = v.size();
 		RealType e = 0;
@@ -38,17 +38,18 @@ public:
 			for (SizeType site = 0; site < bits_; ++site) {
 				SizeType maskSite = (1 << site);
 				SizeType j = i & maskSite;
-				SizeType site2 = site + 1;
-				if (site2 >= bits_ && !periodic) continue;
-				assert(site2 <= bits_);
-				if (site2 == bits_) site2 = 0;
-				SizeType maskSite2 = (1 << site2);
-				SizeType k = i & maskSite2;
-				SizeType jj = (j > 0);
-				SizeType kk = (k > 0);
-				RealType tmp = PsimagLite::real(PsimagLite::conj(v[i])*v[i]);
-				RealType value = (jj == kk) ? tmp : -tmp;
-				e += value;
+				const auto& neighbors = graph_.neighbors(site);
+				for (auto it = neighbors.begin(); it != neighbors.end(); ++it) {
+					const SizeType site2 = *it;
+					assert(site2 < bits_);
+					SizeType maskSite2 = (1 << site2);
+					SizeType k = i & maskSite2;
+					SizeType jj = (j > 0);
+					SizeType kk = (k > 0);
+					RealType tmp = PsimagLite::real(PsimagLite::conj(v[i])*v[i]);
+					RealType value = (jj == kk) ? tmp : -tmp;
+					e += value;
+				}
 			}
 		}
 

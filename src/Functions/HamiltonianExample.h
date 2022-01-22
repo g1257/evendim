@@ -67,7 +67,7 @@ public:
 				graphFile = "file:" + graphFile;
 			}
 
-			isingGraph_ = new IsingGraphType(bits_, coupling, graphFile);
+			isingGraph_ = new IsingGraphType(bits_, coupling, periodic_, graphFile);
 			hamTipo = TypeEnum::ISING_GRAPH;
 			return;
 		}
@@ -90,7 +90,7 @@ public:
 		switch (hamTipo) {
 		case  TypeEnum::ISING_GRAPH:
 			assert(isingGraph_);
-			return isingGraph_->energyZZ(y, periodic_);
+			return isingGraph_->energyZZ(y);
 			break;
 		default:
 			assert(cacheVector_.size() == matrix_.rows());
