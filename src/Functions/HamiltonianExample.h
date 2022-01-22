@@ -15,7 +15,7 @@ class HamiltonianExample {
 
 public:
 
-	enum class TypeEnum {FILE, XX, ZZ, ISING_GRAPH, EXPRESSION};
+	enum class TypeEnum {FILE, XX, EXPRESSION, ISING_GRAPH};
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
@@ -27,7 +27,7 @@ public:
 	typedef IsingGraph<ComplexType> IsingGraphType;
 
 	HamiltonianExample(typename InputNgType::Readable& io)
-	    : hamTipo(TypeEnum::XX), periodic_(false), coupling_(1)
+	    : hamTipo(TypeEnum::XX), bits_(0), periodic_(false), isingGraph_(nullptr)
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 
@@ -43,17 +43,36 @@ public:
 			return;
 		}
 
-		if (ham == "IsingGraph") {
-			PsimagLite::String graphFile;
-			io.readline(graphFile, "GraphFile=");
-			IsingGraphType isingGraph(bits_, graphFile);
-			isingGraph.fillMatrix(matrix_);
-			cacheVector_.resize(matrix_.rows());
+		RealType coupling = 1;
+		try {
+			io.readline(coupling, "HamiltonianCoupling=");
+		} catch (std::exception&) {}
+
+		bool hasPeriodic = false;
+		try {
+			int tmp = 0;
+			io.readline(tmp, "HamiltonianIsPeriodic=");
+			periodic_ = (tmp > 0);
+			hasPeriodic = true;
+		} catch (std::exception&) {}
+
+		if (ham == "IsingGraph" || ham == "zz") {
+			PsimagLite::String graphFile = "zz";
+			if (ham == "IsingGraph") {
+
+				if (hasPeriodic)
+					err("IsingGraph does not support HamiltonianIsPeriodic= line\n");
+
+				io.readline(graphFile, "GraphFile=");
+				graphFile = "file:" + graphFile;
+			}
+
+			isingGraph_ = new IsingGraphType(bits_, coupling, graphFile);
 			hamTipo = TypeEnum::ISING_GRAPH;
 			return;
 		}
 
-		if (ham != "xx" && ham != "yy") {
+		if (ham != "xx") {
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
 			hamExpression.fillMatrix(matrix_);
 			cacheVector_.resize(matrix_.rows());
@@ -61,36 +80,30 @@ public:
 			return;
 		}
 
-		try {
-			int tmp = 0;
-			io.readline(tmp, "HamiltonianIsPeriodic=");
-			periodic_ = (tmp > 0);
-		} catch (std::exception&) {}
-
-		try {
-			io.readline(coupling_, "HamiltonianCoupling=");
-		} catch (std::exception&) {}
-
-		hamTipo = (ham == "xx") ? TypeEnum::XX : TypeEnum::ZZ;
-
-		if (hamTipo == TypeEnum::XX)
-			fillHxx();
-		else if (hamTipo != TypeEnum::ZZ)
-			err("Hamiltonian=xx or yy but not " + ham + "\n");
+		assert(ham == "xx");
+		hamTipo = TypeEnum::XX;
+		fillHxx(coupling);
 	}
 
 	RealType energy(const VectorType& y) const
 	{
-		if (hamTipo == TypeEnum::ZZ) return energyZZ(y);
-
-		std::fill(cacheVector_.begin(), cacheVector_.end(), 0);
-		matrix_.matrixVectorProduct(cacheVector_, y);
-		return PsimagLite::real(y*cacheVector_); // does conjugation of first vector
+		switch (hamTipo) {
+		case  TypeEnum::ISING_GRAPH:
+			assert(isingGraph_);
+			return isingGraph_->energyZZ(y, periodic_);
+			break;
+		default:
+			assert(cacheVector_.size() == matrix_.rows());
+			std::fill(cacheVector_.begin(), cacheVector_.end(), 0);
+			matrix_.matrixVectorProduct(cacheVector_, y);
+			return PsimagLite::real(y*cacheVector_); // does conjugation of first vector
+			break;
+		}
 	}
 
 private:
 
-	void fillHxx()
+	void fillHxx(RealType coupling)
 	{
 		SizeType hilbertSpace = (1 << bits_);
 		matrix_.resize(hilbertSpace, hilbertSpace);
@@ -114,7 +127,7 @@ private:
 				if (site2 == bits_) site2 = 0;
 				SizeType maskSite2 = (1 << site2);
 				j ^= maskSite2;
-				v[j] += coupling_;
+				v[j] += coupling;
 				bcol[j] = true;
 			}
 
@@ -147,31 +160,6 @@ private:
 		return counter;
 	}
 
-	RealType energyZZ(const VectorType& v) const
-	{
-		const SizeType hilbertSpace = v.size();
-		RealType e = 0;
-		for (SizeType i = 0; i < hilbertSpace; ++i) {
-			for (SizeType site = 0; site < bits_; ++site) {
-				SizeType maskSite = (1 << site);
-				SizeType j = i & maskSite;
-				SizeType site2 = site + 1;
-				if (site2 >= bits_ && !periodic_) continue;
-				assert(site2 <= bits_);
-				if (site2 == bits_) site2 = 0;
-				SizeType maskSite2 = (1 << site2);
-				SizeType k = i & maskSite2;
-				SizeType jj = (j > 0);
-				SizeType kk = (k > 0);
-				RealType tmp = PsimagLite::real(PsimagLite::conj(v[i])*v[i]);
-				RealType value = (jj == kk) ? tmp : -tmp;
-				e += value;
-			}
-		}
-
-		return e*coupling_;
-	}
-
 	void fillFromFile(PsimagLite::String filename)
 	{
 		SizeType hilbertSpace = (1 << bits_);
@@ -196,9 +184,9 @@ private:
 	}
 
 	TypeEnum hamTipo;
-	bool periodic_;
 	SizeType bits_;
-	RealType coupling_;
+	bool periodic_;
+	IsingGraphType* isingGraph_;
 	SparseMatrixType matrix_;
 	mutable VectorType cacheVector_;
 };
