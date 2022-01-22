@@ -5,6 +5,7 @@
 #include "PsimagLite.h"
 #include "CrsMatrix.h"
 #include "HamiltonianFromExpression.h"
+#include "IsingGraph.hh"
 
 namespace Gep {
 
@@ -14,7 +15,7 @@ class HamiltonianExample {
 
 public:
 
-	enum class TypeEnum {FILE, XX, ZZ, EXPRESSION};
+	enum class TypeEnum {FILE, XX, ZZ, ISING_GRAPH, EXPRESSION};
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
@@ -23,6 +24,7 @@ public:
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
 	typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 	typedef HamiltonianFromExpression<ComplexType> HamiltonianFromExpressionType;
+	typedef IsingGraph<ComplexType> IsingGraphType;
 
 	HamiltonianExample(typename InputNgType::Readable& io)
 	    : hamTipo(TypeEnum::XX), periodic_(false), coupling_(1)
@@ -38,6 +40,16 @@ public:
 			if (matrix_.rows() != hilbert)
 				err("Matrix rows = " + ttos(matrix_.rows()) + " but " +
 				    ttos(hilbert) + " expected.\n");
+			return;
+		}
+
+		if (ham == "IsingGraph") {
+			PsimagLite::String graphFile;
+			io.readline(graphFile, "GraphFile=");
+			IsingGraphType isingGraph(bits_, graphFile);
+			isingGraph.fillMatrix(matrix_);
+			cacheVector_.resize(matrix_.rows());
+			hamTipo = TypeEnum::ISING_GRAPH;
 			return;
 		}
 
