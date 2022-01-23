@@ -3,6 +3,7 @@
 #include "Vector.h"
 #include "Graph.hh"
 #include "CrsMatrix.h"
+#include "../Engine/ProgramGlobals.h"
 
 namespace Gep {
 
@@ -17,17 +18,12 @@ public:
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 
 	IsingGraph(SizeType bits, RealType coupling, bool periodic, PsimagLite::String graphFile)
-	    : FILE_PREFIX("file:"),
-	      bits_(bits),
+	    : bits_(bits),
 	      coupling_(coupling),
 	      graph_(graphFile, bits, periodic)
 	{
 		if (graph_.vertices() != bits)
 			err("Graph vertices != bits\n");
-
-		const bool fromFile = (graphFile.substr(0, 5) == FILE_PREFIX);
-		if (fromFile)
-			err("Unimplemented\n");
 	}
 
 	RealType energyZZ(const VectorType& v) const
@@ -58,7 +54,6 @@ public:
 
 private:
 
-	const PsimagLite::String FILE_PREFIX;
 	SizeType bits_;
 	RealType coupling_;
 	GraphType graph_;
