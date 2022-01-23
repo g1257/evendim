@@ -31,6 +31,7 @@ public:
 		str += "real MinimizerDelta;\n";
 		str += "real MinimizerDelta2;\n";
 		str += "real HamiltonianCoupling;\n";
+		str += "string GraphFile;\n";
 
 		return str;
 	}

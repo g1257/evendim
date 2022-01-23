@@ -1,0 +1,26 @@
+##Ainur1.0
+
+HeadSize=4;
+#Seed=12345;
+Population=100;
+Generations=200;
+NumberOfBits=4;
+MinimizerTolerance=0.1;
+Primitives="Ry,P";
+MinimizerDelta=0.01;
+MinimizerDelta2=0.01;
+MinimizerVerbose=0;
+ProgressBar=1;
+MinimizerAlgorithm="Simplex";
+RunType="GroundState";
+Hamiltonian="IsingGraph";
+GraphFile="graph30.txt";
+HamiltonianCoupling=1;
+#HamiltonianIsPeriodic=1;
+InVectorFile="../TestSuite/inputs/vector24.txt";
+#string EngineOptions="noncanonical";
+
+#CHeadSize=0;
+#AdfsSize=0;
+#StopEarly=false;
+#
