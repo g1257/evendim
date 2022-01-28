@@ -32,8 +32,9 @@ public:
 		PsimagLite::InputNg<InputCheck>::Writeable::readFile(data, graphFile_);
 
 		data = discardComments(data, '#');
+		stripLeadingChars(data);
 		stripTrailingChars(data);
-		loadGraphFromFile(data);
+		loadGraphFromString(data);
 	}
 
 	static PsimagLite::String filePrefix()
@@ -78,13 +79,20 @@ private:
 	// 0: 1;
 	// 1: 2;
 	// 2: 3;
-	void loadGraphFromFile(PsimagLite::String data)
+	void loadGraphFromString(PsimagLite::String data)
 	{
+		static const PsimagLite::String GRAPH = "Graph";
+
 		PsimagLite::String str;
 		SizeType ind = readUntil(str, 0, data, '\n');
 
 		VectorStringType tokens;
 		PsimagLite::split(tokens, str, ":");
+		if (tokens.size() == 1 && tokens[0].substr(0, GRAPH.length()) == GRAPH) {
+			loadFromGraphQaoa(data, ind, str);
+			return;
+		}
+
 		if (tokens.size() < 2 || tokens[0] != "Graph")
 			err("Expected Graph:VersionNumber not " + str + " in " + graphFile_ + "\n");
 
@@ -132,6 +140,58 @@ private:
 		allNeighbors_[site] = tmpVector;
 	}
 
+	void loadFromGraphQaoa(PsimagLite::String data, SizeType ind, PsimagLite::String str)
+	{
+		vertices_ = readOrderGraphQaoa(str);
+		if (vertices_ < 2) err("loadFromGraphQaoa: Only one vertex found!?\n");
+
+		for (SizeType i = 0; i < vertices_ - 1; ++i) {
+			ind = readUntil(str, ind, data, '\n');
+			procVertexGraphQaoa(i, str);
+		}
+	}
+
+	void procVertexGraphQaoa(SizeType site, PsimagLite::String str)
+	{
+		const SizeType total = str.size();
+		VectorSizeType tmpVector;
+		for (SizeType pos = 0; pos < total; ++pos) {
+			const unsigned char c = str[pos];
+			if (c == '0') continue;
+			if (c != '1') err("procVertexGraphQaoa: Expected 0 or 1\n");
+			tmpVector.push_back(pos + site + 1);
+		}
+
+		if (allNeighbors_.size() == 0)
+			allNeighbors_.resize(vertices_);
+
+		assert(site < allNeighbors_.size());
+		allNeighbors_[site] = tmpVector;
+	}
+
+	static SizeType readOrderGraphQaoa(PsimagLite::String str)
+	{
+		const SizeType total = str.size();
+		PsimagLite::String buffer;
+		SizeType ind = total;
+		for (SizeType pos = 0; pos < total; ++pos) {
+			ind = total - pos - 1;
+			if (str[ind] == '.') continue;
+			if (!std::isdigit(str[ind])) break;
+			buffer += str[ind];
+		}
+
+		const SizeType total2 = buffer.size();
+		str = "";
+		for (SizeType pos = 0; pos < total2; ++pos) {
+			const SizeType ind2 = total2 - pos - 1;
+			str += buffer[ind2];
+		}
+
+		return PsimagLite::atoi(str);
+	}
+
+
 	static SizeType readUntil(PsimagLite::String& buffer,
 	                          SizeType ind,
 	                          PsimagLite::String data,
@@ -164,6 +224,17 @@ private:
 		}
 
 		return newData;
+	}
+
+	static void stripLeadingChars(PsimagLite::String& data)
+	{
+		const SizeType total = data.size();
+		SizeType pos = 0;
+		for (; pos < total; ++pos) {
+			if (!isBlankChar(data[pos])) break;
+		}
+
+		data = data.substr(pos, total - pos);
 	}
 
 	static void stripTrailingChars(PsimagLite::String& data)
