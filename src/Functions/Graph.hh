@@ -12,7 +12,8 @@ class Graph {
 public:
 
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
-	typedef PsimagLite::Vector<VectorSizeType>::Type VectorVectorSizeType;
+	using VectorBoolType = PsimagLite::Vector<bool>::Type;
+	using VectorVectorBoolType =  PsimagLite::Vector<VectorBoolType>::Type;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	using LongUintType = long unsigned int;
 
@@ -70,13 +71,22 @@ public:
 		return vertices_;
 	}
 
-	const VectorSizeType& neighbors(SizeType site) const
-	{
-		assert(site < allNeighbors_.size());
-		return allNeighbors_[site];
-	}
-
 	bool isConnected() const { return isConnected_; }
+
+	bool connected(SizeType site1, SizeType site2) const
+	{
+		assert(site1 < vertices_ && site2 < vertices_);
+		if (site1 == site2) return false;
+
+		const SizeType minSite = (site1 < site2) ? site1 : site2;
+		const SizeType maxSite = (site1 < site2) ? site2 : site1;
+		assert(minSite < triangular_.size());
+		assert(minSite < maxSite);
+		const SizeType diff = maxSite - minSite;
+		assert(diff > 0);
+		assert(triangular_[minSite].size() + 1 > diff);
+		return triangular_[minSite][diff - 1];
+	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Graph& graph)
 	{
@@ -96,16 +106,15 @@ private:
 
 	void qaoaForVertex(PsimagLite::String& str, SizeType vertex) const
 	{
-		assert(vertex < allNeighbors_.size());
-		neighborsToQaoa(str, vertex, allNeighbors_[vertex]);
+		assert(vertex < triangular_.size());
+		neighborsToQaoa(str, triangular_[vertex]);
 	}
 
 	void neighborsToQaoa(PsimagLite::String& str,
-	                     SizeType vertex,
-	                     const VectorSizeType& v) const
+	                     const VectorBoolType& v) const
 	{
-		for (SizeType i = vertex + 1; i < vertices_; ++i) {
-			const unsigned char c = (std::find(v.begin(), v.end(), i) == v.end()) ? '0' : '1';
+		for (SizeType i = 0; i < v.size(); ++i) {
+			const unsigned char c = (v[i]) ? '0' : '1';
 			str += c;
 		}
 	}
@@ -113,11 +122,11 @@ private:
 	void neighborsToQaoa(LongUintType& state,
 	                     SizeType& location,
 	                     SizeType vertex,
-	                     const VectorSizeType& v) const
+	                     const VectorBoolType& v) const
 	{
 
 		for (SizeType i = vertex + 1; i < vertices_; ++i) {
-			if (std::find(v.begin(), v.end(), i) == v.end()) continue;
+			if (!v[i]) continue;
 			const LongUintType mask = (1<<location);
 			state |= mask;
 			checkLocation(location);
@@ -127,19 +136,14 @@ private:
 
 	void createChain(bool periodic)
 	{
-		for (SizeType vertex = 0; vertex < vertices_; ++vertex) {
-			SizeType nextSite = vertex + 1;
-			if (nextSite == vertices_) {
-				if (!periodic) {
-					allNeighbors_.push_back(VectorSizeType());
-					break;
-				}
-
-				nextSite = 0;
-			}
-
-			VectorSizeType tmpVector(1, nextSite);
-			allNeighbors_.push_back(tmpVector);
+		assert(vertices_ > 1);
+		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
+			VectorBoolType v(vertices_ - vertex - 1, false);
+			v[0] = true;
+			if (!periodic || vertex > 0 || v.size() < 2) continue;
+			assert(v.size() > 1);
+			v[v.size() - 1] = true;
+			triangular_.push_back(v);
 		}
 	}
 
@@ -166,7 +170,7 @@ private:
 		if (tokens.size() < 2 || tokens[0] != "Graph")
 			err("Expected Graph:VersionNumber not " + str + " in " + graphFile_ + "\n");
 
-		ind = readUntil(str, ind, data, ';');
+		ind = readUntil(str, ind, data, '\n');
 
 		SizeType vertices = PsimagLite::atoi(str);
 		if (vertices_ > 0 && vertices_ != vertices)
@@ -175,39 +179,42 @@ private:
 
 		vertices_ = vertices;
 
+		SizeType count = vertices_ - 1;
+		SizeType site = 0;
 		while (!isTheEnd(ind, data)) {
-			ind = readUntil(str, ind, data, ':');
-			str = stripBlanks(str);
-			SizeType site = PsimagLite::atoi(str);
+			ind = readUntil(str, ind, data, '\n');
 
-			ind = readUntil(str, ind, data, ';');
-			tokens.clear();
-			PsimagLite::split(tokens, str, " ");
-			if (tokens.size() == 0)
-				err("No connections given for listed site " + ttos(site) + "\n");
+			assert(count > 0);
+			if (str.size() != count)
+				err("Expected " + ttos(count) + " numbers for site " +
+				    ttos(site) + ", not " + ttos(str.size()) + "\n");
 
-			if (tokens.size() + 1 >= vertices_)
-				err("Too many connections given for listed site " + ttos(site) + "\n");
-
-			addToNeighbors(site, tokens);
+			addToNeighbors(site, str);
+			--count;
+			++site;
 		}
 	}
 
-	void addToNeighbors(SizeType site, const VectorStringType& neighs)
+	void addToNeighbors(const SizeType site, PsimagLite::String neighs)
 	{
-		VectorSizeType tmpVector(neighs.size());
-		for (auto it = neighs.begin(); it != neighs.end(); ++it) {
-			const SizeType site2 = PsimagLite::atoi(*it);
-			if (std::find(tmpVector.begin(), tmpVector.end(), site2) != tmpVector.end())
-				err("Site already added to neighbors of " + ttos(site) + "\n");
-			tmpVector[it - neighs.begin()] = PsimagLite::atoi(*it);
+		assert(site + 1 < vertices_);
+		assert(neighs.size() == vertices_ - site - 1);
+		VectorBoolType tmpVector(neighs.size());
+		for (SizeType i = site + 1; i < vertices_; ++i) {
+			const SizeType j = i - site - 1;
+			const unsigned char c = neighs[j];
+			if (c != '0' && c != '1')
+				err("addToNeighbors: adjancency matrix found " + neighs + " not 0 or 1\n");
+
+			assert(j < tmpVector.size());
+			tmpVector[j] = (c == '0') ? false : true;
 		}
 
-		if (allNeighbors_.size() == 0)
-			allNeighbors_.resize(vertices_);
+		if (triangular_.size() == 0)
+			triangular_.resize(vertices_ - 1);
 
-		assert(site < allNeighbors_.size());
-		allNeighbors_[site] = tmpVector;
+		assert(site < triangular_.size());
+		triangular_[site] = tmpVector;
 	}
 
 	void loadFromGraphQaoa(PsimagLite::String data, SizeType ind, PsimagLite::String str)
@@ -217,26 +224,8 @@ private:
 
 		for (SizeType i = 0; i < vertices_ - 1; ++i) {
 			ind = readUntil(str, ind, data, '\n');
-			procVertexGraphQaoa(i, str);
+			addToNeighbors(i, str);
 		}
-	}
-
-	void procVertexGraphQaoa(SizeType site, PsimagLite::String str)
-	{
-		const SizeType total = str.size();
-		VectorSizeType tmpVector;
-		for (SizeType pos = 0; pos < total; ++pos) {
-			const unsigned char c = str[pos];
-			if (c == '0') continue;
-			if (c != '1') err("procVertexGraphQaoa: Expected 0 or 1\n");
-			tmpVector.push_back(pos + site + 1);
-		}
-
-		if (allNeighbors_.size() == 0)
-			allNeighbors_.resize(vertices_);
-
-		assert(site < allNeighbors_.size());
-		allNeighbors_[site] = tmpVector;
 	}
 
 	SizeType findOffset(SizeType site1, SizeType pyramid)
@@ -259,7 +248,7 @@ private:
 		LongUintType state = 0;
 		SizeType location = 0;
 		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
-			neighborsToQaoa(state, location, vertex, allNeighbors_[vertex]);
+			neighborsToQaoa(state, location, vertex, triangular_[vertex]);
 		}
 
 		return state;
@@ -377,7 +366,7 @@ private:
 	PsimagLite::String graphFile_;
 	SizeType vertices_;
 	bool isConnected_;
-	VectorVectorSizeType allNeighbors_;
+	VectorVectorBoolType triangular_;
 };
 }
 #endif // GRAPH_HH

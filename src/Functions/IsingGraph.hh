@@ -30,14 +30,13 @@ public:
 	{
 		const SizeType hilbertSpace = v.size();
 		RealType e = 0;
+		assert(bits_ > 1);
 		for (SizeType i = 0; i < hilbertSpace; ++i) {
-			for (SizeType site = 0; site < bits_; ++site) {
+			for (SizeType site = 0; site < bits_ - 1; ++site) {
 				SizeType maskSite = (1 << site);
 				SizeType j = i & maskSite;
-				const auto& neighbors = graph_.neighbors(site);
-				for (auto it = neighbors.begin(); it != neighbors.end(); ++it) {
-					const SizeType site2 = *it;
-					assert(site2 < bits_);
+				for (SizeType site2 = site + 1; site2 < bits_; ++site2) {
+					if (!graph_.connected(site, site2)) continue;
 					SizeType maskSite2 = (1 << site2);
 					SizeType k = i & maskSite2;
 					SizeType jj = (j > 0);
