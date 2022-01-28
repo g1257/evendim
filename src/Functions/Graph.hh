@@ -3,6 +3,7 @@
 #include "PsimagLite.h"
 #include "InputCheck.h"
 #include "InputNg.h"
+#include "BitManip.h"
 
 namespace Gep {
 
@@ -16,7 +17,7 @@ public:
 	using LongUintType = long unsigned int;
 
 	Graph(PsimagLite::String graphFile, SizeType vertices = 0, bool periodic = false)
-	    : graphFile_(graphFile), vertices_(vertices)
+	    : graphFile_(graphFile), vertices_(vertices), isConnected_(false)
 	{
 		if (graphFile_ == "zz") {
 			createChain(periodic);
@@ -36,23 +37,27 @@ public:
 		stripLeadingChars(data);
 		stripTrailingChars(data);
 		loadGraphFromString(data);
+		LongUintType state = getState();
+		isConnected_ = isConnectedRunOnce(state);
 	}
 
 	Graph(LongUintType state, SizeType vertices)
+	    : vertices_(vertices), isConnected_(false)
 	{
 		if (vertices < 2)
 			err("Graph::ctor(): cannot construct Graph with less than two vertices\n");
 
-		vertices_ = vertices;
+		const SizeType pyramid = ((vertices_ - 1)*vertices_)/2;
 		for (SizeType site1 = 0; site1 < vertices - 1; ++site1) {
-			LongUintType offset1 = findOffset(site1);
+			SizeType offset1 = findOffset(site1, pyramid);
 			for (SizeType site2 = site1 + 1 ; site2 < vertices; ++site2) {
 				const SizeType offset12 = offset1 + site2;
 				const LongUintType mask = (1<<offset12);
 				if ((state & mask) == 0) continue;
-
 			}
 		}
+
+		isConnected_ = isConnectedRunOnce(state);
 	}
 
 	static PsimagLite::String filePrefix()
@@ -71,13 +76,17 @@ public:
 		return allNeighbors_[site];
 	}
 
+	bool isConnected() const { return isConnected_; }
+
 	friend std::ostream& operator<<(std::ostream& os, const Graph& graph)
 	{
 		const SizeType n = graph.vertices();
 		if (n < 2) err("Cannot print a graph with less than two vertices\n");
 
 		for (SizeType i = 0; i < n - 1; ++i) {
-			os<<graph.qaoaForVertex(i)<<"\n";
+			PsimagLite::String str;
+			graph.qaoaForVertex(str, i);
+			os<<str<<"\n";
 		}
 
 		return os;
@@ -85,10 +94,37 @@ public:
 
 private:
 
-	PsimagLite::String qaoaForVertex(SizeType vertex) const
+	void qaoaForVertex(PsimagLite::String& str, SizeType vertex) const
 	{
-		throw PsimagLite::RuntimeError("Graph::printQaoa() not implemented\n");
+		assert(vertex < allNeighbors_.size());
+		neighborsToQaoa(str, vertex, allNeighbors_[vertex]);
 	}
+
+	void neighborsToQaoa(PsimagLite::String& str,
+	                     SizeType vertex,
+	                     const VectorSizeType& v) const
+	{
+		for (SizeType i = vertex + 1; i < vertices_; ++i) {
+			const unsigned char c = (std::find(v.begin(), v.end(), i) == v.end()) ? '0' : '1';
+			str += c;
+		}
+	}
+
+	void neighborsToQaoa(LongUintType& state,
+	                     SizeType& location,
+	                     SizeType vertex,
+	                     const VectorSizeType& v) const
+	{
+
+		for (SizeType i = vertex + 1; i < vertices_; ++i) {
+			if (std::find(v.begin(), v.end(), i) == v.end()) continue;
+			const LongUintType mask = (1<<location);
+			state |= mask;
+			checkLocation(location);
+			++location;
+		}
+	}
+
 	void createChain(bool periodic)
 	{
 		for (SizeType vertex = 0; vertex < vertices_; ++vertex) {
@@ -203,11 +239,36 @@ private:
 		allNeighbors_[site] = tmpVector;
 	}
 
-	LongUintType findOffset(SizeType site1)
+	SizeType findOffset(SizeType site1, SizeType pyramid)
 	{
-		throw PsimagLite::RuntimeError("Graph::findOffset() not implemented\n");
+		const SizeType tmp1 = vertices_ - site1 - 1;
+		const SizeType tmp2 = tmp1*(tmp1 + 1);
+		const SizeType tmp3 = tmp2/2;
+		assert(pyramid >= tmp3);
+		return pyramid - tmp3;
 	}
 
+	bool isConnectedRunOnce(LongUintType state) const
+	{
+		if (PsimagLite::BitManip::countKernighan(state) + 1 < vertices_) return false;
+		return true;
+	}
+
+	LongUintType getState() const
+	{
+		LongUintType state = 0;
+		SizeType location = 0;
+		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
+			neighborsToQaoa(state, location, vertex, allNeighbors_[vertex]);
+		}
+
+		return state;
+	}
+
+	void checkLocation(SizeType location) const
+	{
+		assert(location < ((vertices_ - 1)*vertices_)/2);
+	}
 
 	static SizeType readOrderGraphQaoa(PsimagLite::String str)
 	{
@@ -315,6 +376,7 @@ private:
 
 	PsimagLite::String graphFile_;
 	SizeType vertices_;
+	bool isConnected_;
 	VectorVectorSizeType allNeighbors_;
 };
 }

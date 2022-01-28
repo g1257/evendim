@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 	std::cout<<"Graph, order "<<n<<"\n";
 	for (Gep::Graph::LongUintType state = 0; state < nstates; ++state) {
 		Gep::Graph graph(state, vertices);
+		if (!graph.isConnected()) continue;
 		std::cout<<graph;
 		std::cout<<"----------------------------------------\n";
 	}
