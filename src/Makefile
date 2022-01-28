@@ -1,6 +1,6 @@
 include Config.make
 CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src -IEngine
-all: gep2 quantumGep quantumIndividual
+all: gep2 quantumGep quantumIndividual graphGen
 
 quantumGep.o: quantumGep.cpp  Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c quantumGep.cpp
@@ -15,6 +15,13 @@ gep2.o: gep2.cpp  Makefile   Config.make
 gep2: gep2.o
 	$(CXX) -o  gep2 gep2.o $(LDFLAGS) $(CPPFLAGS)
 	$(STRIP_COMMAND) gep2
+
+graphGen: graphGen.o
+	$(CXX) -o  graphGen graphGen.o $(LDFLAGS) $(CPPFLAGS)
+	$(STRIP_COMMAND) graphGen
+
+graphGen.o: graphGen.cpp  Makefile   Config.make
+	$(CXX) $(CPPFLAGS) -c graphGen.cpp
 
 quantumIndividual.o: quantumIndividual.cpp Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c  quantumIndividual.cpp

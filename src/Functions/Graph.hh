@@ -13,6 +13,7 @@ public:
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	typedef PsimagLite::Vector<VectorSizeType>::Type VectorVectorSizeType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
+	using LongUintType = long unsigned int;
 
 	Graph(PsimagLite::String graphFile, SizeType vertices = 0, bool periodic = false)
 	    : graphFile_(graphFile), vertices_(vertices)
@@ -37,6 +38,23 @@ public:
 		loadGraphFromString(data);
 	}
 
+	Graph(LongUintType state, SizeType vertices)
+	{
+		if (vertices < 2)
+			err("Graph::ctor(): cannot construct Graph with less than two vertices\n");
+
+		vertices_ = vertices;
+		for (SizeType site1 = 0; site1 < vertices - 1; ++site1) {
+			LongUintType offset1 = findOffset(site1);
+			for (SizeType site2 = site1 + 1 ; site2 < vertices; ++site2) {
+				const SizeType offset12 = offset1 + site2;
+				const LongUintType mask = (1<<offset12);
+				if ((state & mask) == 0) continue;
+
+			}
+		}
+	}
+
 	static PsimagLite::String filePrefix()
 	{
 		return "file:";
@@ -53,8 +71,24 @@ public:
 		return allNeighbors_[site];
 	}
 
+	friend std::ostream& operator<<(std::ostream& os, const Graph& graph)
+	{
+		const SizeType n = graph.vertices();
+		if (n < 2) err("Cannot print a graph with less than two vertices\n");
+
+		for (SizeType i = 0; i < n - 1; ++i) {
+			os<<graph.qaoaForVertex(i)<<"\n";
+		}
+
+		return os;
+	}
+
 private:
 
+	PsimagLite::String qaoaForVertex(SizeType vertex) const
+	{
+		throw PsimagLite::RuntimeError("Graph::printQaoa() not implemented\n");
+	}
 	void createChain(bool periodic)
 	{
 		for (SizeType vertex = 0; vertex < vertices_; ++vertex) {
@@ -168,6 +202,12 @@ private:
 		assert(site < allNeighbors_.size());
 		allNeighbors_[site] = tmpVector;
 	}
+
+	LongUintType findOffset(SizeType site1)
+	{
+		throw PsimagLite::RuntimeError("Graph::findOffset() not implemented\n");
+	}
+
 
 	static SizeType readOrderGraphQaoa(PsimagLite::String str)
 	{
