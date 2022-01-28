@@ -48,14 +48,19 @@ public:
 		if (vertices < 2)
 			err("Graph::ctor(): cannot construct Graph with less than two vertices\n");
 
+		triangular_.resize(vertices_ - 1);
 		const SizeType pyramid = ((vertices_ - 1)*vertices_)/2;
 		for (SizeType site1 = 0; site1 < vertices - 1; ++site1) {
 			SizeType offset1 = findOffset(site1, pyramid);
+			VectorBoolType tmpVector(vertices - site1 - 1, false);
 			for (SizeType site2 = site1 + 1 ; site2 < vertices; ++site2) {
-				const SizeType offset12 = offset1 + site2;
+				const SizeType j = site2 - site1 - 1;
+				const SizeType offset12 = offset1 + j;
 				const LongUintType mask = (1<<offset12);
-				if ((state & mask) == 0) continue;
+				tmpVector[j] = (state & mask) ? 1 : 0;
 			}
+
+			triangular_[site1] = tmpVector;
 		}
 
 		isConnected_ = isConnectedRunOnce(state);
@@ -114,7 +119,7 @@ private:
 	                     const VectorBoolType& v) const
 	{
 		for (SizeType i = 0; i < v.size(); ++i) {
-			const unsigned char c = (v[i]) ? '0' : '1';
+			const unsigned char c = (v[i]) ? '1' : '0';
 			str += c;
 		}
 	}
