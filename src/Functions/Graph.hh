@@ -154,10 +154,6 @@ private:
 
 	// Graph:1.0:Adjacency
 	// #This is a comment
-	// number of vertices here;
-	// 0: 1;
-	// 1: 2;
-	// 2: 3;
 	void loadGraphFromString(PsimagLite::String data)
 	{
 		static const PsimagLite::String GRAPH = "Graph";
@@ -245,6 +241,34 @@ private:
 	bool isConnectedRunOnce(LongUintType state) const
 	{
 		if (PsimagLite::BitManip::countKernighan(state) + 1 < vertices_) return false;
+		VectorBoolType visited(vertices_, false);
+		for (SizeType vertex = 0; vertex < vertices_; ++vertex) {
+			visitVertex(visited, vertex);
+		}
+
+		return allAreTrue(visited);
+	}
+
+	void visitVertex(VectorBoolType& visited, SizeType vertex) const
+	{
+		assert(vertex < visited.size());
+		if (visited[vertex]) return;
+		visited[vertex] = true;
+		const SizeType n = triangular_.size();
+		if (vertex + 1 == vertices_) return;
+		assert(vertex < n);
+		for (SizeType i = 0; i < triangular_[vertex].size(); ++i) {
+			if (!triangular_[vertex][i]) continue;
+			const SizeType vertex2 = vertex + i + 1;
+			visitVertex(visited, vertex2);
+		}
+	}
+
+	static bool allAreTrue(const VectorBoolType& v)
+	{
+		for (SizeType i = 0; i < v.size(); ++i)
+			if (!v[i]) return false;
+
 		return true;
 	}
 
