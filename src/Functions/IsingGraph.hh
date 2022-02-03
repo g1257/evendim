@@ -59,7 +59,7 @@ public:
 			if (std::norm(v[i]) > 1e-4) buffer += ttos(i) + " ";
 		}
 
-		return buffer;
+		return "[" + buffer + "]";
 	}
 
 private:

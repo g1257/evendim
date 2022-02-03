@@ -269,8 +269,10 @@ private:
 		chromosomes_.push_back(chromosome);
 
 		std::cout<<"+ "<<ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
-		std::cout<<" fitness "<<f<<" "<<fitness_.info(*chromosome);
-		std::cout<<" effective size= "<<chromosome->effectiveSize()<<"\n";
+		const auto fit = (params_.options.isSet("printcompact")) ? " fit " : " fitness ";
+		std::cout<<fit<<f<<" "<<fitness_.info(*chromosome);
+		const auto esize = (params_.options.isSet("printcompact")) ? " #= " : " effective size= ";
+		std::cout<<esize<<chromosome->effectiveSize()<<"\n";
 	}
 
 	bool notAdded(const VectorVectorStringType& newChromosomes,
