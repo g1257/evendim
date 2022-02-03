@@ -264,11 +264,13 @@ private:
 	{
 		ChromosomeType* chromosome = new ChromosomeType(params_,evolution_,str);
 
+		assert(chromosome);
+
 		chromosomes_.push_back(chromosome);
 
-		std::cout<<"Added "<<ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
-		std::cout<<" with fitness "<<f<<" ";
-		std::cout<<"effective size= "<<chromosome->effectiveSize()<<"\n";
+		std::cout<<"+ "<<ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
+		std::cout<<" fitness "<<f<<" "<<fitness_.info(*chromosome);
+		std::cout<<" effective size= "<<chromosome->effectiveSize()<<"\n";
 	}
 
 	bool notAdded(const VectorVectorStringType& newChromosomes,

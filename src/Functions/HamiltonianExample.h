@@ -22,6 +22,7 @@ public:
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
+	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
 	typedef HamiltonianFromExpression<ComplexType> HamiltonianFromExpressionType;
 	typedef IsingGraph<ComplexType> IsingGraphType;
@@ -99,6 +100,14 @@ public:
 			return PsimagLite::real(y*cacheVector_); // does conjugation of first vector
 			break;
 		}
+	}
+
+	template<typename SomeChromosomeType>
+	PsimagLite::String info(const SomeChromosomeType& chromosome) const
+	{
+		if (hamTipo != TypeEnum::ISING_GRAPH) return "";
+		assert(isingGraph_);
+		return isingGraph_->info(chromosome.exec(0));
 	}
 
 private:

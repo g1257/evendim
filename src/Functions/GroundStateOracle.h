@@ -290,6 +290,7 @@ class GroundStateOracle : public BaseFitness<EvolutionType_> {
 public:
 
 	typedef EvolutionType_ EvolutionType;
+	typedef BaseFitness<EvolutionType_> BaseType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType VectorType;
 	typedef typename VectorType::value_type ComplexType;
@@ -386,6 +387,12 @@ public:
 	}
 
 	RealType maxFitness() const { return 100; }
+
+	template<typename SomeChromosomeType>
+	PsimagLite::String info(const SomeChromosomeType& chromosome) const
+	{
+		return fitParams_.hamiltonian.info(chromosome);
+	}
 
 private:
 
