@@ -126,12 +126,15 @@ private:
 
 	void neighborsToQaoa(LongUintType& state,
 	                     SizeType& location,
-	                     SizeType vertex,
 	                     const VectorBoolType& v) const
 	{
+		const SizeType n = v.size();
+		for (SizeType i = 0; i < n; ++i) {
+			if (!v[i]) {
+				++location;
+				continue;
+			}
 
-		for (SizeType i = vertex + 1; i < vertices_; ++i) {
-			if (!v[i]) continue;
 			const LongUintType mask = (1<<location);
 			state |= mask;
 			checkLocation(location);
@@ -242,9 +245,7 @@ private:
 	{
 		if (PsimagLite::BitManip::countKernighan(state) + 1 < vertices_) return false;
 		VectorBoolType visited(vertices_, false);
-		for (SizeType vertex = 0; vertex < vertices_; ++vertex) {
-			visitVertex(visited, vertex);
-		}
+		visitVertex(visited, 0);
 
 		return allAreTrue(visited);
 	}
@@ -277,7 +278,7 @@ private:
 		LongUintType state = 0;
 		SizeType location = 0;
 		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
-			neighborsToQaoa(state, location, vertex, triangular_[vertex]);
+			neighborsToQaoa(state, location, triangular_[vertex]);
 		}
 
 		return state;
