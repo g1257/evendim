@@ -255,9 +255,8 @@ private:
 		assert(vertex < visited.size());
 		if (visited[vertex]) return;
 		visited[vertex] = true;
-		const SizeType n = triangular_.size();
 		if (vertex + 1 == vertices_) return;
-		assert(vertex < n);
+		assert(vertex < triangular_.size());
 		for (SizeType i = 0; i < triangular_[vertex].size(); ++i) {
 			if (!triangular_[vertex][i]) continue;
 			const SizeType vertex2 = vertex + i + 1;
