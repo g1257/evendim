@@ -45,6 +45,7 @@ public:
 			return;
 		}
 
+		err("Gate with name " + name + " not implemented\n");
 	}
 
 	static void fillHadamard(MatrixType& gateMatrix)

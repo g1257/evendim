@@ -28,6 +28,9 @@ public:
 		{
 			MatrixType gateMatrix;
 			std::pair<PsimagLite::String, SizeType> nameBitPair = extractNameAndBit(str);
+			if (nameBitPair.second >= numberOfBits)
+				err("Bit too large in expression " + ttos(nameBitPair.second));
+
 			OneBitGateLibraryType::fillAnyGate(gateMatrix, nameBitPair.first);
 			blowUp(gateMatrix, nameBitPair.second);
 		}
