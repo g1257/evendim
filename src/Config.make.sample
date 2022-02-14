@@ -44,8 +44,12 @@ CPPFLAGS +=   -g3
 #CPPFLAGS +=-DUSE_SIGNALS
 
 # This enables gsl support
-#CPPFLAGS +=-DUSE_GSL
-#LDFLAGS += -lgsl -lgslcblas
+CPPFLAGS +=-DUSE_GSL
+LDFLAGS += -lgsl -lgslcblas
+
+LDFLAGS += -lblas -llapack
+
+CPPFLAGS += -DUSE_BOOST
 
 # This enables the custom allocator (use only for debugging)
 #CPPFLAGS += -DUSE_CUSTOM_ALLOCATOR
