@@ -22,6 +22,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Chromosome.h"
 #include "ParametersEngine.h"
 #include "Sort.h"
+#include "Parallelizer2.h"
 
 namespace Gep {
 
@@ -78,8 +79,8 @@ public:
 	{
 		PairVectorVectorStringType newChromosomes;
 		VectorRealType parentFitness(chromosomes_.size());
-
-		for (SizeType i = 0; i < chromosomes_.size(); i++) {
+		SizeType totalChromosomes = chromosomes_.size();
+		for (SizeType i = 0; i < totalChromosomes; i++) {
 			const VectorStringType vecStr = chromosomes_[i]->vecString();
 
 			const VectorStringType& effectiveVec = chromosomes_[i]->effectiveVecString();
@@ -87,9 +88,18 @@ public:
 				newChromosomes.first.push_back(vecStr);
 				newChromosomes.second.push_back(effectiveVec);
 			}
-
-			parentFitness[i] = -fitness_.getFitness(*chromosomes_[i]);
 		}
+
+		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
+		codeParams.npthreads = std::min(totalChromosomes,
+		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
+
+		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
+		parallelizer2.parallelFor(0,
+		                          totalChromosomes,
+		                          [&parentFitness, this](SizeType ind, SizeType) {
+			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind]);
+		});
 
 		recombination(newChromosomes, parentFitness, 1);
 

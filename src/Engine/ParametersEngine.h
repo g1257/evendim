@@ -34,6 +34,7 @@ struct ParametersInput {
 	                SizeType ch = 0,
 	                SizeType adfs1 = 0,
 	                SizeType samples1 = 50,
+	                SizeType threads1 = 1,
 	                PsimagLite::String options1 = "",
 	                PsimagLite::String prim = "")
 	    : population(p),
@@ -42,6 +43,7 @@ struct ParametersInput {
 	      chead(ch),
 	      adfs(adfs1),
 	      samples(samples1),
+	      threads(threads1),
 	      options(new Options(options1)),
 	      primitives(prim)
 	{}
@@ -53,6 +55,7 @@ struct ParametersInput {
 	      chead(0),
 	      adfs(0),
 	      samples(50),
+	      threads(1),
 	      options(nullptr),
 	      primitives("")
 	{
@@ -62,6 +65,10 @@ struct ParametersInput {
 
 		try {
 			io.readline(samples, "Samples=");
+		} catch (std::exception&) {}
+
+		try {
+			io.readline(threads, "Threads=");
 		} catch (std::exception&) {}
 
 		try {
@@ -92,6 +99,7 @@ struct ParametersInput {
 	SizeType chead;
 	SizeType adfs;
 	SizeType samples;
+	SizeType threads;
 	Options* options;
 	PsimagLite::String primitives; // comma-separated list of primitives
 };
@@ -114,6 +122,7 @@ public:
 	      mutation(static_cast<SizeType>(op.population*m)),
 	      inversion(static_cast<SizeType>(op.population*i)),
 	      samples(op.samples),
+	      threads(op.threads),
 	      options(*op.options)
 	{}
 
@@ -126,6 +135,7 @@ public:
 	SizeType mutation;
 	SizeType inversion;
 	SizeType samples;
+	SizeType threads;
 	const Options& options;
 }; // class ParametersEngine
 

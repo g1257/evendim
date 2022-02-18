@@ -3,7 +3,7 @@
 HeadSize=9;
 #Seed=12345;
 Population=100;
-Generations=200;
+Generations=5;
 NumberOfBits=9;
 MinimizerTolerance=0.1;
 Primitives="Ry,P";

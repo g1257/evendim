@@ -29,6 +29,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 template<typename FitnessType>
 void main2(typename FitnessType::EvolutionType& evolution,
            const Gep::ParametersInput& gepOptions,
+           SizeType threads,
            PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	typedef Gep::Engine<FitnessType> EngineType;
@@ -41,6 +42,13 @@ void main2(typename FitnessType::EvolutionType& evolution,
 
 	FitnessParamsType fitParams(io);
 	typename EngineType::ParametersEngineType params(gepOptions);
+	if (threads > 0) params.threads = threads;
+	PsimagLite::CodeSectionParams codeSection(params.threads,
+	                                          1, // threads2
+	                                          false, // setAffinities,
+	                                          0); // threadsStackSize;
+	PsimagLite::Concurrency::setOptions(codeSection);
+
 	EngineType engine(params, evolution, &fitParams);
 
 	for (SizeType i = 0; i < total; i++)
@@ -52,15 +60,17 @@ template<template<typename, typename> class FitnessTemplate,
          typename ComplexType>
 void mainGroundState(EvolutionType& evolution,
                      const Gep::ParametersInput& gepOptions,
+                     SizeType threads,
                      PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
-	main2<FitnessTemplate<EvolutionType, HamiltonianType> >(evolution, gepOptions, io);
+	main2<FitnessTemplate<EvolutionType, HamiltonianType> >(evolution, gepOptions, threads, io);
 }
 
 int main(int argc, char* argv[])
 {
 	PsimagLite::String filename;
+	SizeType threads = 1;
 	bool verbose = false;
 
 	PsimagLite::FloatingPoint::enableExcept();
@@ -68,13 +78,16 @@ int main(int argc, char* argv[])
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);
 	strUsage += " -f filename [-v]\n";
-	while ((opt = getopt(argc, argv,"f:v")) != -1) {
+	while ((opt = getopt(argc, argv,"f:S:v")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
 			break;
 		case 'v':
 			verbose = true;
+			break;
+		case 'S':
+			threads = PsimagLite::atoi(optarg);
 			break;
 		default:
 			throw PsimagLite::RuntimeError(strUsage);
@@ -134,11 +147,12 @@ int main(int argc, char* argv[])
 	io.readline(runType, "RunType=");
 
 	if (runType == "FunctionFit") {
-		main2<Gep::QuantumOracle<EvolutionType> >(evolution, gepOptions, io);
+		main2<Gep::QuantumOracle<EvolutionType> >(evolution, gepOptions, threads, io);
 	} else if (runType == "GroundState") {
 		gepOptions.samples = 1;
 		mainGroundState<Gep::GroundStateOracle, EvolutionType, ComplexType>(evolution,
 		                                                                    gepOptions,
+		                                                                    threads,
 		                                                                    io);
 	} else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
