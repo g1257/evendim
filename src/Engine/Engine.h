@@ -220,17 +220,35 @@ private:
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
-		const bool withProgressBar = params_.options.isSet("progressBar");
-		for (SizeType i = 0; i < newChromosomes.size(); i++) {
-			ChromosomeType chromosome(params_,evolution_,newChromosomes[i]);
-			if (evolution_.verbose())
-				std::cout<<"About to exec chromosome= "<<newChromosomes[i]<<"\n";
-			fitness[i] = -fitness_.getFitness(chromosome);
-			newChromosomes[i] = chromosome.vecString();
+
+		const SizeType totalChromosomes = newChromosomes.size();
+		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
+		codeParams.npthreads = std::min(totalChromosomes,
+		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
+
+		assert(codeParams.npthreads > 0);
+		bool withProgressBar = (codeParams.npthreads > 1) ? false
+		                                                  : params_.options.isSet("progressBar");
+
+		bool isVerbose = (evolution_.verbose() && codeParams.npthreads == 1);
+
+		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
+		parallelizer2.parallelFor(0,
+		                          totalChromosomes,
+		                          [&newChromosomes,
+		                          &fitness,
+		                          isVerbose,
+		                          withProgressBar,
+		                          this](SizeType ind, SizeType) {
+			ChromosomeType chromosome(params_,evolution_,newChromosomes[ind]);
+			if (isVerbose)
+				std::cout<<"About to exec chromosome= "<<newChromosomes[ind]<<"\n";
+			fitness[ind] = -fitness_.getFitness(chromosome);
+			newChromosomes[ind] = chromosome.vecString();
 			const int status = fitness_.status();
 			const PsimagLite::String symbol = (status == 0) ? "." : "*";
 			if (withProgressBar) std::cerr<<symbol;
-		}
+		});
 
 		if (withProgressBar) std::cerr<<"\n";
 
