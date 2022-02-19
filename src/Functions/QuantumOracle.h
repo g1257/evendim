@@ -348,6 +348,7 @@ class QuantumOracle : public BaseFitness<EvolutionType_> {
 
 public:
 
+	typedef BaseFitness<EvolutionType_> BaseType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType VectorType;
@@ -368,7 +369,7 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome)
+	RealType getFitness(SomeChromosomeType& chromosome, long unsigned int seed)
 	{
 		typedef FunctionToMinimize<SomeChromosomeType, EvolutionType, ComplexType>
 		        FunctionToMinimizeType;
@@ -387,7 +388,8 @@ public:
 
 		int used = 0;
 		VectorRealType angles(f.size());
-		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng_);
+		PsimagLite::MersenneTwister rng(seed);
+		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng);
 		if (minParams_.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams_.delta,
@@ -451,16 +453,11 @@ private:
 		return str;
 	}
 
-	static PsimagLite::MersenneTwister rng_;
 	SizeType samples_;
 	const EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
 	int status_;
 }; // class QuantumOracle
-
-template<typename T>
-PsimagLite::MersenneTwister QuantumOracle<T>::rng_(1234);
-
 } // namespace Gep
 
 #endif // QUANTUM_ORACLE_H

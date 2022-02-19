@@ -46,6 +46,7 @@ class Engine {
 	typedef typename ChromosomeType::PairVectorVectorStringType PairVectorVectorStringType;
 	typedef typename ChromosomeType::VectorVectorStringType VectorVectorStringType;
 	typedef typename ChromosomeType::VectorAnglesType VectorAnglesType;
+	typedef PsimagLite::Vector<long unsigned int>::Type VectorLongUnsignedType;
 
 public:
 
@@ -94,11 +95,12 @@ public:
 		codeParams.npthreads = std::min(totalChromosomes,
 		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
 
+		VectorLongUnsignedType seeds = fitness_.createSeeds(totalChromosomes);
 		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
 		parallelizer2.parallelFor(0,
 		                          totalChromosomes,
-		                          [&parentFitness, this](SizeType ind, SizeType) {
-			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind]);
+		                          [&parentFitness, &seeds, this](SizeType ind, SizeType) {
+			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind]);
 		});
 
 		recombination(newChromosomes, parentFitness, 1);
@@ -199,9 +201,8 @@ private:
 	            const PsimagLite::String& action) const
 	{
 		SizeType population = chromosomes_.size();
-		const PrimitivesType& primitives = evolution_.primitives();
 		for (SizeType i = 0; i < params_.mutation; i++) {
-			SizeType index = static_cast<SizeType>(primitives.rng() * population);
+			SizeType index = static_cast<SizeType>(fitness_.rng() * population);
 			VectorStringType newVecStr = chromosomes_[index]->evolve(action);
 
 			addWithCare(newChromosomes, newVecStr);
@@ -231,19 +232,21 @@ private:
 		                                                  : params_.options.isSet("progressBar");
 
 		bool isVerbose = (evolution_.verbose() && codeParams.npthreads == 1);
+		VectorLongUnsignedType seeds = fitness_.createSeeds(totalChromosomes);
 
 		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
 		parallelizer2.parallelFor(0,
 		                          totalChromosomes,
 		                          [&newChromosomes,
 		                          &fitness,
+		                          &seeds,
 		                          isVerbose,
 		                          withProgressBar,
 		                          this](SizeType ind, SizeType) {
 			ChromosomeType chromosome(params_,evolution_,newChromosomes[ind]);
 			if (isVerbose)
 				std::cout<<"About to exec chromosome= "<<newChromosomes[ind]<<"\n";
-			fitness[ind] = -fitness_.getFitness(chromosome);
+			fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind]);
 			newChromosomes[ind] = chromosome.vecString();
 			const int status = fitness_.status();
 			const PsimagLite::String symbol = (status == 0) ? "." : "*";
@@ -275,11 +278,9 @@ private:
 			if (i==0 && f == maxFitness) return true;
 		}
 
-		const PrimitivesType& primitives = evolution_.primitives();
-
 		for (SizeType i = point; i < population; i++) {
 			SizeType index = point +
-			        static_cast<SizeType>(primitives.rng() * population * (1.0-fraction));
+			        static_cast<SizeType>(fitness_.rng() * population * (1.0-fraction));
 			assert(index >= point);
 			addChromosome(newChromosomes[index],-fitness[index]);
 		}

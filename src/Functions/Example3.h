@@ -29,7 +29,8 @@ class Example3 : public BaseFitness<EvolutionType_> {
 
 public:
 
-	typedef typename BaseFitness<EvolutionType_>::FitnessParamsType FitnessParamsType;
+	typedef BaseFitness<EvolutionType_> BaseType;
+	typedef typename BaseType::FitnessParamsType FitnessParamsType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
@@ -45,7 +46,7 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome)
+	RealType getFitness(const SomeChromosomeType& chromosome, long unsigned int)
 	{
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;

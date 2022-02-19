@@ -138,11 +138,13 @@ public:
 			err("encodeAngles: too few angles for rotations in this individual!?\n");
 	}
 
-	template<typename SomeRngType>
-	static void initAngles(VectorRealType& angles, const VectorStringType& vStr, SomeRngType& rng)
+	static void initAngles(VectorRealType& angles,
+	                       const VectorStringType& vStr,
+	                       long unsigned int seed)
 	{
 		const SizeType n = vStr.size();
 		SizeType currentIndex = 0;
+		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < n; ++i) {
 			if (numberOfAnglesOneGate(vStr[i]) == 0) continue;
 			if (angles.size() < currentIndex)
@@ -158,7 +160,9 @@ public:
 private:
 
 	template<typename SomeRngType>
-	static void initAngle(RealType& angle, PsimagLite::String str, SomeRngType& rng)
+	static void initAngle(RealType& angle,
+	                      PsimagLite::String str,
+	                      SomeRngType& rng)
 	{
 		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
 		                                                           str.end(),
@@ -315,7 +319,7 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome)
+	RealType getFitness(SomeChromosomeType& chromosome, long unsigned int seed)
 	{
 		typedef FunctionToMinimize2<SomeChromosomeType, EvolutionType, GroundStateParamsType>
 		        FunctionToMinimizeType;
@@ -335,7 +339,7 @@ public:
 
 		int used = 0;
 		VectorRealType angles(f.size());
-		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng_);
+		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), seed);
 		if (minParams.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams.delta,
@@ -405,15 +409,10 @@ private:
 		return str;
 	}
 
-	static PsimagLite::MersenneTwister rng_;
 	const EvolutionType& evolution_;
 	const GroundStateParamsType fitParams_;
 	int status_;
 }; // class QuantumOracle
-
-template<typename T1, typename T2>
-PsimagLite::MersenneTwister GroundStateOracle<T1, T2>::rng_(1234);
-
 } // namespace Gep
 
 #endif // GROUND_STATE_ORACLE_H

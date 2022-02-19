@@ -70,7 +70,7 @@ void mainGroundState(EvolutionType& evolution,
 int main(int argc, char* argv[])
 {
 	PsimagLite::String filename;
-	SizeType threads = 1;
+	SizeType threads = 0;
 	bool verbose = false;
 
 	PsimagLite::FloatingPoint::enableExcept();

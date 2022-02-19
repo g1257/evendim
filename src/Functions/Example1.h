@@ -26,7 +26,8 @@ class Example1 : public BaseFitness<EvolutionType_> {
 
 public:
 
-	typedef typename BaseFitness<EvolutionType_>::FitnessParamsType FitnessParamsType;
+	typedef BaseFitness<EvolutionType_> BaseType;
+	typedef typename BaseType::FitnessParamsType FitnessParamsType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
@@ -38,19 +39,21 @@ public:
 		if (evolution.inputs() != 1) {
 			throw PsimagLite::RuntimeError("Example1::ctor(): 1 input expected\n");
 		}
+
 		for (SizeType i = 0; i < samples; i++)
-			samples_[i] = evolution_.primitives().rng() * 2.0 - 1.0;
+			samples_[i] = BaseType::rng() * 2.0 - 1.0;
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome)
+	RealType getFitness(const SomeChromosomeType& chromosome, long unsigned int seed)
 	{
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
 
+		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < maxFitness(); i++) {
 			bool b = true; //(evolution_.rng() < 0.5) ? true : false;
-			RealType r = evolution_.primitives().rng() * 10.0 - 10.0;
+			RealType r = rng() * 10.0 - 10.0;
 			RealType x = (b) ? r : samples_[i];
 			samples_[i] = r;
 			RealType fOfX = f(x);
