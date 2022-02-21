@@ -95,7 +95,13 @@ public:
 		nodes_.clear();
 	}
 
-	const VectorNodeType& nodes() const { return nodes_; }
+	const VectorNodeType& nodes(SizeType threadNum) const
+	{
+		if (threadNum > 0)
+			err("Threading not supported yet (sorry)\n");
+
+		return nodes_;
+	}
 
 	const VectorStringType& nonTerminals() const
 	{

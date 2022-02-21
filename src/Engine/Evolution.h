@@ -46,7 +46,7 @@ public:
 	    : primitives_(primitives),
 	      verbose_(verbose)
 	{
-		const VectorNodeType& nodes = primitives_.nodes();
+		const VectorNodeType& nodes = primitives_.nodes(0);
 
 		for (SizeType i = 0; i < nodes.size(); i++) {
 			if (nodes[i]->isInput()) {

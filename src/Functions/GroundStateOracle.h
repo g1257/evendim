@@ -42,11 +42,13 @@ public:
 
 	FunctionToMinimize2(const EvolutionType& evolution,
 	                    const ChromosomeType& chromosome,
-	                    const GroundStateParamsType& groundStateParams)
+	                    const GroundStateParamsType& groundStateParams,
+	                    SizeType thread)
 	    : evolution_(evolution),
 	      chromosome_(chromosome),
 	      groundStateParams_(groundStateParams),
-	      outVector_(groundStateParams_.inVector.size())
+	      outVector_(groundStateParams_.inVector.size()),
+	      thread_(thread)
 	{
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
 	}
@@ -94,7 +96,7 @@ public:
 
 		if (angles) {
 			encodeAngles(vecStr, *angles);
-			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr, thread_);
 		} else {
 			chromosome = &chromosome_;
 		}
@@ -286,6 +288,7 @@ private:
 	SizeType numberOfAngles_;
 	VectorType outVector_;
 	VectorType differential_;
+	SizeType thread_;
 };
 
 template<typename EvolutionType_, typename HamiltonianType>
@@ -319,14 +322,16 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome, long unsigned int seed)
+	RealType getFitness(SomeChromosomeType& chromosome,
+	                    long unsigned int seed,
+	                    SizeType threadNum)
 	{
 		typedef FunctionToMinimize2<SomeChromosomeType, EvolutionType, GroundStateParamsType>
 		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
 
-		FunctionToMinimizeType f(evolution_, chromosome, fitParams_);
+		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {
 			return f.fitness(nullptr,

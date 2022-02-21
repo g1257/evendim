@@ -99,8 +99,8 @@ public:
 		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
 		parallelizer2.parallelFor(0,
 		                          totalChromosomes,
-		                          [&parentFitness, &seeds, this](SizeType ind, SizeType) {
-			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind]);
+		                          [&parentFitness, &seeds, this](SizeType ind, SizeType threadNum) {
+			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
 		});
 
 		recombination(newChromosomes, parentFitness, 1);
@@ -125,7 +125,7 @@ private:
 	{
 		for (SizeType i = 0; i < newChromosomes.size(); i++) {
 			CanonicalFormType canonicalForm(newChromosomes[i],
-			                                evolution_.primitives().nodes());
+			                                evolution_.primitives().nodes(0));
 			canonicalForm.changeIfNeeded(newChromosomes[i]);
 		}
 	}
@@ -242,11 +242,11 @@ private:
 		                          &seeds,
 		                          isVerbose,
 		                          withProgressBar,
-		                          this](SizeType ind, SizeType) {
+		                          this](SizeType ind, SizeType threadNum) {
 			ChromosomeType chromosome(params_,evolution_,newChromosomes[ind]);
 			if (isVerbose)
 				std::cout<<"About to exec chromosome= "<<newChromosomes[ind]<<"\n";
-			fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind]);
+			fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind], threadNum);
 			newChromosomes[ind] = chromosome.vecString();
 			const int status = fitness_.status();
 			const PsimagLite::String symbol = (status == 0) ? "." : "*";

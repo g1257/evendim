@@ -46,8 +46,13 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome, long unsigned int)
+	RealType getFitness(const SomeChromosomeType& chromosome,
+	                    long unsigned int,
+	                    SizeType threadNum)
 	{
+		if (threadNum > 0)
+			err("Threading not supported yet (sorry)\n");
+
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
 

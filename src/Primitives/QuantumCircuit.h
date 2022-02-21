@@ -39,6 +39,7 @@ public:
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef Node<VectorValueType, RealType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
+	typedef typename PsimagLite::Vector<VectorNodeType>::Type VectorVectorNodeType;
 	typedef NodeDc<VectorValueType> NodeDcType;
 	typedef Plus<VectorValueType> PlusType;
 	typedef Minus<VectorValueType> MinusType;
@@ -58,131 +59,46 @@ public:
 	               PsimagLite::String gates)
 	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)
 	{
-		static const SizeType inputs = 1;
-
 		PsimagLite::split(gates_, gates, ",");
 
-		VectorStringType tmpGates = gates_;
-		typename VectorStringType::const_iterator it = std::find(tmpGates.begin(),
-		                                                         tmpGates.end(),
-		                                                         "H");
-		if (it != tmpGates.end()) {
-			tmpGates.erase(it);
-			// add Hadamard gates
-			MatrixType hadamardGate;
-			OneBitGateLibraryType::fillHadamard(hadamardGate);
-			for (SizeType i = 0; i < numberOfBits; ++i) {
-				NodeType* hadamard = new QuantumOneBitGateType("H", i, numberOfBits, hadamardGate);
-				nodes_.push_back(hadamard);
+		VectorNodeType nodes;
+		makeNodes(nodes);
+
+		for (SizeType i=0;i<nodes.size();i++) {
+			if (nodes[i]->isInput()) {
+				terminals_.push_back(nodes[i]->code());
+			} else if (nodes[i]->arity()>0 && nodes[i]->code()[0] != '_') {
+				nonTerminals_.push_back(nodes[i]->code());
 			}
 		}
 
-		it = std::find(tmpGates.begin(), tmpGates.end(), "P");
-		if (it != tmpGates.end()) {
-			tmpGates.erase(it);
-			// add PHASE gates
-			MatrixType phaseGate;
-			OneBitGateLibraryType::fillPhase(phaseGate);
-			for (SizeType i = 0; i < numberOfBits; ++i) {
-				NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits, phaseGate);
-				nodes_.push_back(phase);
-			}
+		for (SizeType i=0;i<nodes.size();i++) {
+			if (maxArity_ < nodes[i]->arity())
+				maxArity_ = nodes[i]->arity();
 		}
 
-		// add Pauli matrices
-		for (SizeType dir = 0; dir < 3; ++dir) {
-			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
-			PsimagLite::String rDir("S ");
-			rDir[1] = charDir;
-			it = std::find(tmpGates.begin(), tmpGates.end(), rDir);
-			if (it == tmpGates.end())
-				continue;
-
-			tmpGates.erase(it);
-			MatrixType pauli;
-			OneBitGateLibraryType::fillPauli(pauli, dir);
-			for (SizeType i = 0; i < numberOfBits; ++i) {
-				NodeType* pauliNode = new QuantumOneBitGateType(rDir, i, numberOfBits, pauli);
-				nodes_.push_back(pauliNode);
-			}
-		}
-
-		// add rotation gates
-		for (SizeType dir = 0; dir < 3; ++dir) {
-			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
-			PsimagLite::String rDir("R ");
-			rDir[1] = charDir;
-			it = std::find(tmpGates.begin(), tmpGates.end(), rDir);
-			if (it == tmpGates.end())
-				continue;
-
-			tmpGates.erase(it);
-			MatrixType rotation;
-			OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
-
-			for (SizeType i = 0; i < numberOfBits; ++i) {
-				NodeType* rot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
-				nodes_.push_back(rot);
-			}
-
-			OneBitGateLibraryType::diffRotation(rotation, dir, 0); // 0 == angle
-			rDir = "_R ";
-			rDir[2] = charDir;
-			for (SizeType i = 0; i < numberOfBits; ++i) {
-				NodeType* drot = new QuantumOneBitGateType(rDir, i, numberOfBits, rotation);
-				nodes_.push_back(drot);
-			}
-		}
-
-		it = std::find(tmpGates.begin(), tmpGates.end(), "C");
-		if (it != tmpGates.end()) {
-			tmpGates.erase(it);
-			// add CNOT gates
-			MatrixType cnotGate;
-			TwoBitGateLibraryType::fillCnot(cnotGate);
-			for (SizeType i = 0; i < numberOfBits; ++i) {
-				for (SizeType j = i + 1; j < numberOfBits; ++j) {
-					NodeType* cnot = new QuantumTwoBitGateType("C", i, j, numberOfBits, cnotGate);
-					nodes_.push_back(cnot);
-				}
-			}
-		}
-
-		if (tmpGates.size() > 0) {
-			PsimagLite::String tmp = std::accumulate(tmpGates.begin(),
-			                                         tmpGates.end(),
-			                                         PsimagLite::String(" "));
-			err("The following gates were not recognized: " + tmp + "\n");
-		}
-
-		for (SizeType i = 0; i < inputs; i++) {
-			NodeType* input = new QuantumInput<VectorValueType>(numberOfBits);
-			nodes_.push_back(input);
-		}
-
-		for (SizeType i=0;i<nodes_.size();i++) {
-			if (nodes_[i]->isInput()) {
-				terminals_.push_back(nodes_[i]->code());
-			} else if (nodes_[i]->arity()>0 && nodes_[i]->code()[0] != '_') {
-				nonTerminals_.push_back(nodes_[i]->code());
-			}
-		}
-
-		for (SizeType i=0;i<nodes_.size();i++) {
-			if (maxArity_ < nodes_[i]->arity())
-				maxArity_ = nodes_[i]->arity();
-		}
+		nodes_.push_back(nodes);
 	}
 
 	~QuantumCircuit()
 	{
-		for (SizeType i = 0; i < nodes_.size(); i++)
-			delete nodes_[i];
+		for (SizeType i = 0; i < nodes_.size(); i++) {
+			for (SizeType j = 0; j < nodes_[i].size(); ++j) {
+				delete nodes_[i][j];
+				nodes_[i][j] = nullptr;
+			}
+
+			nodes_[i].clear();
+		}
 
 		nodes_.clear();
 	}
 
-	const VectorNodeType& nodes() const { return nodes_; }
+	const VectorNodeType& nodes(SizeType threadNum) const
+	{
+		assert(threadNum < nodes_.size());
+		return nodes_[threadNum];
+	}
 
 	const VectorStringType& nonTerminals() const
 	{
@@ -208,18 +124,107 @@ public:
 
 private:
 
-	void addConstants()
+	void makeNodes(VectorNodeType& nodes)
 	{
-		const SizeType n = dcValues_.size();
-		if (n == 0) return;
-		dcArray_.resize(n);
-		for (SizeType i = 0; i < n; ++i) {
-			dcValues_[i] = 10.0*rng_() - 10.0;
-			dcArray_[i] = ttos(i);
+		static const SizeType inputs = 1;
+
+		VectorStringType tmpGates = gates_;
+		typename VectorStringType::const_iterator it = std::find(tmpGates.begin(),
+		                                                         tmpGates.end(),
+		                                                         "H");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add Hadamard gates
+			MatrixType hadamardGate;
+			OneBitGateLibraryType::fillHadamard(hadamardGate);
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				NodeType* hadamard = new QuantumOneBitGateType("H", i, numberOfBits_, hadamardGate);
+				nodes.push_back(hadamard);
+			}
 		}
 
-		NodeType* dc = new NodeDcType();
-		nodes_.push_back(dc);
+		it = std::find(tmpGates.begin(), tmpGates.end(), "P");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add PHASE gates
+			MatrixType phaseGate;
+			OneBitGateLibraryType::fillPhase(phaseGate);
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits_, phaseGate);
+				nodes.push_back(phase);
+			}
+		}
+
+		// add Pauli matrices
+		for (SizeType dir = 0; dir < 3; ++dir) {
+			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
+			PsimagLite::String rDir("S ");
+			rDir[1] = charDir;
+			it = std::find(tmpGates.begin(), tmpGates.end(), rDir);
+			if (it == tmpGates.end())
+				continue;
+
+			tmpGates.erase(it);
+			MatrixType pauli;
+			OneBitGateLibraryType::fillPauli(pauli, dir);
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				NodeType* pauliNode = new QuantumOneBitGateType(rDir, i, numberOfBits_, pauli);
+				nodes.push_back(pauliNode);
+			}
+		}
+
+		// add rotation gates
+		for (SizeType dir = 0; dir < 3; ++dir) {
+			char charDir = OneBitGateLibraryType::directionIntegerToChar(dir);
+			PsimagLite::String rDir("R ");
+			rDir[1] = charDir;
+			it = std::find(tmpGates.begin(), tmpGates.end(), rDir);
+			if (it == tmpGates.end())
+				continue;
+
+			tmpGates.erase(it);
+			MatrixType rotation;
+			OneBitGateLibraryType::rotation(rotation, dir, 0); // 0 == angle
+
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				NodeType* rot = new QuantumOneBitGateType(rDir, i, numberOfBits_, rotation);
+				nodes.push_back(rot);
+			}
+
+			OneBitGateLibraryType::diffRotation(rotation, dir, 0); // 0 == angle
+			rDir = "_R ";
+			rDir[2] = charDir;
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				NodeType* drot = new QuantumOneBitGateType(rDir, i, numberOfBits_, rotation);
+				nodes.push_back(drot);
+			}
+		}
+
+		it = std::find(tmpGates.begin(), tmpGates.end(), "C");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add CNOT gates
+			MatrixType cnotGate;
+			TwoBitGateLibraryType::fillCnot(cnotGate);
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				for (SizeType j = i + 1; j < numberOfBits_; ++j) {
+					NodeType* cnot = new QuantumTwoBitGateType("C", i, j, numberOfBits_, cnotGate);
+					nodes.push_back(cnot);
+				}
+			}
+		}
+
+		if (tmpGates.size() > 0) {
+			PsimagLite::String tmp = std::accumulate(tmpGates.begin(),
+			                                         tmpGates.end(),
+			                                         PsimagLite::String(" "));
+			err("The following gates were not recognized: " + tmp + "\n");
+		}
+
+		for (SizeType i = 0; i < inputs; i++) {
+			NodeType* input = new QuantumInput<VectorValueType>(numberOfBits_);
+			nodes.push_back(input);
+		}
 	}
 
 	SizeType maxArity_;
@@ -227,7 +232,7 @@ private:
 	VectorStringType dcArray_;
 	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 	const SizeType numberOfBits_;
-	VectorNodeType nodes_;
+	VectorVectorNodeType nodes_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
 	VectorStringType gates_;

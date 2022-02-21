@@ -369,12 +369,17 @@ public:
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome, long unsigned int seed)
+	RealType getFitness(SomeChromosomeType& chromosome,
+	                    long unsigned int seed,
+	                    SizeType threadNum)
 	{
 		typedef FunctionToMinimize<SomeChromosomeType, EvolutionType, ComplexType>
 		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
+
+		if (threadNum > 0)
+			err("QuantumOracle: Threading not supported yet (sorry)\n");
 
 		FunctionToMinimizeType f(evolution_, chromosome, samples_);
 
