@@ -26,10 +26,9 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputCheck.h"
 #include "FloatingPoint.h"
 
-template<typename FitnessType>
+template<typename FitnessType, typename ParametersEngineType>
 void main2(typename FitnessType::EvolutionType& evolution,
-           const Gep::ParametersInput& gepOptions,
-           SizeType threads,
+           const ParametersEngineType& params,
            PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
 	typedef Gep::Engine<FitnessType> EngineType;
@@ -41,30 +40,11 @@ void main2(typename FitnessType::EvolutionType& evolution,
 		err("Generations must be greater than zero\n");
 
 	FitnessParamsType fitParams(io);
-	typename EngineType::ParametersEngineType params(gepOptions);
-	if (threads > 0) params.threads = threads;
-	PsimagLite::CodeSectionParams codeSection(params.threads,
-	                                          1, // threads2
-	                                          false, // setAffinities,
-	                                          0); // threadsStackSize;
-	PsimagLite::Concurrency::setOptions(codeSection);
 
 	EngineType engine(params, evolution, &fitParams);
 
 	for (SizeType i = 0; i < total; i++)
 		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
-}
-
-template<template<typename, typename> class FitnessTemplate,
-         typename EvolutionType,
-         typename ComplexType>
-void mainGroundState(EvolutionType& evolution,
-                     const Gep::ParametersInput& gepOptions,
-                     SizeType threads,
-                     PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
-{
-	typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
-	main2<FitnessTemplate<EvolutionType, HamiltonianType> >(evolution, gepOptions, threads, io);
 }
 
 int main(int argc, char* argv[])
@@ -135,25 +115,32 @@ int main(int argc, char* argv[])
 	if (gepOptions.genes > 1 && (gepOptions.chead == 0 || gepOptions.adfs == 0))
 		throw PsimagLite::RuntimeError(strUsage);
 
+	PsimagLite::String runType;
+	io.readline(runType, "RunType=");
+
+	if (runType == "GroundState") gepOptions.samples = 1;
+
 	typedef std::complex<double> ComplexType;
 	typedef PsimagLite::Vector<ComplexType>::Type VectorType;
 	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
+	Gep::ParametersEngine<double> params(gepOptions);
+	if (threads > 0) params.threads = threads;
+	PsimagLite::CodeSectionParams codeSection(params.threads,
+	                                          1, // threads2
+	                                          false, // setAffinities,
+	                                          0); // threadsStackSize;
+	PsimagLite::Concurrency::setOptions(codeSection);
 
-	PrimitivesType primitives(numberOfBits, gates);
+	PrimitivesType primitives(numberOfBits, gates, codeSection.npthreads);
 	EvolutionType evolution(primitives, seed, verbose);
 
-	PsimagLite::String runType;
-	io.readline(runType, "RunType=");
-
 	if (runType == "FunctionFit") {
-		main2<Gep::QuantumOracle<EvolutionType> >(evolution, gepOptions, threads, io);
+		main2<Gep::QuantumOracle<EvolutionType> >(evolution, params, io);
 	} else if (runType == "GroundState") {
-		gepOptions.samples = 1;
-		mainGroundState<Gep::GroundStateOracle, EvolutionType, ComplexType>(evolution,
-		                                                                    gepOptions,
-		                                                                    threads,
-		                                                                    io);
+		typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
+		typedef Gep::GroundStateOracle<EvolutionType, HamiltonianType>  FitnessType;
+		main2<FitnessType>(evolution, params, io);
 	} else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
 	}

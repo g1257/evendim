@@ -56,7 +56,8 @@ public:
 	typedef CanonicalFormQuantum<ValueType_, RealType> CanonicalFormType;
 
 	QuantumCircuit(SizeType numberOfBits,
-	               PsimagLite::String gates)
+	               PsimagLite::String gates,
+	               SizeType numberOfThreads)
 	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)
 	{
 		PsimagLite::split(gates_, gates, ",");
@@ -78,6 +79,12 @@ public:
 		}
 
 		nodes_.push_back(nodes);
+
+		for (SizeType i = 1; i < numberOfThreads; ++i) {
+			VectorNodeType nodes;
+			makeNodes(nodes);
+			nodes_.push_back(nodes);
+		}
 	}
 
 	~QuantumCircuit()
