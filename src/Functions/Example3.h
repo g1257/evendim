@@ -40,7 +40,7 @@ public:
 	Example3(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
-		if (evolution.inputs() != stringLength_) {
+		if (evolution.numberOfInputs() != stringLength_) {
 			throw PsimagLite::RuntimeError("Example3::ctor(): 1 input expected\n");
 		}
 	}
@@ -88,7 +88,7 @@ private:
 	SizeType validLetter() const
 	{
 		SizeType l = 0;
-		while (l < 32 || l > 126) {
+		while ((l < 32) || (l > 126)) {
 			l = static_cast<SizeType>(128*evolution_.primitives().rng());
 		}
 

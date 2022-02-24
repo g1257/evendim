@@ -25,6 +25,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "QuantumInput.h"
 #include <numeric>
 #include "CanonicalFormQuantum.h"
+#include "InputGatesUtil.h"
 
 namespace Gep {
 
@@ -33,6 +34,7 @@ class QuantumCircuit {
 
 public:
 
+	typedef QuantumCircuit<ValueType_> ThisType;
 	typedef typename PsimagLite::Vector<ValueType_>::Type VectorValueType;
 	typedef typename ValueType_::value_type ComplexType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
@@ -54,11 +56,13 @@ public:
 	typedef OneBitGateLibrary<typename ValueType::value_type> OneBitGateLibraryType;
 	typedef TwoBitGateLibrary<typename ValueType::value_type> TwoBitGateLibraryType;
 	typedef CanonicalFormQuantum<ValueType_, RealType> CanonicalFormType;
+	typedef InputGatesUtil<ThisType> InputGatesUtilType;
+	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates,
 	               SizeType numberOfThreads)
-	    : maxArity_(0), rng_(1000), numberOfBits_(numberOfBits)
+	    : maxArity_(0), numberOfBits_(numberOfBits), rng_(1000)
 	{
 		PsimagLite::split(gates_, gates, ",");
 
@@ -67,6 +71,7 @@ public:
 
 		for (SizeType i=0;i<nodes.size();i++) {
 			if (nodes[i]->isInput()) {
+				inputs_.push_back(i);
 				terminals_.push_back(nodes[i]->code());
 			} else if (nodes[i]->arity()>0 && nodes[i]->code()[0] != '_') {
 				nonTerminals_.push_back(nodes[i]->code());
@@ -128,6 +133,34 @@ public:
 	double rng() const { return rng_(); }
 
 	SizeType numberOfBits() const { return numberOfBits_; }
+
+	SizeType numberOfInputs() const { return inputs_.size(); }
+
+	void setInput(SizeType ind, ValueType x)
+	{
+		assert(ind < inputs_.size());
+		for (SizeType i = 0; i < nodes_.size(); i++) {
+			assert(inputs_[ind] < nodes_[i].size());
+			return nodes_[i][inputs_[ind]]->set(x);
+		}
+	}
+
+	void printInputs(std::ostream& os) const
+	{
+		assert(inputs_.size() > 0);
+		assert(nodes_.size() > 0);
+		assert(inputs_[inputs_.size() - 1] < nodes_[0].size());
+
+		os<<"inputs= ";
+		for (SizeType i = 0; i < inputs_.size(); i++)
+			nodes_[0][inputs_[i]]->print(os);
+		os<<"\n";
+	}
+
+	void sync()
+	{
+
+	}
 
 private:
 
@@ -237,12 +270,13 @@ private:
 	SizeType maxArity_;
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
-	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 	const SizeType numberOfBits_;
 	VectorVectorNodeType nodes_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
 	VectorStringType gates_;
+	VectorSizeType inputs_;
+	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 }; // class QuantumCircuit
 
 } // namespace Gep

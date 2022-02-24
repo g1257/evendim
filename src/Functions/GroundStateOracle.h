@@ -40,7 +40,7 @@ public:
 
 	enum class FunctionEnum {FITNESS, DIFFERENCE};
 
-	FunctionToMinimize2(const EvolutionType& evolution,
+	FunctionToMinimize2(EvolutionType& evolution,
 	                    const ChromosomeType& chromosome,
 	                    const GroundStateParamsType& groundStateParams,
 	                    SizeType thread)
@@ -282,7 +282,7 @@ private:
 		return w;
 	}
 
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
 	const GroundStateParamsType& groundStateParams_;
 	SizeType numberOfAngles_;
@@ -309,13 +309,13 @@ public:
 	typedef GroundStateParamsType FitnessParamsType;
 
 	GroundStateOracle(SizeType samples,
-	                  const EvolutionType& evolution,
+	                  EvolutionType& evolution,
 	                  FitnessParamsType* fitParams)
 	    : evolution_(evolution),
 	      fitParams_(*fitParams),
 	      status_(0)
 	{
-		if (evolution.inputs() != 1)
+		if (evolution.numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
 		if (samples != 1)
 			err("Expecting samples == 1\n");
@@ -414,7 +414,7 @@ private:
 		return str;
 	}
 
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const GroundStateParamsType fitParams_;
 	int status_;
 }; // class QuantumOracle

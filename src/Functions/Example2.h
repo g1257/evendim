@@ -33,10 +33,10 @@ public:
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
-	Example2(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
+	Example2(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
-		if (evolution.inputs() != 1) {
+		if (evolution.numberOfInputs() != 1) {
 			throw PsimagLite::RuntimeError("Example2::ctor(): 1 input expected\n");
 		}
 	}
@@ -55,7 +55,7 @@ public:
 		for (SizeType i = 0; i < maxFitness(); i++) {
 			SizeType x = static_cast<SizeType>(rng()*1000);
 			RealType fOfX = f(x);
-			evolution_.setInput(0,x);
+			evolution_.setInput(0, x);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
@@ -83,7 +83,7 @@ private:
 	}
 
 	SizeType samples_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 }; // class Example2
 
 } // namespace Gep

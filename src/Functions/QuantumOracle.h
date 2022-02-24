@@ -39,7 +39,7 @@ public:
 
 	enum class FunctionEnum {FITNESS, DIFFERENCE};
 
-	FunctionToMinimize(const EvolutionType& evolution,
+	FunctionToMinimize(EvolutionType& evolution,
 	                   const ChromosomeType& chromosome,
 	                   SizeType samples)
 	    : evolution_(evolution),
@@ -334,7 +334,7 @@ private:
 			inVector_[i] = inMatrix_(i, jnd);
 	}
 
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
 	SizeType numberOfAngles_;
 	MatrixType inMatrix_;
@@ -358,13 +358,13 @@ public:
 	typedef MinimizerParams<RealType> MinimizerParamsType;
 	typedef MinimizerParamsType FitnessParamsType;
 
-	QuantumOracle(SizeType samples, const EvolutionType& evolution, MinimizerParamsType* minParams)
+	QuantumOracle(SizeType samples, EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
 	      minParams_(*minParams),
 	      status_(0)
 	{
-		if (evolution.inputs() != 1)
+		if (evolution.numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
 	}
 
@@ -459,7 +459,7 @@ private:
 	}
 
 	SizeType samples_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
 	int status_;
 }; // class QuantumOracle

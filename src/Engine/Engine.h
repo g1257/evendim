@@ -53,11 +53,11 @@ public:
 	typedef ParametersEngineType_ ParametersEngineType;
 
 	Engine(const ParametersEngineType& params,
-	       const EvolutionType& evolution,
+	       EvolutionType& evolution,
 	       FitnessParamsType* fitnessParams = nullptr)
 	    : params_(params),
 	      evolution_(evolution),
-	      fitness_(params.samples, evolution_, fitnessParams)
+	      fitness_(params.samples, evolution, fitnessParams)
 	{
 		for (SizeType i = 0; i< params_.population; ++i) {
 			VectorStringType vecStr;
@@ -102,6 +102,8 @@ public:
 		                          [&parentFitness, &seeds, this](SizeType ind, SizeType threadNum) {
 			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
 		});
+
+		evolution_.sync();
 
 		recombination(newChromosomes, parentFitness, 1);
 
@@ -253,6 +255,8 @@ private:
 			if (withProgressBar) std::cerr<<symbol;
 		});
 
+		evolution_.sync();
+
 		if (withProgressBar) std::cerr<<"\n";
 
 		PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
@@ -386,7 +390,7 @@ private:
 	}
 
 	const ParametersEngineType& params_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	FitnessType fitness_;
 	VectorChromosomeType chromosomes_;
 }; // class Engine

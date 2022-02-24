@@ -33,10 +33,10 @@ public:
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
-	Example1(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
+	Example1(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
-		if (evolution.inputs() != 1) {
+		if (evolution.numberOfInputs() != 1) {
 			throw PsimagLite::RuntimeError("Example1::ctor(): 1 input expected\n");
 		}
 
@@ -84,7 +84,7 @@ private:
 	}
 
 	VectorRealType samples_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 }; // class Example1
 
 } // namespace Gep
