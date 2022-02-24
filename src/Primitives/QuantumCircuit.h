@@ -136,13 +136,12 @@ public:
 
 	SizeType numberOfInputs() const { return inputs_.size(); }
 
-	void setInput(SizeType ind, ValueType x)
+	void setInput(SizeType ind, ValueType x, SizeType threadId)
 	{
 		assert(ind < inputs_.size());
-		for (SizeType i = 0; i < nodes_.size(); i++) {
-			assert(inputs_[ind] < nodes_[i].size());
-			return nodes_[i][inputs_[ind]]->set(x);
-		}
+		assert(threadId < nodes_.size());
+		assert(inputs_[ind] < nodes_[threadId].size());
+		return nodes_[threadId][inputs_[ind]]->set(x);
 	}
 
 	void printInputs(std::ostream& os) const

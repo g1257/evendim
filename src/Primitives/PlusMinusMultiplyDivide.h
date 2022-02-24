@@ -127,7 +127,7 @@ public:
 
 	SizeType numberOfInputs() const { return inputs_.size(); }
 
-	void setInput(SizeType ind, SizeType x)
+	void setInput(SizeType ind, SizeType x, SizeType /*threadId*/)
 	{
 		assert(ind < inputs_.size());
 		assert(inputs_[ind] < nodes_.size());

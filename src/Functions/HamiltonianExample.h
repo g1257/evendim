@@ -19,6 +19,7 @@ public:
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef typename PsimagLite::Vector<VectorType>::Type VectorVectorType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
@@ -27,8 +28,12 @@ public:
 	typedef HamiltonianFromExpression<ComplexType> HamiltonianFromExpressionType;
 	typedef IsingGraph<ComplexType> IsingGraphType;
 
-	HamiltonianExample(typename InputNgType::Readable& io)
-	    : hamTipo(TypeEnum::XX), bits_(0), periodic_(false), isingGraph_(nullptr)
+	HamiltonianExample(typename InputNgType::Readable& io, SizeType numberOfThreads)
+	    : hamTipo(TypeEnum::XX),
+	      bits_(0),
+	      periodic_(false),
+	      isingGraph_(nullptr),
+	      cacheVector_(numberOfThreads)
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 
@@ -76,7 +81,8 @@ public:
 		if (ham != "xx") {
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
 			hamExpression.fillMatrix(matrix_);
-			cacheVector_.resize(matrix_.rows());
+			assert(cacheVector_.size() > 0);
+			cacheVector_[0].resize(matrix_.rows());
 			hamTipo = TypeEnum::EXPRESSION;
 			return;
 		}
@@ -86,7 +92,7 @@ public:
 		fillHxx(coupling);
 	}
 
-	RealType energy(const VectorType& y) const
+	RealType energy(const VectorType& y, SizeType threadNum) const
 	{
 		switch (hamTipo) {
 		case  TypeEnum::ISING_GRAPH:
@@ -94,10 +100,11 @@ public:
 			return isingGraph_->energyZZ(y);
 			break;
 		default:
-			assert(cacheVector_.size() == matrix_.rows());
-			std::fill(cacheVector_.begin(), cacheVector_.end(), 0);
-			matrix_.matrixVectorProduct(cacheVector_, y);
-			return PsimagLite::real(y*cacheVector_); // does conjugation of first vector
+			assert(cacheVector_.size() > threadNum);
+			assert(cacheVector_[threadNum].size() == matrix_.rows());
+			std::fill(cacheVector_[threadNum].begin(), cacheVector_[threadNum].end(), 0);
+			matrix_.matrixVectorProduct(cacheVector_[threadNum], y);
+			return PsimagLite::real(y*cacheVector_[threadNum]); // does conjugation of first vector
 			break;
 		}
 	}
@@ -116,7 +123,8 @@ private:
 	{
 		SizeType hilbertSpace = (1 << bits_);
 		matrix_.resize(hilbertSpace, hilbertSpace);
-		cacheVector_.resize(hilbertSpace);
+		for (SizeType thread = 0; thread < cacheVector_.size(); ++thread)
+			cacheVector_[thread].resize(hilbertSpace);
 
 		VectorRealType v(hilbertSpace);
 		VectorBoolType bcol(hilbertSpace);
@@ -172,7 +180,9 @@ private:
 	void fillFromFile(PsimagLite::String filename)
 	{
 		SizeType hilbertSpace = (1 << bits_);
-		cacheVector_.resize(hilbertSpace);
+		for (SizeType threadNum = 0; threadNum < cacheVector_.size(); ++threadNum)
+			cacheVector_[threadNum].resize(hilbertSpace);
+
 		std::ifstream fin(filename);
 		if (!fin || !fin.good())
 			err("Could not open file " + filename + "\n");
@@ -197,7 +207,7 @@ private:
 	bool periodic_;
 	IsingGraphType* isingGraph_;
 	SparseMatrixType matrix_;
-	mutable VectorType cacheVector_;
+	mutable VectorVectorType cacheVector_;
 };
 }
 #endif // HAMILTONIANEXAMPLE_H

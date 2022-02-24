@@ -49,9 +49,9 @@ public:
 
 	bool verbose() const { return verbose_; }
 
-	void setInput(SizeType i, ValueType x)
+	void setInput(SizeType i, ValueType x, SizeType threadId)
 	{
-		primitives_.setInput(i, x);
+		primitives_.setInput(i, x, threadId);
 	}
 
 	void setInput(const VectorValueType& x) const

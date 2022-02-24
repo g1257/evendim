@@ -39,7 +39,7 @@ void main2(typename FitnessType::EvolutionType& evolution,
 	if (total == 0)
 		err("Generations must be greater than zero\n");
 
-	FitnessParamsType fitParams(io);
+	FitnessParamsType fitParams(io, params.threads);
 
 	EngineType engine(params, evolution, &fitParams);
 

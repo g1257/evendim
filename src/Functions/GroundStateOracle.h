@@ -77,7 +77,7 @@ public:
 
 		const VectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
-			evolution_.setInput(0, inVector);
+			evolution_.setInput(0, inVector, thread_);
 
 			computeDifferentialVector(differential_, angles, angleIndex);
 
@@ -101,11 +101,11 @@ public:
 			chromosome = &chromosome_;
 		}
 
-		evolution_.setInput(0, groundStateParams_.inVector);
+		evolution_.setInput(0, groundStateParams_.inVector, thread_);
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
-		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0));
+		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), thread_);
 
 		if (angles) {
 			delete chromosome;
@@ -312,8 +312,7 @@ public:
 	                  EvolutionType& evolution,
 	                  FitnessParamsType* fitParams)
 	    : evolution_(evolution),
-	      fitParams_(*fitParams),
-	      status_(0)
+	      fitParams_(*fitParams)
 	{
 		if (evolution.numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
@@ -359,9 +358,9 @@ public:
 			                             minParams.saveEvery);
 		}
 
-		status_ = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
+		int status = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
 
-		if (status_ == 0) {
+		if (status == 0) {
 			VectorStringType vecStr = chromosome.vecString();
 			FunctionToMinimizeType::encodeAngles(vecStr, angles);
 			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
@@ -416,7 +415,6 @@ private:
 
 	EvolutionType& evolution_;
 	const GroundStateParamsType fitParams_;
-	int status_;
 }; // class QuantumOracle
 } // namespace Gep
 
