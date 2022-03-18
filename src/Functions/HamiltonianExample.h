@@ -46,6 +46,7 @@ public:
 			if (matrix_.rows() != hilbert)
 				err("Matrix rows = " + ttos(matrix_.rows()) + " but " +
 				    ttos(hilbert) + " expected.\n");
+			allocateCacheVector(hilbert);
 			return;
 		}
 
@@ -82,7 +83,7 @@ public:
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
 			hamExpression.fillMatrix(matrix_);
 			assert(cacheVector_.size() > 0);
-			cacheVector_[0].resize(matrix_.rows());
+			allocateCacheVector(matrix_.rows());
 			hamTipo = TypeEnum::EXPRESSION;
 			return;
 		}
@@ -123,8 +124,7 @@ private:
 	{
 		SizeType hilbertSpace = (1 << bits_);
 		matrix_.resize(hilbertSpace, hilbertSpace);
-		for (SizeType thread = 0; thread < cacheVector_.size(); ++thread)
-			cacheVector_[thread].resize(hilbertSpace);
+		allocateCacheVector(hilbertSpace);
 
 		VectorRealType v(hilbertSpace);
 		VectorBoolType bcol(hilbertSpace);
@@ -200,6 +200,12 @@ private:
 		VectorRealType eigs(hilbertSpace);
 		diag(mat, eigs, 'V');
 		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
+	}
+
+	void allocateCacheVector(SizeType hilbertSpace)
+	{
+		for (SizeType thread = 0; thread < cacheVector_.size(); ++thread)
+			cacheVector_[thread].resize(hilbertSpace);
 	}
 
 	TypeEnum hamTipo;

@@ -175,7 +175,7 @@ private:
 			tmpGates.erase(it);
 			// add Hadamard gates
 			MatrixType hadamardGate;
-			OneBitGateLibraryType::fillHadamard(hadamardGate);
+			OneBitGateLibraryType::fillAnyGate(hadamardGate, "H");
 			for (SizeType i = 0; i < numberOfBits_; ++i) {
 				NodeType* hadamard = new QuantumOneBitGateType("H", i, numberOfBits_, hadamardGate);
 				nodes.push_back(hadamard);
@@ -187,10 +187,22 @@ private:
 			tmpGates.erase(it);
 			// add PHASE gates
 			MatrixType phaseGate;
-			OneBitGateLibraryType::fillPhase(phaseGate);
+			OneBitGateLibraryType::fillAnyGate(phaseGate, "P");
 			for (SizeType i = 0; i < numberOfBits_; ++i) {
 				NodeType* phase = new QuantumOneBitGateType("P", i, numberOfBits_, phaseGate);
 				nodes.push_back(phase);
+			}
+		}
+
+		it = std::find(tmpGates.begin(), tmpGates.end(), "T");
+		if (it != tmpGates.end()) {
+			tmpGates.erase(it);
+			// add T gates
+			MatrixType tGate;
+			OneBitGateLibraryType::fillAnyGate(tGate, "T");
+			for (SizeType i = 0; i < numberOfBits_; ++i) {
+				NodeType* t = new QuantumOneBitGateType("T", i, numberOfBits_, tGate);
+				nodes.push_back(t);
 			}
 		}
 
