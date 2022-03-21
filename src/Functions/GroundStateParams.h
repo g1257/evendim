@@ -16,8 +16,8 @@ struct GroundStateParams {
 	typedef MinimizerParams<RealType> MinimizerParamsType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 
-	GroundStateParams(typename InputNgType::Readable& io)
-	    : minParams(io), hamiltonian(io)
+	GroundStateParams(typename InputNgType::Readable& io, SizeType numberOfThreads)
+	    : minParams(io, numberOfThreads), hamiltonian(io, numberOfThreads)
 	{
 		PsimagLite::String vectorFilename;
 		io.readline(vectorFilename, "InVectorFile=");

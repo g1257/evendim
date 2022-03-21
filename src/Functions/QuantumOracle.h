@@ -39,7 +39,7 @@ public:
 
 	enum class FunctionEnum {FITNESS, DIFFERENCE};
 
-	FunctionToMinimize(const EvolutionType& evolution,
+	FunctionToMinimize(EvolutionType& evolution,
 	                   const ChromosomeType& chromosome,
 	                   SizeType samples)
 	    : evolution_(evolution),
@@ -69,6 +69,7 @@ public:
 
 	void df(VectorRealType& dest, const VectorRealType& angles)
 	{
+		constexpr SizeType threadNum = 0;
 		VectorStringType vecStr = chromosome_.vecString();
 		encodeAngles(vecStr, angles);
 		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
@@ -79,7 +80,7 @@ public:
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
 			for (SizeType i = 0; i < samples; ++i) {
 				setInVector(i);
-				evolution_.setInput(0, inVector_);
+				evolution_.setInput(0, inVector_, threadNum);
 				functionF(outVector_, inVector_);
 
 				computeDifferentialVector(differential_, angles, angleIndex);
@@ -96,6 +97,8 @@ public:
 
 	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
 	{
+		constexpr SizeType threadNum = 0;
+
 		const ChromosomeType* chromosome = nullptr;
 
 		VectorStringType vecStr = chromosome_.vecString();
@@ -111,7 +114,7 @@ public:
 		RealType sum = 0;
 		for (SizeType i = 0; i < samples; ++i) {
 			setInVector(i);
-			evolution_.setInput(0, inVector_);
+			evolution_.setInput(0, inVector_, threadNum);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			functionF(outVector_, inVector_);
@@ -334,7 +337,7 @@ private:
 			inVector_[i] = inMatrix_(i, jnd);
 	}
 
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
 	SizeType numberOfAngles_;
 	MatrixType inMatrix_;
@@ -348,6 +351,7 @@ class QuantumOracle : public BaseFitness<EvolutionType_> {
 
 public:
 
+	typedef BaseFitness<EvolutionType_> BaseType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType VectorType;
@@ -357,23 +361,28 @@ public:
 	typedef MinimizerParams<RealType> MinimizerParamsType;
 	typedef MinimizerParamsType FitnessParamsType;
 
-	QuantumOracle(SizeType samples, const EvolutionType& evolution, MinimizerParamsType* minParams)
+	QuantumOracle(SizeType samples, EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
 	      minParams_(*minParams),
 	      status_(0)
 	{
-		if (evolution.inputs() != 1)
+		if (evolution.numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome)
+	RealType getFitness(SomeChromosomeType& chromosome,
+	                    long unsigned int seed,
+	                    SizeType threadNum)
 	{
 		typedef FunctionToMinimize<SomeChromosomeType, EvolutionType, ComplexType>
 		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
+
+		if (threadNum > 0)
+			err("QuantumOracle: Threading not supported yet (sorry)\n");
 
 		FunctionToMinimizeType f(evolution_, chromosome, samples_);
 
@@ -387,7 +396,8 @@ public:
 
 		int used = 0;
 		VectorRealType angles(f.size());
-		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng_);
+		PsimagLite::MersenneTwister rng(seed);
+		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng);
 		if (minParams_.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams_.delta,
@@ -451,16 +461,11 @@ private:
 		return str;
 	}
 
-	static PsimagLite::MersenneTwister rng_;
 	SizeType samples_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
 	int status_;
 }; // class QuantumOracle
-
-template<typename T>
-PsimagLite::MersenneTwister QuantumOracle<T>::rng_(1234);
-
 } // namespace Gep
 
 #endif // QUANTUM_ORACLE_H

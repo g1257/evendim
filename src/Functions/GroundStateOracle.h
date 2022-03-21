@@ -40,13 +40,15 @@ public:
 
 	enum class FunctionEnum {FITNESS, DIFFERENCE};
 
-	FunctionToMinimize2(const EvolutionType& evolution,
+	FunctionToMinimize2(EvolutionType& evolution,
 	                    const ChromosomeType& chromosome,
-	                    const GroundStateParamsType& groundStateParams)
+	                    const GroundStateParamsType& groundStateParams,
+	                    SizeType thread)
 	    : evolution_(evolution),
 	      chromosome_(chromosome),
 	      groundStateParams_(groundStateParams),
-	      outVector_(groundStateParams_.inVector.size())
+	      outVector_(groundStateParams_.inVector.size()),
+	      thread_(thread)
 	{
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
 	}
@@ -75,7 +77,7 @@ public:
 
 		const VectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
-			evolution_.setInput(0, inVector);
+			evolution_.setInput(0, inVector, thread_);
 
 			computeDifferentialVector(differential_, angles, angleIndex);
 
@@ -94,16 +96,16 @@ public:
 
 		if (angles) {
 			encodeAngles(vecStr, *angles);
-			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr, thread_);
 		} else {
 			chromosome = &chromosome_;
 		}
 
-		evolution_.setInput(0, groundStateParams_.inVector);
+		evolution_.setInput(0, groundStateParams_.inVector, thread_);
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
-		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0));
+		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), thread_);
 
 		if (angles) {
 			delete chromosome;
@@ -138,11 +140,13 @@ public:
 			err("encodeAngles: too few angles for rotations in this individual!?\n");
 	}
 
-	template<typename SomeRngType>
-	static void initAngles(VectorRealType& angles, const VectorStringType& vStr, SomeRngType& rng)
+	static void initAngles(VectorRealType& angles,
+	                       const VectorStringType& vStr,
+	                       long unsigned int seed)
 	{
 		const SizeType n = vStr.size();
 		SizeType currentIndex = 0;
+		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < n; ++i) {
 			if (numberOfAnglesOneGate(vStr[i]) == 0) continue;
 			if (angles.size() < currentIndex)
@@ -158,7 +162,9 @@ public:
 private:
 
 	template<typename SomeRngType>
-	static void initAngle(RealType& angle, PsimagLite::String str, SomeRngType& rng)
+	static void initAngle(RealType& angle,
+	                      PsimagLite::String str,
+	                      SomeRngType& rng)
 	{
 		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
 		                                                           str.end(),
@@ -276,12 +282,13 @@ private:
 		return w;
 	}
 
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
 	const GroundStateParamsType& groundStateParams_;
 	SizeType numberOfAngles_;
 	VectorType outVector_;
 	VectorType differential_;
+	SizeType thread_;
 };
 
 template<typename EvolutionType_, typename HamiltonianType>
@@ -302,27 +309,28 @@ public:
 	typedef GroundStateParamsType FitnessParamsType;
 
 	GroundStateOracle(SizeType samples,
-	                  const EvolutionType& evolution,
+	                  EvolutionType& evolution,
 	                  FitnessParamsType* fitParams)
 	    : evolution_(evolution),
-	      fitParams_(*fitParams),
-	      status_(0)
+	      fitParams_(*fitParams)
 	{
-		if (evolution.inputs() != 1)
+		if (evolution.numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
 		if (samples != 1)
 			err("Expecting samples == 1\n");
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome)
+	RealType getFitness(SomeChromosomeType& chromosome,
+	                    long unsigned int seed,
+	                    SizeType threadNum)
 	{
 		typedef FunctionToMinimize2<SomeChromosomeType, EvolutionType, GroundStateParamsType>
 		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
 
-		FunctionToMinimizeType f(evolution_, chromosome, fitParams_);
+		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {
 			return f.fitness(nullptr,
@@ -335,7 +343,7 @@ public:
 
 		int used = 0;
 		VectorRealType angles(f.size());
-		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), rng_);
+		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), seed);
 		if (minParams.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams.delta,
@@ -350,9 +358,9 @@ public:
 			                             minParams.saveEvery);
 		}
 
-		status_ = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
+		int status = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
 
-		if (status_ == 0) {
+		if (status == 0) {
 			VectorStringType vecStr = chromosome.vecString();
 			FunctionToMinimizeType::encodeAngles(vecStr, angles);
 			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
@@ -405,15 +413,9 @@ private:
 		return str;
 	}
 
-	static PsimagLite::MersenneTwister rng_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	const GroundStateParamsType fitParams_;
-	int status_;
 }; // class QuantumOracle
-
-template<typename T1, typename T2>
-PsimagLite::MersenneTwister GroundStateOracle<T1, T2>::rng_(1234);
-
 } // namespace Gep
 
 #endif // GROUND_STATE_ORACLE_H

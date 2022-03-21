@@ -45,7 +45,8 @@ public:
 
 	Chromosome(const ParametersType& params,
 	           const EvolutionType& evolution,
-	           const VectorStringType& vecStr)
+	           const VectorStringType& vecStr,
+	           SizeType threadNum = 0)
 	    : evolution_(evolution),
 	      params_(params)
 	{
@@ -67,7 +68,7 @@ public:
 			index++;
 			if (index == geneLength) {
 				index = 0;
-				GeneType* gene = new GeneType(params.head, false, evolution, buffer);
+				GeneType* gene = new GeneType(params.head, false, evolution, buffer, threadNum);
 				genes_.push_back(gene);
 				if (genes_.size() == params.genes) break;
 			}

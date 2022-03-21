@@ -26,30 +26,36 @@ class Example2 : public BaseFitness<EvolutionType_> {
 
 public:
 
-	typedef typename BaseFitness<EvolutionType_>::FitnessParamsType FitnessParamsType;
+	typedef BaseFitness<EvolutionType_> BaseType;
+	typedef typename BaseType::FitnessParamsType FitnessParamsType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
-	Example2(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
+	Example2(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
-		if (evolution.inputs() != 1) {
+		if (evolution.numberOfInputs() != 1) {
 			throw PsimagLite::RuntimeError("Example2::ctor(): 1 input expected\n");
 		}
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome)
+	RealType getFitness(const SomeChromosomeType& chromosome,
+	                    unsigned long int seed,
+	                    SizeType threadNum)
 	{
+		if (threadNum > 0)
+			err("Threading not supported yet (sorry)\n");
+
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
-		const PrimitivesType& primitives = evolution_.primitives();
+		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < maxFitness(); i++) {
-			SizeType x = static_cast<SizeType>(primitives.rng()*1000);
+			SizeType x = static_cast<SizeType>(rng()*1000);
 			RealType fOfX = f(x);
-			evolution_.setInput(0,x);
+			evolution_.setInput(0, x, threadNum);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
@@ -77,7 +83,7 @@ private:
 	}
 
 	SizeType samples_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 }; // class Example2
 
 } // namespace Gep

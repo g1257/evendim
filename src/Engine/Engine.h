@@ -22,6 +22,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Chromosome.h"
 #include "ParametersEngine.h"
 #include "Sort.h"
+#include "Parallelizer2.h"
 
 namespace Gep {
 
@@ -45,17 +46,18 @@ class Engine {
 	typedef typename ChromosomeType::PairVectorVectorStringType PairVectorVectorStringType;
 	typedef typename ChromosomeType::VectorVectorStringType VectorVectorStringType;
 	typedef typename ChromosomeType::VectorAnglesType VectorAnglesType;
+	typedef PsimagLite::Vector<long unsigned int>::Type VectorLongUnsignedType;
 
 public:
 
 	typedef ParametersEngineType_ ParametersEngineType;
 
 	Engine(const ParametersEngineType& params,
-	       const EvolutionType& evolution,
+	       EvolutionType& evolution,
 	       FitnessParamsType* fitnessParams = nullptr)
 	    : params_(params),
 	      evolution_(evolution),
-	      fitness_(params.samples, evolution_, fitnessParams)
+	      fitness_(params.samples, evolution, fitnessParams)
 	{
 		for (SizeType i = 0; i< params_.population; ++i) {
 			VectorStringType vecStr;
@@ -78,8 +80,8 @@ public:
 	{
 		PairVectorVectorStringType newChromosomes;
 		VectorRealType parentFitness(chromosomes_.size());
-
-		for (SizeType i = 0; i < chromosomes_.size(); i++) {
+		SizeType totalChromosomes = chromosomes_.size();
+		for (SizeType i = 0; i < totalChromosomes; i++) {
 			const VectorStringType vecStr = chromosomes_[i]->vecString();
 
 			const VectorStringType& effectiveVec = chromosomes_[i]->effectiveVecString();
@@ -87,9 +89,21 @@ public:
 				newChromosomes.first.push_back(vecStr);
 				newChromosomes.second.push_back(effectiveVec);
 			}
-
-			parentFitness[i] = -fitness_.getFitness(*chromosomes_[i]);
 		}
+
+		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
+		codeParams.npthreads = std::min(totalChromosomes,
+		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
+
+		VectorLongUnsignedType seeds = fitness_.createSeeds(totalChromosomes);
+		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
+		parallelizer2.parallelFor(0,
+		                          totalChromosomes,
+		                          [&parentFitness, &seeds, this](SizeType ind, SizeType threadNum) {
+			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
+		});
+
+		evolution_.sync();
 
 		recombination(newChromosomes, parentFitness, 1);
 
@@ -113,7 +127,7 @@ private:
 	{
 		for (SizeType i = 0; i < newChromosomes.size(); i++) {
 			CanonicalFormType canonicalForm(newChromosomes[i],
-			                                evolution_.primitives().nodes());
+			                                evolution_.primitives().nodes(0));
 			canonicalForm.changeIfNeeded(newChromosomes[i]);
 		}
 	}
@@ -189,9 +203,8 @@ private:
 	            const PsimagLite::String& action) const
 	{
 		SizeType population = chromosomes_.size();
-		const PrimitivesType& primitives = evolution_.primitives();
 		for (SizeType i = 0; i < params_.mutation; i++) {
-			SizeType index = static_cast<SizeType>(primitives.rng() * population);
+			SizeType index = static_cast<SizeType>(fitness_.rng() * population);
 			VectorStringType newVecStr = chromosomes_[index]->evolve(action);
 
 			addWithCare(newChromosomes, newVecStr);
@@ -210,17 +223,39 @@ private:
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
-		const bool withProgressBar = params_.options.isSet("progressBar");
-		for (SizeType i = 0; i < newChromosomes.size(); i++) {
-			ChromosomeType chromosome(params_,evolution_,newChromosomes[i]);
-			if (evolution_.verbose())
-				std::cout<<"About to exec chromosome= "<<newChromosomes[i]<<"\n";
-			fitness[i] = -fitness_.getFitness(chromosome);
-			newChromosomes[i] = chromosome.vecString();
+
+		const SizeType totalChromosomes = newChromosomes.size();
+		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
+		codeParams.npthreads = std::min(totalChromosomes,
+		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
+
+		assert(codeParams.npthreads > 0);
+		bool withProgressBar = (codeParams.npthreads > 1) ? false
+		                                                  : params_.options.isSet("progressBar");
+
+		bool isVerbose = (evolution_.verbose() && codeParams.npthreads == 1);
+		VectorLongUnsignedType seeds = fitness_.createSeeds(totalChromosomes);
+
+		PsimagLite::Parallelizer2<> parallelizer2(codeParams);
+		parallelizer2.parallelFor(0,
+		                          totalChromosomes,
+		                          [&newChromosomes,
+		                          &fitness,
+		                          &seeds,
+		                          isVerbose,
+		                          withProgressBar,
+		                          this](SizeType ind, SizeType threadNum) {
+			ChromosomeType chromosome(params_,evolution_,newChromosomes[ind]);
+			if (isVerbose)
+				std::cout<<"About to exec chromosome= "<<newChromosomes[ind]<<"\n";
+			fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind], threadNum);
+			newChromosomes[ind] = chromosome.vecString();
 			const int status = fitness_.status();
 			const PsimagLite::String symbol = (status == 0) ? "." : "*";
 			if (withProgressBar) std::cerr<<symbol;
-		}
+		});
+
+		evolution_.sync();
 
 		if (withProgressBar) std::cerr<<"\n";
 
@@ -247,11 +282,9 @@ private:
 			if (i==0 && f == maxFitness) return true;
 		}
 
-		const PrimitivesType& primitives = evolution_.primitives();
-
 		for (SizeType i = point; i < population; i++) {
 			SizeType index = point +
-			        static_cast<SizeType>(primitives.rng() * population * (1.0-fraction));
+			        static_cast<SizeType>(fitness_.rng() * population * (1.0-fraction));
 			assert(index >= point);
 			addChromosome(newChromosomes[index],-fitness[index]);
 		}
@@ -357,7 +390,7 @@ private:
 	}
 
 	const ParametersEngineType& params_;
-	const EvolutionType& evolution_;
+	EvolutionType& evolution_;
 	FitnessType fitness_;
 	VectorChromosomeType chromosomes_;
 }; // class Engine
