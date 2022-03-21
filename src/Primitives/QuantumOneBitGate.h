@@ -21,13 +21,7 @@ public:
 		}
 
 		if (name == "P") {
-			fillPhaseOrT(gateMatrix, 0, 1);
-			return;
-		}
-
-		if (name == "T") {
-			RealType oneOverSqrt2 = 1.0/sqrt(2.0);
-			fillPhaseOrT(gateMatrix, oneOverSqrt2, oneOverSqrt2);
+			fillPhase(gateMatrix);
 			return;
 		}
 
@@ -54,6 +48,24 @@ public:
 		err("Gate with name " + name + " not implemented\n");
 	}
 
+	static void fillHadamard(MatrixType& gateMatrix)
+	{
+		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
+
+		gateMatrix.resize(2, 2);
+		gateMatrix(0, 0) = oneOverSqrt2;
+		gateMatrix(0, 1) = oneOverSqrt2;
+		gateMatrix(1, 0) = oneOverSqrt2;
+		gateMatrix(1, 1) = -oneOverSqrt2;
+	}
+
+	static void fillPhase(MatrixType& gateMatrix)
+	{
+		gateMatrix.resize(2, 2);
+		gateMatrix(0, 0) = 1;
+		gateMatrix(1, 1) = ComplexOrRealType(0, 1);
+	}
+
 	static void fillPauli(MatrixType& gateMatrix, SizeType dir)
 	{
 		gateMatrix.resize(2, 2);
@@ -74,7 +86,6 @@ public:
 			err("Direction can only be 0, 1, or 2\n");
 		}
 	}
-
 
 	// ind = 0 means rotation around x
 	// ind = 1 means rotation around y
@@ -136,16 +147,6 @@ public:
 		}
 	}
 
-	static char directionIntegerToChar(SizeType ind)
-	{
-		if (ind < 3) {
-			char c = ind + 120;
-			return c;
-		}
-
-		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
-	}
-
 	static SizeType directionCharToInteger(char c)
 	{
 		int val = c - 120;
@@ -154,24 +155,14 @@ public:
 		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
 	}
 
-private:
-
-	static void fillHadamard(MatrixType& gateMatrix)
+	static char directionIntegerToChar(SizeType ind)
 	{
-		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
+		if (ind < 3) {
+			char c = ind + 120;
+			return c;
+		}
 
-		gateMatrix.resize(2, 2);
-		gateMatrix(0, 0) = oneOverSqrt2;
-		gateMatrix(0, 1) = oneOverSqrt2;
-		gateMatrix(1, 0) = oneOverSqrt2;
-		gateMatrix(1, 1) = -oneOverSqrt2;
-	}
-
-	static void fillPhaseOrT(MatrixType& gateMatrix, RealType a, RealType b)
-	{
-		gateMatrix.resize(2, 2);
-		gateMatrix(0, 0) = 1;
-		gateMatrix(1, 1) = ComplexOrRealType(a, b);
+		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
 	}
 }; // class GateLibrary
 

@@ -31,7 +31,7 @@ struct MinimizerParams {
 	      tol(tol_)
 	{}
 
-	MinimizerParams(InputNgReadableType& io, SizeType /*numberOfThreads*/)
+	MinimizerParams(InputNgReadableType& io)
 	    : verbose(false),
 	      algo(EnumAlgo::CONJUGATE_GRADIENT),
 	      maxIter(100),

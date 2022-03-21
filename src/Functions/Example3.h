@@ -29,8 +29,7 @@ class Example3 : public BaseFitness<EvolutionType_> {
 
 public:
 
-	typedef BaseFitness<EvolutionType_> BaseType;
-	typedef typename BaseType::FitnessParamsType FitnessParamsType;
+	typedef typename BaseFitness<EvolutionType_>::FitnessParamsType FitnessParamsType;
 	typedef EvolutionType_ EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
@@ -40,19 +39,14 @@ public:
 	Example3(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
-		if (evolution.numberOfInputs() != stringLength_) {
+		if (evolution.inputs() != stringLength_) {
 			throw PsimagLite::RuntimeError("Example3::ctor(): 1 input expected\n");
 		}
 	}
 
 	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome,
-	                    long unsigned int,
-	                    SizeType threadNum)
+	RealType getFitness(const SomeChromosomeType& chromosome)
 	{
-		if (threadNum > 0)
-			err("Threading not supported yet (sorry)\n");
-
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
 
@@ -88,7 +82,7 @@ private:
 	SizeType validLetter() const
 	{
 		SizeType l = 0;
-		while ((l < 32) || (l > 126)) {
+		while (l < 32 || l > 126) {
 			l = static_cast<SizeType>(128*evolution_.primitives().rng());
 		}
 

@@ -40,31 +40,46 @@ public:
 
 	typedef PrimitivesType_ PrimitivesType;
 
-	Evolution(PrimitivesType& primitives,
+	Evolution(const PrimitivesType& primitives,
 	          SizeType r,
 	          bool verbose)
 	    : primitives_(primitives),
 	      verbose_(verbose)
-	{}
+	{
+		const VectorNodeType& nodes = primitives_.nodes();
+
+		for (SizeType i = 0; i < nodes.size(); i++) {
+			if (nodes[i]->isInput()) {
+				inputs_.push_back(nodes[i]);
+			}
+		}
+	}
 
 	bool verbose() const { return verbose_; }
 
-	void setInput(SizeType i, ValueType x, SizeType threadId)
+	void setInput(SizeType i, ValueType x) const
 	{
-		primitives_.setInput(i, x, threadId);
+		assert(i < inputs_.size());
+		inputs_[i]->set(x);
 	}
 
 	void setInput(const VectorValueType& x) const
 	{
-		primitives_.setInput(x);
+		assert(x.size() == inputs_.size());
+		SizeType n = std::min(x.size(),inputs_.size());
+		for (SizeType i = 0; i < n; ++i)
+			inputs_[i]->set(x[i]);
 	}
 
 	void printInputs(std::ostream& os) const
 	{
-		primitives_.printInputs(os);
+		os<<"inputs= ";
+		for (SizeType i = 0; i < inputs_.size(); i++)
+			inputs_[i]->print(os);
+		os<<"\n";
 	}
 
-	SizeType numberOfInputs() const { return primitives_.numberOfInputs(); }
+	SizeType inputs() const { return inputs_.size(); }
 
 	SizeType tail(SizeType head) const
 	{
@@ -251,11 +266,6 @@ public:
 		}
 	}
 
-	void sync()
-	{
-		primitives_.sync();
-	}
-
 private:
 
 	VectorStringType selectRandomFrom(SizeType head, const VectorStringType& str) const
@@ -270,7 +280,7 @@ private:
 		return ret;
 	}
 
-	PrimitivesType& primitives_;
+	const PrimitivesType& primitives_;
 	bool verbose_;
 	VectorNodeType inputs_;
 
