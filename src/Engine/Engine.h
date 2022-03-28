@@ -223,11 +223,10 @@ private:
 			throw PsimagLite::RuntimeError(errorMessage);
 		}
 
-
 		const SizeType totalChromosomes = newChromosomes.size();
 		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
 		codeParams.npthreads = std::min(totalChromosomes,
-		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
+		                       PsimagLite::Concurrency::codeSectionParams.npthreads);
 
 		assert(codeParams.npthreads > 0);
 		bool withProgressBar = (codeParams.npthreads > 1) ? false

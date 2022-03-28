@@ -41,8 +41,7 @@ public:
 	    : code_(cr),
 	      bitNumber1_(bitNumber1),
 	      bitNumber2_(bitNumber2),
-	      gateMatrix_(gateMatrix),
-	      w_(1 << numberOfBits)
+	      gateMatrix_(gateMatrix)
 	{
 		code_ += ttos(bitNumber1);
 		code_ += "_";
@@ -70,7 +69,7 @@ public:
 		const int n = vv.size();
 		assert(n == (1 << numberOfBits_));  // 2^N
 
-		std::fill(w_.begin(), w_.end(), 0);
+		ValueType w(n);
 		const SizeType mask2 = (1 << bitNumber2_);
 		for (int i = 0; i < n; ++i) {
 			const SizeType oldContent1 = getBitForIndex(i, bitNumber1_);
@@ -82,10 +81,10 @@ public:
 
 			const SizeType j = (content2 == oldContent2) ? i : (i ^ mask2);
 
-			w_[j] += vv[i];
+			w[j] += vv[i];
 		}
 
-		return w_;
+		return w;
 	}
 
 private:
@@ -102,8 +101,6 @@ private:
 	SizeType bitNumber1_;
 	SizeType bitNumber2_;
 	MatrixType gateMatrix_;
-	mutable ValueType w_;
-
 }; // class QuantumTwoBitGate
 
 template<typename T>

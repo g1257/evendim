@@ -194,8 +194,7 @@ public:
 	                  const MatrixType& gateMatrix)
 	    : code_(cr),
 	      bitNumber_(bitNumber),
-	      gateMatrix_(gateMatrix),
-	      w_(1 << numberOfBits)
+	      gateMatrix_(gateMatrix)
 	{
 		code_ += ttos(bitNumber);
 		numberOfBits_ = numberOfBits;
@@ -213,17 +212,17 @@ public:
 		const int n = vv.size();
 		assert(n == (1 << numberOfBits_));  // 2^N
 
-		std::fill(w_.begin(), w_.end(), 0);
+		ValueType w(n);
 
 		for (int i = 0; i < n; ++i) {
 			SizeType j = findBasisState(i);
 			SizeType bitI = getBitForIndex(i);
 			SizeType bitJ = getBitForIndex(j);
-			w_[i] += gateMatrix_(bitI, bitI)*vv[i];
-			w_[j] += gateMatrix_(bitI, bitJ)*vv[i];
+			w[i] += gateMatrix_(bitI, bitI)*vv[i];
+			w[j] += gateMatrix_(bitI, bitJ)*vv[i];
 		}
 
-		return w_;
+		return w;
 	}
 
 	void setAngle(PsimagLite::String str) const
@@ -306,8 +305,6 @@ private:
 	mutable PsimagLite::String code_;
 	SizeType bitNumber_;
 	mutable MatrixType gateMatrix_;
-	mutable ValueType w_;
-
 }; // class QuantumOneBitGate
 
 template<typename T>

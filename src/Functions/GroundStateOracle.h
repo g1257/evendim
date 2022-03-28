@@ -101,7 +101,6 @@ public:
 			chromosome = &chromosome_;
 		}
 
-		evolution_.setInput(0, groundStateParams_.inVector, thread_);
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
@@ -318,6 +317,10 @@ public:
 			err("QuantumOracle::ctor(): 1 input expected\n");
 		if (samples != 1)
 			err("Expecting samples == 1\n");
+
+		SizeType nthreads = PsimagLite::Concurrency::codeSectionParams.npthreads;
+		for (SizeType threadId = 0; threadId < nthreads; ++threadId)
+			evolution.setInput(0, fitParams->inVector, threadId);
 	}
 
 	template<typename SomeChromosomeType>

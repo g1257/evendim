@@ -84,7 +84,6 @@ public:
 		}
 
 		nodes_.push_back(nodes);
-
 		for (SizeType i = 1; i < numberOfThreads; ++i) {
 			VectorNodeType nodes;
 			makeNodes(nodes);
