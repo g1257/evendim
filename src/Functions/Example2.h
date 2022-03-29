@@ -44,18 +44,15 @@ public:
 	template<typename SomeChromosomeType>
 	RealType getFitness(const SomeChromosomeType& chromosome,
 	                    unsigned long int seed,
-	                    SizeType threadNum)
+	                    SizeType /* threadNum */)
 	{
-		if (threadNum > 0)
-			err("Threading not supported yet (sorry)\n");
-
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
 		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < maxFitness(); i++) {
 			SizeType x = static_cast<SizeType>(rng()*1000);
 			RealType fOfX = f(x);
-			evolution_.setInput(0, x, threadNum);
+			evolution_.setInput(0, x);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);

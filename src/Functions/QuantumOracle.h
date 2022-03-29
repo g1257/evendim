@@ -69,7 +69,6 @@ public:
 
 	void df(VectorRealType& dest, const VectorRealType& angles)
 	{
-		constexpr SizeType threadNum = 0;
 		VectorStringType vecStr = chromosome_.vecString();
 		encodeAngles(vecStr, angles);
 		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
@@ -80,7 +79,7 @@ public:
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
 			for (SizeType i = 0; i < samples; ++i) {
 				setInVector(i);
-				evolution_.setInput(0, inVector_, threadNum);
+				evolution_.setInput(0, inVector_);
 				functionF(outVector_, inVector_);
 
 				computeDifferentialVector(differential_, angles, angleIndex);
@@ -97,8 +96,6 @@ public:
 
 	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
 	{
-		constexpr SizeType threadNum = 0;
-
 		const ChromosomeType* chromosome = nullptr;
 
 		VectorStringType vecStr = chromosome_.vecString();
@@ -114,7 +111,7 @@ public:
 		RealType sum = 0;
 		for (SizeType i = 0; i < samples; ++i) {
 			setInVector(i);
-			evolution_.setInput(0, inVector_, threadNum);
+			evolution_.setInput(0, inVector_);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			functionF(outVector_, inVector_);

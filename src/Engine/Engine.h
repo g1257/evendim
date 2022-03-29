@@ -127,7 +127,7 @@ private:
 	{
 		for (SizeType i = 0; i < newChromosomes.size(); i++) {
 			CanonicalFormType canonicalForm(newChromosomes[i],
-			                                evolution_.primitives().nodes(0));
+			                                evolution_.primitives().nodes());
 			canonicalForm.changeIfNeeded(newChromosomes[i]);
 		}
 	}

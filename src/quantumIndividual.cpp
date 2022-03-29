@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	gepOptions.head = tokens.size() - 1;
 
 	ParametersEngineType params(gepOptions);
-	PrimitivesType primitives(numberOfBits, gates, 1); // threads == 1
+	PrimitivesType primitives(numberOfBits, gates);
 	EvolutionType evolution(primitives, seed, verbose);
 
 	ChromosomeType  chromosome(params,
@@ -171,8 +171,7 @@ int main(int argc, char* argv[])
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
 
-	constexpr SizeType threadId = 0;
-	evolution.setInput(0, inVector, threadId);
+	evolution.setInput(0, inVector);
 
 	VectorType outVector = chromosome.exec(0);
 

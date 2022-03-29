@@ -77,7 +77,7 @@ public:
 
 		const VectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
-			evolution_.setInput(0, inVector, thread_);
+			evolution_.setInput(0, inVector);
 
 			computeDifferentialVector(differential_, angles, angleIndex);
 
@@ -96,7 +96,7 @@ public:
 
 		if (angles) {
 			encodeAngles(vecStr, *angles);
-			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr, thread_);
+			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
 		} else {
 			chromosome = &chromosome_;
 		}
@@ -318,9 +318,7 @@ public:
 		if (samples != 1)
 			err("Expecting samples == 1\n");
 
-		SizeType nthreads = PsimagLite::Concurrency::codeSectionParams.npthreads;
-		for (SizeType threadId = 0; threadId < nthreads; ++threadId)
-			evolution.setInput(0, fitParams->inVector, threadId);
+		evolution.setInput(0, fitParams->inVector);
 	}
 
 	template<typename SomeChromosomeType>

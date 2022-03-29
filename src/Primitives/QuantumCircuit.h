@@ -41,7 +41,6 @@ public:
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef Node<VectorValueType, RealType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
-	typedef typename PsimagLite::Vector<VectorNodeType>::Type VectorVectorNodeType;
 	typedef NodeDc<VectorValueType> NodeDcType;
 	typedef Plus<VectorValueType> PlusType;
 	typedef Minus<VectorValueType> MinusType;
@@ -60,55 +59,39 @@ public:
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
 	QuantumCircuit(SizeType numberOfBits,
-	               PsimagLite::String gates,
-	               SizeType numberOfThreads)
+	               PsimagLite::String gates)
 	    : maxArity_(0), numberOfBits_(numberOfBits), rng_(1000)
 	{
 		PsimagLite::split(gates_, gates, ",");
 
-		VectorNodeType nodes;
-		makeNodes(nodes);
+		makeNodes(nodes_);
 
-		for (SizeType i=0;i<nodes.size();i++) {
-			if (nodes[i]->isInput()) {
+		for (SizeType i = 0; i < nodes_.size(); ++i) {
+			if (nodes_[i]->isInput()) {
 				inputs_.push_back(i);
-				terminals_.push_back(nodes[i]->code());
-			} else if (nodes[i]->arity()>0 && nodes[i]->code()[0] != '_') {
-				nonTerminals_.push_back(nodes[i]->code());
+				terminals_.push_back(nodes_[i]->code());
+			} else if (nodes_[i]->arity()>0 && nodes_[i]->code()[0] != '_') {
+				nonTerminals_.push_back(nodes_[i]->code());
 			}
 		}
 
-		for (SizeType i=0;i<nodes.size();i++) {
-			if (maxArity_ < nodes[i]->arity())
-				maxArity_ = nodes[i]->arity();
-		}
-
-		nodes_.push_back(nodes);
-		for (SizeType i = 1; i < numberOfThreads; ++i) {
-			VectorNodeType nodes;
-			makeNodes(nodes);
-			nodes_.push_back(nodes);
+		for (SizeType i = 0; i < nodes_.size(); ++i) {
+			if (maxArity_ < nodes_[i]->arity())
+				maxArity_ = nodes_[i]->arity();
 		}
 	}
 
 	~QuantumCircuit()
 	{
 		for (SizeType i = 0; i < nodes_.size(); i++) {
-			for (SizeType j = 0; j < nodes_[i].size(); ++j) {
-				delete nodes_[i][j];
-				nodes_[i][j] = nullptr;
-			}
-
-			nodes_[i].clear();
+			delete nodes_[i];
+			nodes_[i] = nullptr;
 		}
-
-		nodes_.clear();
 	}
 
-	const VectorNodeType& nodes(SizeType threadNum) const
+	const VectorNodeType& nodes() const
 	{
-		assert(threadNum < nodes_.size());
-		return nodes_[threadNum];
+		return nodes_;
 	}
 
 	const VectorStringType& nonTerminals() const
@@ -135,23 +118,22 @@ public:
 
 	SizeType numberOfInputs() const { return inputs_.size(); }
 
-	void setInput(SizeType ind, ValueType x, SizeType threadId)
+	void setInput(SizeType ind, ValueType x)
 	{
 		assert(ind < inputs_.size());
-		assert(threadId < nodes_.size());
-		assert(inputs_[ind] < nodes_[threadId].size());
-		return nodes_[threadId][inputs_[ind]]->set(x);
+		assert(inputs_[ind] < nodes_.size());
+		return nodes_[inputs_[ind]]->set(x);
 	}
 
 	void printInputs(std::ostream& os) const
 	{
 		assert(inputs_.size() > 0);
 		assert(nodes_.size() > 0);
-		assert(inputs_[inputs_.size() - 1] < nodes_[0].size());
+		assert(inputs_[inputs_.size() - 1] < nodes_.size());
 
 		os<<"inputs= ";
 		for (SizeType i = 0; i < inputs_.size(); i++)
-			nodes_[0][inputs_[i]]->print(os);
+			nodes_[inputs_[i]]->print(os);
 		os<<"\n";
 	}
 
@@ -281,7 +263,7 @@ private:
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	const SizeType numberOfBits_;
-	VectorVectorNodeType nodes_;
+	VectorNodeType nodes_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
 	VectorStringType gates_;

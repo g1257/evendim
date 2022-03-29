@@ -62,7 +62,7 @@ public:
 			RealType x = (b) ? r : samples_[i];
 			samples_[i] = r;
 			RealType fOfX = f(x);
-			evolution_.setInput(0, x, threadNum);
+			evolution_.setInput(0, x);
 
 			if (verbose) evolution_.printInputs(std::cout);
 

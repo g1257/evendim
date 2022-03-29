@@ -97,11 +97,8 @@ public:
 		nodes_.clear();
 	}
 
-	const VectorNodeType& nodes(SizeType threadNum) const
+	const VectorNodeType& nodes() const
 	{
-		if (threadNum > 0)
-			err("Threading not supported yet (sorry)\n");
-
 		return nodes_;
 	}
 
@@ -127,7 +124,7 @@ public:
 
 	SizeType numberOfInputs() const { return inputs_.size(); }
 
-	void setInput(SizeType ind, SizeType x, SizeType /*threadId*/)
+	void setInput(SizeType ind, SizeType x)
 	{
 		assert(ind < inputs_.size());
 		assert(inputs_[ind] < nodes_.size());
