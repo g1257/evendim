@@ -1,0 +1,25 @@
+##Ainur1.0
+
+HeadSize=9;
+#Seed=12345;
+Population=100;
+Generations=5;
+NumberOfBits=9;
+MinimizerTolerance=0.1;
+Primitives="C,P,T,H";
+MinimizerDelta=0.01;
+MinimizerDelta2=0.01;
+MinimizerVerbose=0;
+ProgressBar=1;
+MinimizerAlgorithm="Simplex";
+RunType="GroundState";
+Hamiltonian="Sx0*Sx1+Sy0*Sy1+Sz0*Sz1+Sx0*Sx3+Sy0*Sy3+Sz0*Sz3+Sx3*Sx4+Sy3*Sy4+Sz3*Sz4+Sx3*Sx6+Sy3*Sy6+Sz3*Sz6+Sx6*Sx7+Sy6*Sy7+Sz6*Sz7+Sx1*Sx2+Sy1*Sy2+Sz1*Sz2+Sx1*Sx4+Sy1*Sy4+Sz1*Sz4+Sx4*Sx5+Sy4*Sy5+Sz4*Sz5+Sx4*Sx7+Sy4*Sy7+Sz4*Sz7+Sx7*Sx8+Sy7*Sy8+Sz7*Sz8+Sx2*Sx5+Sy2*Sy5+Sz2*Sz5+Sx5*Sx8+Sy5*Sy8+Sz5*Sz8";
+HamiltonianCoupling=1;
+#HamiltonianIsPeriodic=1;
+InVectorFile="../TestSuite/inputs/vector40.txt";
+string EngineOptions="printcompact";
+Threads=2;
+#CHeadSize=0;
+#AdfsSize=0;
+#StopEarly=false;
+#
