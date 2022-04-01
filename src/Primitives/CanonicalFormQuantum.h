@@ -7,6 +7,7 @@
 #include <cassert>
 #include "PsimagLite.h"
 #include <queue>
+#include "NodeFactory.h"
 
 namespace Gep {
 
@@ -23,16 +24,17 @@ public:
 	typedef std::queue<PsimagLite::String> QueueStringType;
 	typedef PsimagLite::Vector<QueueStringType>::Type VectorQueueStringType;
 	typedef PsimagLite::Vector<bool>::Type VectorBoolType;
+	typedef NodeFactory<NodeType> NodeFactorType;
 
 	enum class RotationEnum {INVALID, X, Y, Z};
 
 	CanonicalFormQuantum(const VectorStringType& data,
-	                     const VectorNodeType& nodes)
-	    : data_(data), needsChange_(false)
+	                     const NodeFactorType& nodeFactory)
+	    : data_(data), nodeFactory_(nodeFactory), needsChange_(false)
 	{
 		getEffectiveAndJunk();
-		needsChange_ |= orderGatesByBitNg(effective_, nodes);
-		needsChange_ |= compactifyRotations(effective_, junkDna_, nodes);
+		needsChange_ |= orderGatesByBitNg(effective_);
+		needsChange_ |= compactifyRotations(effective_, junkDna_);
 	}
 
 	void changeIfNeeded(VectorStringType& vstr) const
@@ -61,41 +63,38 @@ private:
 		}
 	}
 
-	static bool orderGatesByBitNg(VectorStringType& effective, const VectorNodeType& nodes)
+	bool orderGatesByBitNg(VectorStringType& effective) const
 	{
 		bool flag = false;
-		while (orderGatesByBitOneRound(effective, nodes)) {
+		while (orderGatesByBitOneRound(effective)) {
 			flag = true;
 		}
 
 		return flag;
 	}
 
-	static bool orderGatesByBitOneRound(VectorStringType& effective, const VectorNodeType& nodes)
+	bool orderGatesByBitOneRound(VectorStringType& effective) const
 	{
 		bool flag = false;
 		const SizeType n = effective.size();
 		for (SizeType i = 1; i< n; ++i) {
-			bool gateMoved = moveThisGateIfPossible(effective, nodes, i);
+			bool gateMoved = moveThisGateIfPossible(effective, i);
 			flag |= gateMoved;
 		}
 
 		return flag;
 	}
 
-	static bool moveThisGateIfPossible(VectorStringType& effective,
-	                                   const VectorNodeType& nodes,
-	                                   SizeType ind)
+	bool moveThisGateIfPossible(VectorStringType& effective, SizeType ind) const
 	{
 		if (ind == 0) return false;
 
 		static const ValueType_ value;
 		constexpr bool isCell = false;
 
-		const NodeType& node = ProgramGlobals::findNodeFromCode<NodeType>(effective[ind],
-		                                                                  nodes,
-		                                                                  value,
-		                                                                  isCell);
+		const NodeType& node = nodeFactory_.findNodeFromCode(effective[ind],
+		                                                     value,
+		                                                     isCell);
 		if (node.isInput()) return false;
 		VectorSizeType bits;
 		getBits(bits, node.code());
@@ -103,10 +102,9 @@ private:
 		int jnd = ind - 1;
 		int location = -1;
 		for (; jnd >= 0; --jnd) {
-			const NodeType& nodePrev = ProgramGlobals::findNodeFromCode<NodeType>(effective[jnd],
-			                                                                      nodes,
-			                                                                      value,
-			                                                                      isCell);
+			const NodeType& nodePrev = nodeFactory_.findNodeFromCode(effective[jnd],
+			                                                         value,
+			                                                         isCell);
 			if (nodePrev.isInput())
 				err("moveThisGateIfPossible: input found before gate!?\n");
 			VectorSizeType bitsPrev;
@@ -264,9 +262,7 @@ private:
 		VectorSizeType bits_;
 	};
 
-	static bool compactifyRotations(VectorStringType& effective,
-	                                VectorStringType& junkDna,
-	                                const VectorNodeType& nodes)
+	bool compactifyRotations(VectorStringType& effective, VectorStringType& junkDna) const
 	{
 		static const ValueType_ value;
 		constexpr bool isCell = false;
@@ -278,10 +274,9 @@ private:
 		Track track(n);
 
 		for (SizeType i = 0; i < n; ++i) {
-			const NodeType& node = ProgramGlobals::findNodeFromCode<NodeType>(effective[i],
-			                                                                  nodes,
-			                                                                  value,
-			                                                                  isCell);
+			const NodeType& node = nodeFactory_.findNodeFromCode(effective[i],
+			                                                     value,
+			                                                     isCell);
 
 			if (node.isInput()) {
 				track.compactify(prevDir, prevBit, prevAngle, i);
@@ -399,6 +394,7 @@ private:
 	}
 
 	const VectorStringType& data_;
+	const NodeFactorType& nodeFactory_;
 	bool needsChange_;
 	VectorStringType effective_;
 	VectorStringType junkDna_;

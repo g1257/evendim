@@ -24,27 +24,29 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "TypeToString.h"
 #include "PsimagLite.h"
 #include "ProgramGlobals.h"
+#include "NodeFactory.h"
 
 namespace Gep {
 
 template<typename PrimitivesType_>
 class Evolution {
 
+public:
+
 	typedef typename PrimitivesType_::VectorNodeType VectorNodeType;
 	typedef typename PrimitivesType_::NodeType NodeType;
 	typedef typename PrimitivesType_::VectorValueType VectorValueType;
 	typedef typename NodeType::ValueType ValueType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
-
-public:
-
 	typedef PrimitivesType_ PrimitivesType;
+	typedef NodeFactory<NodeType> NodeFactoryType;
 
 	Evolution(PrimitivesType& primitives,
 	          SizeType r,
 	          bool verbose)
 	    : primitives_(primitives),
-	      verbose_(verbose)
+	      verbose_(verbose),
+	      nodeFactory_(primitives.nodes())
 	{}
 
 	bool verbose() const { return verbose_; }
@@ -256,6 +258,11 @@ public:
 		primitives_.sync();
 	}
 
+	const NodeType& findNodeFromCode(PsimagLite::String codeStr, const ValueType& value, bool isCell) const
+	{
+		return nodeFactory_.findNodeFromCode(codeStr, value, isCell);
+	}
+
 private:
 
 	VectorStringType selectRandomFrom(SizeType head, const VectorStringType& str) const
@@ -272,6 +279,7 @@ private:
 
 	PrimitivesType& primitives_;
 	bool verbose_;
+	NodeFactoryType nodeFactory_;
 	VectorNodeType inputs_;
 
 }; // class Evolution

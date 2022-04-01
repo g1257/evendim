@@ -37,6 +37,7 @@ public:
 	typedef RealType FieldType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 	typedef PsimagLite::Matrix<ComplexType> MatrixType;
+	typedef typename EvolutionType::NodeFactoryType NodeFactoryType;
 
 	enum class FunctionEnum {FITNESS, DIFFERENCE};
 
@@ -128,7 +129,7 @@ public:
 
 			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
 			PsimagLite::String str = vecStr[i];
-			str = ProgramGlobals::stripPreviousAngleIfAny(str);
+			str = NodeFactoryType::stripPreviousAngleIfAny(str);
 			if (angles.size() < currentIndex)
 				err("encodeAngles: too many angles for rotations in this individual!?\n");
 			str += ":" + ttos(angles[currentIndex++]);
