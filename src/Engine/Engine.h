@@ -59,6 +59,7 @@ public:
 	      evolution_(evolution),
 	      fitness_(params.samples, evolution, fitnessParams)
 	{
+		constexpr SizeType threadNum = 0;
 		for (SizeType i = 0; i< params_.population; ++i) {
 			VectorStringType vecStr;
 			for (SizeType j = 0; j < params_.genes; ++j)
@@ -66,7 +67,10 @@ public:
 			for (SizeType j = 0; j < params_.adfs; ++j)
 				ProgramGlobals::pushVector(vecStr, evolution_.randomAdf(params_.chead,
 				                                                        params_.genes));
-			ChromosomeType* chromosome = new ChromosomeType(params_, evolution_, vecStr);
+			ChromosomeType* chromosome = new ChromosomeType(params_,
+			                                                evolution_,
+			                                                vecStr,
+			                                                threadNum);
 			chromosomes_.push_back(chromosome);
 		}
 	}
@@ -142,7 +146,8 @@ private:
 	void addWithCare(PairVectorVectorStringType& newChromosomes,
 	                 const VectorStringType& vecStr) const
 	{
-		ChromosomeType chromosome(params_, evolution_, vecStr);
+		constexpr SizeType threadNum = 0;
+		ChromosomeType chromosome(params_, evolution_, vecStr, threadNum);
 		VectorStringType vEff(chromosome.effectiveSize());
 		for (SizeType i = 0; i < chromosome.effectiveSize(); ++i)
 			vEff[i] = chromosome.vecString()[i];
@@ -244,7 +249,7 @@ private:
 		                          isVerbose,
 		                          withProgressBar,
 		                          this](SizeType ind, SizeType threadNum) {
-			ChromosomeType chromosome(params_,evolution_,newChromosomes[ind]);
+			ChromosomeType chromosome(params_, evolution_, newChromosomes[ind], threadNum);
 			if (isVerbose)
 				std::cout<<"About to exec chromosome= "<<newChromosomes[ind]<<"\n";
 			fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind], threadNum);
@@ -294,7 +299,11 @@ private:
 
 	void addChromosome(const VectorStringType& str, const RealType& f)
 	{
-		ChromosomeType* chromosome = new ChromosomeType(params_,evolution_,str);
+		constexpr SizeType threadNum = 0;
+		ChromosomeType* chromosome = new ChromosomeType(params_,
+		                                                evolution_,
+		                                                str,
+		                                                threadNum);
 
 		assert(chromosome);
 
@@ -365,12 +374,13 @@ private:
 
 	void orderBySize(VectorVectorStringType& newChromosomes,const VectorRealType& fitness) const
 	{
+		constexpr SizeType threadNum = 0;
 		RealType value = -fitness_.maxFitness();
 		VectorRealType bestSize;
 
 		for (SizeType i = 0; i < fitness.size(); i++) {
 			if (fitness[i] != value) break;
-			ChromosomeType chromosome(params_,evolution_,newChromosomes[i]);
+			ChromosomeType chromosome(params_, evolution_, newChromosomes[i], threadNum);
 			bestSize.push_back(chromosome.effectiveSize());
 
 		}

@@ -91,10 +91,12 @@ private:
 
 		static const ValueType_ value;
 		constexpr bool isCell = false;
+		constexpr SizeType threadNum = 0;
 
 		const NodeType& node = nodeFactory_.findNodeFromCode(effective[ind],
 		                                                     value,
-		                                                     isCell);
+		                                                     isCell,
+		                                                     threadNum);
 		if (node.isInput()) return false;
 		VectorSizeType bits;
 		getBits(bits, node.code());
@@ -104,7 +106,8 @@ private:
 		for (; jnd >= 0; --jnd) {
 			const NodeType& nodePrev = nodeFactory_.findNodeFromCode(effective[jnd],
 			                                                         value,
-			                                                         isCell);
+			                                                         isCell,
+			                                                         threadNum);
 			if (nodePrev.isInput())
 				err("moveThisGateIfPossible: input found before gate!?\n");
 			VectorSizeType bitsPrev;
@@ -264,6 +267,7 @@ private:
 
 	bool compactifyRotations(VectorStringType& effective, VectorStringType& junkDna) const
 	{
+		constexpr SizeType threadNum = 0;
 		static const ValueType_ value;
 		constexpr bool isCell = false;
 		RotationEnum prevDir = RotationEnum::INVALID;
@@ -276,7 +280,8 @@ private:
 		for (SizeType i = 0; i < n; ++i) {
 			const NodeType& node = nodeFactory_.findNodeFromCode(effective[i],
 			                                                     value,
-			                                                     isCell);
+			                                                     isCell,
+			                                                     threadNum);
 
 			if (node.isInput()) {
 				track.compactify(prevDir, prevBit, prevAngle, i);

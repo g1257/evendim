@@ -52,7 +52,8 @@ public:
 	Gene(SizeType head,
 	     bool isCell,
 	     const EvolutionType& evolution,
-	     const VectorStringType& vecStr)
+	     const VectorStringType& vecStr,
+	     SizeType threadNum)
 	    : head_(head),
 	      tail_(evolution.tail(head)),
 	      vecStr_(vecStr)
@@ -61,7 +62,7 @@ public:
 
 		SizeType headPlusTail = head_ + tail_;
 
-		fromString(vt_, evolution, vecStr, headPlusTail, isCell);
+		fromString(vt_, evolution, vecStr, headPlusTail, isCell, threadNum);
 	}
 
 	~Gene()
@@ -73,7 +74,8 @@ public:
 	                       const EvolutionType& evolution,
 	                       const VectorStringType& vecStr,
 	                       SizeType effectiveSize,
-	                       bool isCell)
+	                       bool isCell,
+	                       SizeType threadNum)
 	{
 		PsimagLite::Vector<SizeType>::Type va;
 		const SizeType dcLength = vecStr.size() - effectiveSize;
@@ -90,7 +92,8 @@ public:
 			PsimagLite::String cStr = vecStr[i];
 			const NodeType& node = evolution.nodeFactory().findNodeFromCode(cStr,
 			                                                                dcValue,
-			                                                                isCell);
+			                                                                isCell,
+			                                                                threadNum);
 			if (cStr == "?") {
 				assert(dcLength > 0);
 				dcIndex++;

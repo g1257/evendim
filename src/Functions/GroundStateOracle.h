@@ -49,7 +49,7 @@ public:
 	      chromosome_(chromosome),
 	      groundStateParams_(groundStateParams),
 	      outVector_(groundStateParams_.inVector.size()),
-	      thread_(thread)
+	      threadNum_(thread)
 	{
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
 	}
@@ -72,7 +72,10 @@ public:
 	{
 		VectorStringType vecStr = chromosome_.vecString();
 		encodeAngles(vecStr, angles);
-		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(),
+		                                                      evolution_,
+		                                                      vecStr,
+		                                                      threadNum_);
 
 		dest.resize(angles.size());
 
@@ -97,7 +100,10 @@ public:
 
 		if (angles) {
 			encodeAngles(vecStr, *angles);
-			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+			chromosome = new ChromosomeType(chromosome_.params(),
+			                                evolution_,
+			                                vecStr,
+			                                threadNum_);
 		} else {
 			chromosome = &chromosome_;
 		}
@@ -105,7 +111,7 @@ public:
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
-		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), thread_);
+		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
 
 		if (angles) {
 			delete chromosome;
@@ -250,7 +256,7 @@ private:
 		assert(tmpString.size() == geneLength);
 
 		// create derivative individual angle-th
-		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString);
+		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString, threadNum_);
 
 		// apply to inVector
 		differential = newChromosome.exec(0);
@@ -288,7 +294,7 @@ private:
 	SizeType numberOfAngles_;
 	VectorType outVector_;
 	VectorType differential_;
-	SizeType thread_;
+	SizeType threadNum_;
 };
 
 template<typename EvolutionType_, typename HamiltonianType>
@@ -332,8 +338,6 @@ public:
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
 
-		evolution_.nodeFactory().setThreadId(threadNum);
-
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {
@@ -369,7 +373,8 @@ public:
 			FunctionToMinimizeType::encodeAngles(vecStr, angles);
 			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
 			                                                               evolution_,
-			                                                               vecStr);
+			                                                               vecStr,
+			                                                               threadNum);
 			chromosome = *chromosome2;
 
 			delete chromosome2;

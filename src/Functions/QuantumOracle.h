@@ -42,9 +42,11 @@ public:
 
 	FunctionToMinimize(EvolutionType& evolution,
 	                   const ChromosomeType& chromosome,
-	                   SizeType samples)
+	                   SizeType samples,
+	                   SizeType threadNum)
 	    : evolution_(evolution),
 	      chromosome_(chromosome),
+	      threadNum_(threadNum),
 	      inMatrix_((1 << evolution.primitives().numberOfBits()), samples),
 	      inVector_(inMatrix_.rows()),
 	      outVector_(inMatrix_.rows())
@@ -72,7 +74,10 @@ public:
 	{
 		VectorStringType vecStr = chromosome_.vecString();
 		encodeAngles(vecStr, angles);
-		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(),
+		                                                      evolution_,
+		                                                      vecStr,
+		                                                      threadNum_);
 
 		dest.resize(angles.size());
 
@@ -103,7 +108,7 @@ public:
 
 		if (angles) {
 			encodeAngles(vecStr, *angles);
-			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr);
+			chromosome = new ChromosomeType(chromosome_.params(), evolution_, vecStr, threadNum_);
 		} else {
 			chromosome = &chromosome_;
 		}
@@ -295,7 +300,7 @@ private:
 		assert(tmpString.size() == geneLength);
 
 		// create derivative individual angle-th
-		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString);
+		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString, threadNum_);
 
 		// apply to inVector
 		differential = newChromosome.exec(0);
@@ -337,6 +342,7 @@ private:
 
 	EvolutionType& evolution_;
 	const ChromosomeType& chromosome_;
+	SizeType threadNum_;
 	SizeType numberOfAngles_;
 	MatrixType inMatrix_;
 	VectorType inVector_;
@@ -382,7 +388,7 @@ public:
 		if (threadNum > 0)
 			err("QuantumOracle: Threading not supported yet (sorry)\n");
 
-		FunctionToMinimizeType f(evolution_, chromosome, samples_);
+		FunctionToMinimizeType f(evolution_, chromosome, samples_, threadNum);
 
 		if (f.size() == 0) {
 			return f.fitness(nullptr,
@@ -417,7 +423,8 @@ public:
 			FunctionToMinimizeType::encodeAngles(vecStr, angles);
 			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
 			                                                              evolution_,
-			                                                              vecStr);
+			                                                              vecStr,
+			                                                               threadNum);
 			chromosome = *chromosome2;
 
 			delete chromosome2;

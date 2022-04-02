@@ -33,14 +33,13 @@ public:
 	NodeFactory(const VectorNodeType& nodes)
 	    : nodes_(nodes),
 	      nthreads_(PsimagLite::Concurrency::codeSectionParams.npthreads),
-	      threadNum_(0),
-	      newNodes_(nodes.size()*nthreads_),
-	      table_(nthreads_, nodes.size())
+	      newNodes_(nodes.size()*nthreads_)
 	{}
 
 	const NodeType& findNodeFromCode(PsimagLite::String codeStr,
 	                                 const typename NodeType::ValueType& value,
-	                                 bool isCell) const
+	                                 bool isCell,
+	                                 SizeType threadNum) const
 	{
 		PsimagLite::String codeStripped = stripPreviousAngleIfAny(codeStr);
 
@@ -48,7 +47,7 @@ public:
 			if (isCell && nodes_[i]->isInput()) continue;
 			PsimagLite::String ncode = stripPreviousAngleIfAny(nodes_[i]->code());
 			if (ncode == codeStripped) {
-				NodeType* newNode = findOrCreateCombo(i);
+				NodeType* newNode = findOrCreateCombo(i, threadNum);
 				if (codeStr == "?") newNode->setDcValue(value);
 				newNode->setAngle(codeStr);
 				return *newNode;
@@ -56,11 +55,6 @@ public:
 		}
 
 		throw PsimagLite::RuntimeError("findNodeWithCode\n");
-	}
-
-	void setThreadId(SizeType threadNum)
-	{
-		threadNum_ = threadNum;
 	}
 
 	void sync()
@@ -82,19 +76,15 @@ public:
 
 private:
 
-	NodeType* findOrCreateCombo(SizeType ind) const
+	NodeType* findOrCreateCombo(SizeType ind, SizeType threadNum) const
 	{
-		if (threadNum_ == 0) return nodes_[ind];
+		if (threadNum == 0) return nodes_[ind];
 
-		int tId = table_(threadNum_, ind);
-		if (tId < 0) {
-			auto newNode = nodes_[ind]->clone();
-			SizeType loc = threadNum_ + ind*nthreads_;
-			assert(loc < newNodes_.size());
-			newNodes_[loc] = newNode;
-			table_(threadNum_, ind) = loc;
+		int tId = threadNum + ind*nthreads_;
+		assert(static_cast<SizeType>(tId) < newNodes_.size());
+		if (!newNodes_[tId]) {
+			newNodes_[tId] = nodes_[ind]->clone();
 		}
-
 
 		assert(static_cast<SizeType>(tId) < newNodes_.size());
 		assert(newNodes_[tId]);
@@ -112,9 +102,7 @@ private:
 
 	const VectorNodeType& nodes_;
 	SizeType nthreads_;
-	SizeType threadNum_;
 	mutable VectorNodeType newNodes_;
-	mutable MatrixIntType table_;
 };
 }
 #endif // NODEFACTORY_H

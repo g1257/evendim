@@ -161,9 +161,11 @@ int main(int argc, char* argv[])
 	PrimitivesType primitives(numberOfBits, gates);
 	EvolutionType evolution(primitives, seed, verbose);
 
+	constexpr SizeType threadNum = 0;
 	ChromosomeType  chromosome(params,
 	                           evolution,
-	                           tokens);
+	                           tokens,
+	                           threadNum);
 
 	VectorType inVector;
 	Gep::ProgramGlobals::readVector(inVector, vectorFilename);
