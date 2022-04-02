@@ -50,6 +50,11 @@ public:
 		numberOfBits_ = numberOfBits;
 	}
 
+	QuantumTwoBitGate* clone() const
+	{
+		return new QuantumTwoBitGate(*this);
+	}
+
 	virtual PsimagLite::String code() const { return code_; }
 
 	virtual SizeType arity() const { return 1; }

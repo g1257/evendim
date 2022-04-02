@@ -332,6 +332,8 @@ public:
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
 
+		evolution_.nodeFactory().setThreadId(threadNum);
+
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {

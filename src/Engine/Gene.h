@@ -88,9 +88,9 @@ public:
 
 		for (SizeType i = 0; i < effectiveSize; i++) {
 			PsimagLite::String cStr = vecStr[i];
-			const NodeType& node = evolution.findNodeFromCode(cStr,
-			                                                  dcValue,
-			                                                  isCell);
+			const NodeType& node = evolution.nodeFactory().findNodeFromCode(cStr,
+			                                                                dcValue,
+			                                                                isCell);
 			if (cStr == "?") {
 				assert(dcLength > 0);
 				dcIndex++;

@@ -32,6 +32,8 @@ public:
 
 	virtual ~Node() {}
 
+	virtual Node* clone() const = 0;
+
 	virtual PsimagLite::String code() const = 0;
 
 	virtual SizeType arity() const = 0;
@@ -71,6 +73,11 @@ class NodeDc : public Node<VectorValueType> {
 
 public:
 
+	NodeDc* clone() const
+	{
+		return new NodeDc(*this);
+	}
+
 	virtual PsimagLite::String code() const { return "?"; }
 
 	virtual SizeType arity() const { return 0; }
@@ -99,6 +106,11 @@ class Plus : public Node<VectorValueType> {
 
 public:
 
+	Plus* clone() const
+	{
+		return new Plus(*this);
+	}
+
 	virtual PsimagLite::String code() const { return "+"; }
 
 	virtual SizeType arity() const { return 2; }
@@ -117,6 +129,11 @@ class Minus : public Node<VectorValueType> {
 	typedef typename VectorValueType::value_type ValueType;
 
 public:
+
+	Minus* clone() const
+	{
+		return new Minus(*this);
+	}
 
 	virtual PsimagLite::String code() const { return "-"; }
 
@@ -137,6 +154,11 @@ class Times : public Node<VectorValueType> {
 
 public:
 
+	Times* clone() const
+	{
+		return new Times(*this);
+	}
+
 	virtual PsimagLite::String code() const { return "*"; }
 
 	virtual SizeType arity() const { return 2; }
@@ -155,6 +177,11 @@ class DividedBy : public Node<VectorValueType> {
 	typedef typename VectorValueType::value_type ValueType;
 
 public:
+
+	DividedBy* clone() const
+	{
+		return new DividedBy(*this);
+	}
 
 	virtual PsimagLite::String code() const { return "/"; }
 
@@ -177,6 +204,11 @@ class IfGtZero : public Node<VectorValueType> {
 
 public:
 
+	IfGtZero* clone() const
+	{
+		return new IfGtZero(*this);
+	}
+
 	virtual char code() const { return 'g'; }
 
 	virtual SizeType arity() const { return 1; }
@@ -196,6 +228,11 @@ class Int : public Node<VectorValueType> {
 	typedef typename VectorValueType::value_type ValueType;
 
 public:
+
+	Int* clone() const
+	{
+		return new Int(*this);
+	}
 
 	virtual char code() const { return 'i'; }
 
@@ -222,6 +259,11 @@ public:
 	    : char_(i+48),strOneChar_(" ")
 	{
 		strOneChar_[0] = char_;
+	}
+
+	Input* clone() const
+	{
+		return new Input(*this);
 	}
 
 	virtual PsimagLite::String code() const { return strOneChar_; }
@@ -257,6 +299,11 @@ public:
 	    : char_(i+48),strOneChar_(" ")
 	{
 		strOneChar_[0] = char_;
+	}
+
+	NodeAdf* clone() const
+	{
+		return new NodeAdf(*this);
 	}
 
 	virtual PsimagLite::String code() const { return strOneChar_; }

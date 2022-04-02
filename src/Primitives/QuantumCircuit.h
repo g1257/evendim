@@ -137,11 +137,6 @@ public:
 		os<<"\n";
 	}
 
-	void sync()
-	{
-
-	}
-
 private:
 
 	void makeNodes(VectorNodeType& nodes)

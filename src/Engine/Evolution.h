@@ -253,15 +253,9 @@ public:
 		}
 	}
 
-	void sync()
-	{
-		primitives_.sync();
-	}
+	NodeFactoryType& nodeFactory() { return nodeFactory_;}
 
-	const NodeType& findNodeFromCode(PsimagLite::String codeStr, const ValueType& value, bool isCell) const
-	{
-		return nodeFactory_.findNodeFromCode(codeStr, value, isCell);
-	}
+	const NodeFactoryType& nodeFactory() const { return nodeFactory_;}
 
 private:
 

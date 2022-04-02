@@ -153,8 +153,6 @@ public:
 		os<<"\n";
 	}
 
-	void sync() {} // parallelization not supported
-
 private:
 
 	void addConstants()

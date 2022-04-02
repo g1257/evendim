@@ -103,7 +103,7 @@ public:
 			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
 		});
 
-		evolution_.sync();
+		evolution_.nodeFactory().sync();
 
 		recombination(newChromosomes, parentFitness, 1);
 
@@ -254,7 +254,7 @@ private:
 			if (withProgressBar) std::cerr<<symbol;
 		});
 
-		evolution_.sync();
+		evolution_.nodeFactory().sync();
 
 		if (withProgressBar) std::cerr<<"\n";
 

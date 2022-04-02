@@ -23,6 +23,11 @@ public:
 		 numberOfBits_ = numberOfBits;
 	}
 
+	QuantumInput* clone() const
+	{
+		return new QuantumInput(*this);
+	}
+
 	virtual PsimagLite::String code() const { return "0"; }
 
 	virtual SizeType arity() const { return 0; }

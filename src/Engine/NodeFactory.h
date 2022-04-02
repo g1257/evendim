@@ -1,6 +1,8 @@
 #ifndef NODEFACTORY_H
 #define NODEFACTORY_H
 #include "Vector.h"
+#include "Concurrency.h"
+#include "Matrix.h"
 
 namespace Gep {
 
@@ -25,8 +27,15 @@ class NodeFactory {
 public:
 
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
+	typedef PsimagLite::Matrix<int> MatrixIntType;
+	typedef PsimagLite::Vector<PsimagLite::Concurrency::PthreadtType>::Type VectorThreadIdType;
 
-	NodeFactory(const VectorNodeType& nodes) : nodes_(nodes)
+	NodeFactory(const VectorNodeType& nodes)
+	    : nodes_(nodes),
+	      nthreads_(PsimagLite::Concurrency::codeSectionParams.npthreads),
+	      threadNum_(0),
+	      newNodes_(nodes.size()*nthreads_),
+	      table_(nthreads_, nodes.size())
 	{}
 
 	const NodeType& findNodeFromCode(PsimagLite::String codeStr,
@@ -39,13 +48,26 @@ public:
 			if (isCell && nodes_[i]->isInput()) continue;
 			PsimagLite::String ncode = stripPreviousAngleIfAny(nodes_[i]->code());
 			if (ncode == codeStripped) {
-				if (codeStr == "?") nodes_[i]->setDcValue(value);
-				nodes_[i]->setAngle(codeStr);
-				return *nodes_[i];
+				NodeType* newNode = findOrCreateCombo(i);
+				if (codeStr == "?") newNode->setDcValue(value);
+				newNode->setAngle(codeStr);
+				return *newNode;
 			}
 		}
 
 		throw PsimagLite::RuntimeError("findNodeWithCode\n");
+	}
+
+	void setThreadId(SizeType threadNum)
+	{
+		threadNum_ = threadNum;
+	}
+
+	void sync()
+	{
+		std::cerr<<"FINAL-->"<<nodes_.size()<<" vs. "<<newNodes_.size()<<"\n";
+		clearNewNodes();
+		//throw PsimagLite::RuntimeError("testing sync\n");
 	}
 
 	static PsimagLite::String stripPreviousAngleIfAny(PsimagLite::String str)
@@ -60,7 +82,39 @@ public:
 
 private:
 
+	NodeType* findOrCreateCombo(SizeType ind) const
+	{
+		if (threadNum_ == 0) return nodes_[ind];
+
+		int tId = table_(threadNum_, ind);
+		if (tId < 0) {
+			auto newNode = nodes_[ind]->clone();
+			SizeType loc = threadNum_ + ind*nthreads_;
+			assert(loc < newNodes_.size());
+			newNodes_[loc] = newNode;
+			table_(threadNum_, ind) = loc;
+		}
+
+
+		assert(static_cast<SizeType>(tId) < newNodes_.size());
+		assert(newNodes_[tId]);
+		return newNodes_[tId];
+	}
+
+	void clearNewNodes()
+	{
+		SizeType n = newNodes_.size();
+		for (SizeType i = 0; i < n; ++i) {
+			delete newNodes_[i];
+			newNodes_[i] = nullptr;
+		}
+	}
+
 	const VectorNodeType& nodes_;
+	SizeType nthreads_;
+	SizeType threadNum_;
+	mutable VectorNodeType newNodes_;
+	mutable MatrixIntType table_;
 };
 }
 #endif // NODEFACTORY_H
