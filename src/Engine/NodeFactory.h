@@ -78,8 +78,6 @@ private:
 
 	NodeType* findOrCreateCombo(SizeType ind, SizeType threadNum) const
 	{
-		if (threadNum == 0) return nodes_[ind];
-
 		int tId = threadNum + ind*nthreads_;
 		assert(static_cast<SizeType>(tId) < newNodes_.size());
 		if (!newNodes_[tId]) {
