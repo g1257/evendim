@@ -56,15 +56,19 @@ int main(int argc, char* argv[])
 	PsimagLite::FloatingPoint::enableExcept();
 
 	int opt = 0;
+	int precision = 0;
 	PsimagLite::String strUsage(argv[0]);
-	strUsage += " -f filename [-v]\n";
-	while ((opt = getopt(argc, argv,"f:S:v")) != -1) {
+	strUsage += " -f filename [-S threads] [-p precision] [-v]\n";
+	while ((opt = getopt(argc, argv,"f:S:p:v")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
 			break;
 		case 'v':
 			verbose = true;
+			break;
+		case 'p':
+			precision = atoi(optarg);
 			break;
 		case 'S':
 			threads = PsimagLite::atoi(optarg);
@@ -77,6 +81,11 @@ int main(int argc, char* argv[])
 
 	if (filename == "")
 		throw PsimagLite::RuntimeError(strUsage);
+
+	if (precision > 0) {
+		std::cout.precision(precision);
+		std::cerr.precision(precision);
+	}
 
 	Gep::InputCheck inputCheck;
 	PsimagLite::InputNg<Gep::InputCheck>::Writeable input(filename, inputCheck);
