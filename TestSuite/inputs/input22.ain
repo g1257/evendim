@@ -1,17 +1,17 @@
 ##Ainur1.0
 
-HeadSize=6;
+HeadSize=22;
 #Seed=12345;
 Population=100; #Pop
 Generations=200;
 NumberOfBits=4;
-MinimizerTolerance=0.1;
+MinimizerTolerance=0.001;
 Primitives="Ry,Rz,Sx,Sz,H";
 MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
 MinimizerVerbose=0;
 ProgressBar=1;
-MinimizerAlgorithm="Simplex";
+MinimizerAlgorithm="ConjugateGradient";
 RunType="GroundState";
 Hamiltonian="file:../TestSuite/inputs/matrix22.txt";
 HamiltonianCoupling=1;

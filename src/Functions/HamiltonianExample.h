@@ -200,6 +200,7 @@ private:
 		VectorRealType eigs(hilbertSpace);
 		diag(mat, eigs, 'V');
 		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
+		std::cout<<mat;
 	}
 
 	void allocateCacheVector(SizeType hilbertSpace)

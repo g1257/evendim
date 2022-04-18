@@ -249,11 +249,9 @@ private:
 
 		VectorStringType cString = chromosome_.effectiveVecString();
 
-		SizeType geneLength = chromosome_.length();
+		VectorStringType tmpString = replaceOneR(cString, angleIndex, chromosome_.vecString(0).size());
 
-		VectorStringType tmpString = replaceOneR(cString, angleIndex, geneLength);
-
-		assert(tmpString.size() == geneLength);
+		assert(tmpString.size() == chromosome_.vecString(0).size());
 
 		// create derivative individual angle-th
 		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString, threadNum_);
@@ -263,18 +261,18 @@ private:
 	}
 
 	// adds padding as well
-	VectorStringType replaceOneR(VectorStringType& v, SizeType angleIndex, SizeType geneLength)
+	VectorStringType replaceOneR(VectorStringType& v, SizeType angleIndex, SizeType fullLength)
 	{
-		VectorStringType w(geneLength);
+		VectorStringType w(fullLength);
 
 		const SizeType n = v.size();
-		assert(n <= geneLength);
+		assert(n <= fullLength);
 		SizeType count = 0;
 		for (SizeType i = 0; i < n; ++i) {
 			w[i] = v[i];
-			SizeType n = numberOfAnglesOneGate(v[i]);
-			if (n == 0) continue;
-			if (n == 1) {
+			SizeType m = numberOfAnglesOneGate(v[i]);
+			if (m == 0) continue;
+			if (m == 1) {
 				if (count++ == angleIndex)
 					w[i] = "_" + v[i];
 			}
@@ -282,7 +280,7 @@ private:
 
 		assert(count == numberOfAngles_);
 
-		for (SizeType i = n; i < geneLength; ++i)
+		for (SizeType i = n; i < fullLength; ++i)
 			w[i] = "0";
 
 		return w;
