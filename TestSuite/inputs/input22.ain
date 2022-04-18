@@ -1,6 +1,6 @@
 ##Ainur1.0
 
-HeadSize=10;
+HeadSize=6;
 #Seed=12345;
 Population=100; #Pop
 Generations=200;
@@ -17,6 +17,7 @@ Hamiltonian="file:../TestSuite/inputs/matrix22.txt";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
+EngineOptions="printcompact";
 
 #CHeadSize=0;
 #AdfsSize=0;

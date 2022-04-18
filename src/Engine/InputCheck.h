@@ -33,7 +33,7 @@ public:
 		str += "real HamiltonianCoupling;\n";
 		str += "string GraphFile;\n";
 		str += "integer Threads;\n";
-
+		str += "string EngineOptions;\n";
 		return str;
 	}
 
