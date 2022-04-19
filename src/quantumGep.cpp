@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	SizeType threads = 0;
 	bool verbose = false;
 
-	PsimagLite::FloatingPoint::enableExcept();
+	//PsimagLite::FloatingPoint::enableExcept();
 
 	int opt = 0;
 	int precision = 0;

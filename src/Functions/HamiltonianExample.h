@@ -46,6 +46,7 @@ public:
 			if (matrix_.rows() != hilbert)
 				err("Matrix rows = " + ttos(matrix_.rows()) + " but " +
 				    ttos(hilbert) + " expected.\n");
+			assert(isHermitian(matrix_, true));
 			allocateCacheVector(hilbert);
 			return;
 		}
