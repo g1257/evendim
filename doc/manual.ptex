@@ -1,0 +1,138 @@
+\documentclass{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{fancyvrb} %keep
+\usepackage{fancyhdr}
+\usepackage{booktabs} %keep
+\usepackage{mathtools} %keep
+\usepackage{hyperref}
+
+\fancyhead{}
+\fancyhead[LE]{\leftmark}
+\fancyhead[RO]{\rightmark}
+\cfoot{}
+\rfoot{\thepage} %exit
+
+\hypersetup{colorlinks=true}
+
+
+\newcommand{\cppFile}[1]{\texttt{#1}}
+\newcommand{\inputItem}[1]{\noindent\texttt{\bf #1} ---}
+\newcommand{\inputSubItem}[1]{\indent\texttt{\it #1} --}
+%% Remove the below command before submission
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+%Format to denote a C++ class name:
+\newcommand{\cppClass}[1]{{\sffamily #1}}
+%Format to denote a C++ variable:
+\newcommand{\cppFunction}[1]{{\tt #1}}
+% for the cover page:
+\newcommand{\HRule}{\noindent\rule{\linewidth}{1.5pt}}
+\newcommand{\ptexPaste}[1]{\fbox{\textcolor{red}{PLEASE RUN ptex.pl on this .ptex source
+to obtain the correct test for tag #1}}}
+\newcommand{\ptexLabel}[1]{\ptexPaste{#1}}
+\newcommand{\ptexInterface}[1]{\ptexPaste{#1}}
+\newcommand{\ptexReadFile}[1]{\ptexPaste{#1}}
+\newcommand{\ptexReadFileVerbatim}[1]{\ptexPaste{#1}}
+
+\hyphenation{Wave-Function-Transformation}
+\lstset{language=c++,basicstyle=\footnotesize\ttfamily,
+keywordstyle=\color{blue}\bfseries,frame=shadowbox}
+\pagestyle{fancy}
+\begin{document}
+
+\begin{titlepage}
+\vspace*{\stretch{1}}
+\HRule
+\begin{flushright}
+\LARGE  QuantumGEP v1 Manual\\
+\end{flushright}
+\HRule
+\vspace*{\stretch{2}}
+
+%
+\begin{center}
+\Large Manual Version: \today\\
+\end{center}
+
+\begin{center}
+\textsc{Oak Ridge, 2018}
+\end{center}
+
+\end{titlepage}
+%
+\begin{titlepage}
+\noindent
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft}
+Gonzalo \textsc{Alvarez}\\
+Nanomaterials Theory Institute\\
+Oak Ridge National Laboratory\\[0.2cm]
+Oak Ridge, TN 37831\\
+\today
+\end{flushleft}
+\end{minipage}
+
+\vspace*{\stretch{2}}
+\noindent
+%\begin{minipage}{0.6\textwidth}
+\begin{tiny}
+\fontshape{sc}\selectfont
+%\begin{verbatim}
+\noindent
+DISCLAIMER\\[0.2cm]
+\todo{tbw}
+
+\fontshape{\shapedefault}\selectfont
+%\end{verbatim}
+\end{tiny}
+%\end{minipage}
+\noindent
+\begin{minipage}{0.4\textwidth}
+Copyright \copyright 2022,\\
+ UT-Battelle, LLC\\
+All rights reserved
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+\begin{flushright}
+%\includegraphics[width=3cm]{dmrgV2LogoBW.png}
+\end{flushright}
+\end{minipage}
+\end{titlepage}
+\tableofcontents
+
+\pagebreak
+
+\ptexReadFile{../README.md}
+
+\chapter{Input}\label{sec:inputfile}
+
+\section{Running QuantumGEP}
+
+%\ptexPaste{DmrgDriver}
+
+Examples of input files can be found under \verb!TestSuite/inputs/!
+There are three kinds of parameters in the input file:
+(i) Primitives parameters, (ii) Oracle parameters
+and (iii) EVENDIM Solver parameters.
+Each type of input parameters is discussed below.
+
+\subsection{SolverOptions}
+%\ptexPaste{dmrgSolverOptions}
+
+\subsection{Primitives}
+
+\subsection{Oracles}
+
+\chapter{Output}
+
+\section{The TestSuite}
+
+%\bibliographystyle{plain}
+%\bibliography{thesis}
+\end{document}
