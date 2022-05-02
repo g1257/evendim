@@ -81,5 +81,9 @@ if you don't have them.
     make
 
 5. You can run the arithmetic primitives with
-  ./gep -f ../
-
+    ./gep2 -i 1 -h 5 -p 100 -t 10
+	which will run an arithmetic test with one
+	input, head size of a maximum of 5, population
+	100 individuals, and for t=10 generations.
+	The function is in src/Functions/Example1.h
+	and is f(x) =  x * (x - 1) * (x + 1).

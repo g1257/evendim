@@ -10,10 +10,10 @@ manual.tex: manual.ptex ../README.md  $(FILES)
               perl ../../PsimagLite/scripts/doc.pl manual.ptex
 
 manual.pdf: manual.tex ../README.md  ../src/Engine/*h ../src/*cpp
-	pdflatex manual.tex
+	lualatex manual.tex
 	bibtex manual.aux
-	pdflatex manual.tex
-	pdflatex manual.tex
+	lualatex manual.tex
+	lualatex manual.tex
 
 clean:
 	rm -f ../README.tex

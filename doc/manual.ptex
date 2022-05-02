@@ -39,6 +39,8 @@ to obtain the correct test for tag #1}}}
 \newcommand{\ptexReadFile}[1]{\ptexPaste{#1}}
 \newcommand{\ptexReadFileVerbatim}[1]{\ptexPaste{#1}}
 
+\newcommand{\evendim}{\textsc{evendim}}
+
 \hyphenation{Wave-Function-Transformation}
 \lstset{language=c++,basicstyle=\footnotesize\ttfamily,
 keywordstyle=\color{blue}\bfseries,frame=shadowbox}
@@ -106,13 +108,148 @@ All rights reserved
 \end{titlepage}
 \tableofcontents
 
-\pagebreak
+\chapter{Preliminaries}
+\section{Disclaimer and Licensing}
 
-\ptexReadFile{../README.md}
+\evendim~is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+evendim is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with evendim. If not, see <http://www.gnu.org/licenses/>.
+The full software license for evendim version 1.0.0
+can be found in
+file LICENSE.
 
-\chapter{Input}\label{sec:inputfile}
+\subsection{Please cite this work}
 
-\section{Running QuantumGEP}
+\evendim~is a free and open source computational engine for gene expression programming.
+The full software license for evendim version 0.
+can be found in
+file LICENSE.
+You are welcomed to use it and publish data
+obtained with evendim. If you do, please cite this
+work. Explain How To Cite This Work. FIXME. TBW.
+
+\subsection{References}
+\begin{verbatim}
+	@book{ferreira2006gene,
+	title={Gene Expression Programming: Mathematical Modeling by an Artificial Intelligence},
+	author={Ferreira, C.},
+	isbn={9783540328490},
+	series={Studies in Computational Intelligence},
+	url={https://books.google.com/books?id=NkG7BQAAQBAJ},
+	year={2006},
+	publisher={Springer Berlin Heidelberg}
+	}
+\end{verbatim}
+
+\section{Verifying, Building and Running}
+
+\subsection{Hash of the latest commit}
+
+Hash of the latest commit is also posted at
+FIXME
+
+\subsection{Building and Running evendim}
+\evendim~is a computational engine for gene expression programming.
+There are many examples to use \evendim. 
+To specify an example we need to give the primitives (or operators) and the inputs or leaves,
+as well as the training function.
+A simple example will be discussed first where the primitives are the arithmetic primitives in
+$\{+, -, *, /\}$, and the training function will be $f(x) = x^3 - x$.
+
+\subsubsection{Required Software}
+\begin{enumerate}
+\item GNU C++ or LLVM clang++. Other C++ compilers may also work but \evendim~was only tested on these two.
+
+\item The LAPACK and BLAS libraries
+
+\item The Gnu Scientific Library or GSL library
+
+\item PsimagLite (see below)
+
+\item make or gmake is optinal and only needed to use the Makefile
+
+\item perl (may optionally be needed to run some auxiliary script)
+\end{enumerate}
+
+\subsubsection{Quick Start}
+
+\begin{enumerate}
+
+\item Use your distribution repository tool to install gcc with support for C++ (or LLVM clang++),
+the LAPACK and BLAS libraries, the GSL library, make, perl, and git
+if you don't have them.
+
+\item Issue
+\begin{verbatim}
+    cd someDirectory/
+
+    git clone https://github.com/g1257/PsimagLite.git
+
+    git clone https://github.com/g1257/evendim.git
+\end{verbatim}
+
+\item Compile PsimagLite with \verb!cd PsimagLite/lib; ./configure.pl; make -j 4!
+
+\item Now issue
+\begin{verbatim}
+    cd evendim/src
+
+    cp Config.make.sample Config.make
+
+    make
+\end{verbatim}
+
+\item You can run the arithmetic primitives with
+    \verb!./gep2 -i 1 -h 5 -p 100 -t 10!
+	which will run an arithmetic test with one
+	input, head size of a maximum of 5, population
+	100 individuals, and for t=10 generations.
+	The function is in src/Functions/Example1.h
+	and is $f(x) =  x * (x - 1) * (x + 1).$
+
+\end{enumerate}
+%%%%%ptexReadFile{../README.md}
+
+\chapter{Arithmetic Example}\label{sec:example1}
+
+\section{Finding a Function from Training}
+
+\section{Multiple Variables}
+
+\section{Computational Engine Overview}
+
+
+\chapter{QuantumGEP}\label{sec:quantumgep}
+
+\section{Description of the Problem}
+
+\section{QuantumGEP for Ground State}
+
+\section{The Spin Antiferromagnet}
+
+\section{The Graph Ising Model}
+
+\section{Input File Details}
+
+
+\chapter{Evendim}\label{sec:evendim}
+
+\section{Procedural Description}
+
+\section{Mutations, Recombinations and Swaps}
+
+\section{Interfaces to Primitives}
+
+\section{Interfaces to Functions}
+
+\section{An Example Involving Strings}
 
 %\ptexPaste{DmrgDriver}
 
@@ -122,17 +259,9 @@ There are three kinds of parameters in the input file:
 and (iii) EVENDIM Solver parameters.
 Each type of input parameters is discussed below.
 
-\subsection{SolverOptions}
-%\ptexPaste{dmrgSolverOptions}
-
-\subsection{Primitives}
-
-\subsection{Oracles}
-
-\chapter{Output}
-
 \section{The TestSuite}
 
 %\bibliographystyle{plain}
 %\bibliography{thesis}
 \end{document}
+
