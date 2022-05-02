@@ -318,11 +318,12 @@ private:
 	{
 		VectorStringType ret = str;
 		const PrimitivesType& primitives = evolution_.primitives();
-		SizeType index = static_cast<SizeType>(primitives.rng() * str.size());
-		if (index + 1 >= head) index -= (head - 1);
-		//		if (index+1 == str.size())
-		//			index--;
-		//		if (index+1 == head + evolution_.tail(head)) index = 0;
+
+		SizeType index = head;
+		while (index + 1 >= head) {
+			index = static_cast<SizeType>(primitives.rng() * str.size());
+		}
+
 		ret[index] = str[index+1];
 		ret[index+1] = str[index];
 

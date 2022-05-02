@@ -80,5 +80,6 @@ if you don't have them.
 
     make
 
-5. You can run it with TBW.
+5. You can run the arithmetic primitives with
+  ./gep -f ../
 
