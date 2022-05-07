@@ -80,6 +80,14 @@ public:
 		deleteAll();
 	}
 
+	/* PSIDOC Engine::evolve
+Engine::evolve() function starts by considering all parent chromosomes.
+It then computes the fitness of these parent chromosomes.
+It then applies one-point recombination, two-point recombination, mutation, inversion,
+and swap algorithms to all parent chromosomes to generate the descendants for this generation.
+It then canonicalizes them and selects the best p chromosomes and discards the ones with lowest
+fitness, where p is the population number set from the input file or the command line.
+	 */
 	bool evolve(SizeType ind)
 	{
 		PairVectorVectorStringType newChromosomes;

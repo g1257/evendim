@@ -23,6 +23,19 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Functions/Example2.h"
 #include "Functions/Example3.h"
 
+/* PSIDOC EngineOverviewFunction
+ The main loop in gep2 is
+\begin{lstlisting}
+  // total = number of generations
+  for (SizeType i = 0; i < total; ++i)
+    engine.evolve(i);
+\end{lstlisting}
+
+ The \verb!Engine! class is templated on a \verb!Fitness! type that represents
+ the training class, and determines how fit a GEP individual is.
+ The \verb!Engine! constructor takes an input parameters object, and an evolution object.
+ The \verb!Fitness! class is in turn templated on an Evolution type.
+ */
 template<template<typename> class FitnessTemplate,
          typename EvolutionType>
 void main1(EvolutionType& evolution,
@@ -35,7 +48,7 @@ void main1(EvolutionType& evolution,
 	typename EngineType::ParametersEngineType params(gepOptions);
 	EngineType engine(params, evolution);
 
-	for (SizeType i = 0; i < total; i++)
+	for (SizeType i = 0; i < total; ++i)
 		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
 }
 
@@ -138,6 +151,12 @@ int main(int argc, char* argv[])
 	if (gepOptions.genes > 1 && (gepOptions.chead == 0 || gepOptions.adfs == 0))
 		throw PsimagLite::RuntimeError(strUsage);
 
+	/* PSIDOC EvolutionInFunction
+ Evolution is templated on Primitives, which represents the GEP primitives or ``operators''
+ to be considered. Evolution's constructor takes a primitives object, a seed, and an verbose
+ boolean. In this file, gep2.cpp, Primitives is set to the class PlusMinusMultiplyDivide so that
+ the primitives are plus, minus, multiply and divide.
+	 */
 	typedef Gep::PlusMinusMultiplyDivide<double> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 

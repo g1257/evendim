@@ -234,7 +234,10 @@ if you don't have them.
 \ptexPaste{Example3class}
 
 \section{Computational Engine Overview}
+\ptexPaste{EngineOverviewFunction}
+\ptexPaste{EvolutionInFunction}
 
+\ptexPaste{Engine::evolve}
 
 \chapter{QuantumGEP}\label{sec:quantumgep}
 
