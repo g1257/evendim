@@ -35,7 +35,6 @@ void main2(typename FitnessType::EvolutionType& evolution,
 	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 
 	SizeType total = 0;
-	io.readline(total, "Generations=");
 	if (total == 0)
 		err("Generations must be greater than zero\n");
 
@@ -43,17 +42,34 @@ void main2(typename FitnessType::EvolutionType& evolution,
 
 	EngineType engine(params, evolution, &fitParams);
 
-	for (SizeType i = 0; i < total; i++)
+	for (SizeType i = 0; i < params.generations; i++)
 		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
 }
 
+/* PSIDOC quantumGepMain
+This driver program named quantumGep uses GEP to find a quantum circuit.
+There are two usages: (i) the quantum circuit to be found implements
+a function known only by some of its input and outputs, and (ii) the quantum
+circuit to be found yields the ground state of a known Hamiltonian when applied
+to an initial quantum state.
+The primitives are under Primitives/QuantumCircuit.h, and
+consist of one-bit and two-bit gates.
+
+quantumGep takes one mandatory argument: -f filename, with the name of the input file.
+It takes the following optional arguments.
+\begin{itemize}
+\item[-S] threads. The number of threads for shared memory parallelization.
+\item[-p] precision. The precision for printing numbers.
+\item[-v] indicates that quantumGep be verbose.
+\end{itemize}
+*/
 int main(int argc, char* argv[])
 {
 	PsimagLite::String filename;
 	SizeType threads = 0;
 	bool verbose = false;
 
-	//PsimagLite::FloatingPoint::enableExcept();
+	PsimagLite::FloatingPoint::enableExcept();
 
 	int opt = 0;
 	int precision = 0;

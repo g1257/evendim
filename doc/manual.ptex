@@ -242,14 +242,17 @@ if you don't have them.
 \chapter{QuantumGEP}\label{sec:quantumgep}
 
 \section{Description of the Problem}
+\ptexPaste{quantumGepMain}
 
 \section{QuantumGEP for Ground State}
+\ptexPaste{GroundStateOracleClass}
+
+\section{Input File Details}
 
 \section{The Spin Antiferromagnet}
 
 \section{The Graph Ising Model}
 
-\section{Input File Details}
 
 
 \chapter{Evendim}\label{sec:evendim}

@@ -295,6 +295,15 @@ private:
 	SizeType threadNum_;
 };
 
+/* PSIDOC GroundStateOracleClass
+When Runtype=``GroundState'' in the input file, quantumGEP finds
+circuits that, when applied to the initial state, yield the ground
+state of a chosen Hamiltonian. Class GroundStateOracle implements
+the fitness for this case. The fitness of an individual equals minus the value of
+$\langle v|H|v\rangle,$ where $|v\rangle$ is the vector produced
+by the individual (that is, the quantum circuit) when applied to the
+initial state, and $H$ is the Hamiltonian.
+*/
 template<typename EvolutionType_, typename HamiltonianType>
 class GroundStateOracle : public BaseFitness<EvolutionType_> {
 

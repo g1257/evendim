@@ -38,9 +38,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
  */
 template<template<typename> class FitnessTemplate,
          typename EvolutionType>
-void main1(EvolutionType& evolution,
-           const Gep::ParametersInput& gepOptions,
-           SizeType total)
+void main1(EvolutionType& evolution, const Gep::ParametersInput& gepOptions)
 {
 	typedef FitnessTemplate<EvolutionType> FitnessType;
 	typedef Gep::Engine<FitnessType> EngineType;
@@ -48,7 +46,7 @@ void main1(EvolutionType& evolution,
 	typename EngineType::ParametersEngineType params(gepOptions);
 	EngineType engine(params, evolution);
 
-	for (SizeType i = 0; i < total; ++i)
+	for (SizeType i = 0; i < gepOptions.generations; ++i)
 		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
 }
 
@@ -85,7 +83,6 @@ void main1(EvolutionType& evolution,
 int main(int argc, char* argv[])
 {
 	SizeType inputs = 0;
-	SizeType total = 0;
 	SizeType seed = 1234;
 	SizeType constants = 0;
 	SizeType example = 0;
@@ -113,7 +110,7 @@ int main(int argc, char* argv[])
 			gepOptions.population = atoi(optarg);
 			break;
 		case 't':
-			total = atoi(optarg);
+			gepOptions.generations = atoi(optarg);
 			break;
 		case 'v':
 			verbose = true;
@@ -143,7 +140,10 @@ int main(int argc, char* argv[])
 	}
 
 	// sanity checks here
-	if (inputs == 0 || gepOptions.head == 0 || gepOptions.population == 0 || total == 0) {
+	if (inputs == 0
+	        || gepOptions.head == 0
+	        || gepOptions.population == 0
+	        || gepOptions.generations == 0) {
 		throw PsimagLite::RuntimeError(strUsage);
 		return 1;
 	}
@@ -164,12 +164,12 @@ int main(int argc, char* argv[])
 	EvolutionType evolution(primitives,seed,verbose);
 
 	if (example < 2) {
-		main1<Gep::Example1,EvolutionType>(evolution,gepOptions,total);
+		main1<Gep::Example1,EvolutionType>(evolution, gepOptions);
 		return 0;
 	} else if (example == 2) {
-		main1<Gep::Example2,EvolutionType>(evolution,gepOptions,total);
+		main1<Gep::Example2,EvolutionType>(evolution, gepOptions);
 		return 0;
 	}
 
-	main1<Gep::Example3,EvolutionType>(evolution,gepOptions,total);
+	main1<Gep::Example3,EvolutionType>(evolution, gepOptions);
 }

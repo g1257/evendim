@@ -28,7 +28,8 @@ struct ParametersInput {
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 
-	ParametersInput(SizeType p = 0,
+	ParametersInput(SizeType gen = 0,
+                    SizeType p = 0,
 	                SizeType h = 0,
 	                SizeType g = 1,
 	                SizeType ch = 0,
@@ -37,7 +38,8 @@ struct ParametersInput {
 	                SizeType threads1 = 1,
 	                PsimagLite::String options1 = "",
 	                PsimagLite::String prim = "")
-	    : population(p),
+	    : generations(gen),
+	      population(p),
 	      head(h),
 	      genes(g),
 	      chead(ch),
@@ -49,7 +51,8 @@ struct ParametersInput {
 	{}
 
 	ParametersInput(InputNgType::Readable& io)
-	    : population(0),
+	    : generations(0),
+	      population(0),
 	      head(0),
 	      genes(1),
 	      chead(0),
@@ -59,6 +62,8 @@ struct ParametersInput {
 	      options(nullptr),
 	      primitives("")
 	{
+		io.readline(generations, "Generations=");
+
 		io.readline(population, "Population=");
 
 		io.readline(head, "HeadSize=");
@@ -93,6 +98,7 @@ struct ParametersInput {
 
 	ParametersInput& operator=(const ParametersInput&) = delete;
 
+	SizeType generations;
 	SizeType population;
 	SizeType head;
 	SizeType genes;
@@ -113,7 +119,8 @@ public:
 	                 RealType d = 2.0,
 	                 RealType m = 0.5,
 	                 RealType i = 0.5)
-	    : population(op.population),
+	    : generations(op.generations),
+	      population(op.population),
 	      head(op.head),
 	      genes(op.genes),
 	      chead(op.chead),
@@ -126,6 +133,7 @@ public:
 	      options(*op.options)
 	{}
 
+	SizeType generations;
 	SizeType population;
 	SizeType head;
 	SizeType genes;
