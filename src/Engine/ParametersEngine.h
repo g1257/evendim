@@ -62,6 +62,30 @@ struct ParametersInput {
 	      options(nullptr),
 	      primitives("")
 	{
+/* PSIDOC ParamtersEngineInFunction
+The engine parameters can be specified with
+\verb!Generations=100;! in the input file,
+and similarly for the others, which are as follows.
+\begin{itemize}
+\item[Generations] The number of GEP generations. Integer. Mandatory.
+\item[Population] The number of GEP individuals. Integer. Mandatory.
+\item[HeadSize] The size of the head (that is, the maximum effective gene size). Integer. Mandatory.
+\item[Samples] The samples to be cached. Optional. Defaults to 50 and is unused in quantumGEP.
+\item[Threads] The number of shared memory threads to use. Optional. Defaults to 1.
+Not all fitness classes support paralellization, that is, a number greater than one here.
+\item[Primitives] A comma-separated list of quantum gates to consider by GEP. String. Optional.
+Defaults to "C,H,P".
+\item[EngineOptions] A comma-separated list of options. String. Optional. Default to the empty string.
+\end{itemize}
+
+The EngineOptions are case-insensitive and can be none or more of the following.
+\begin{itemize}
+\item[stopEarly] Stops quantumGEP as soon as a perfect individual (that is, circuit) is found.
+\item[noncanonical] Disables the canonicalization step.
+\item[progressBar] Prints a progress bar for each generation.
+\item[printCompact] Prints individuals in compact form.
+\end{itemize}
+*/
 		io.readline(generations, "Generations=");
 
 		io.readline(population, "Population=");

@@ -248,6 +248,24 @@ if you don't have them.
 \ptexPaste{GroundStateOracleClass}
 
 \section{Input File Details}
+The input file contains parameters of the form
+name=value;
+where a semicolon must be included at the end.
+Moreover, the first line of the input file
+must start with
+\begin{verbatim}
+##Ainur1.0
+\end{verbatim}
+
+Input parameters can be divided in engine parameters,
+which are those that deal with the GEP algorithm itself
+regardless of the fitness function used.
+Then there are fitness parameters, which for quantumGEP
+will include those regarding the Hamiltonian
+for RunType=``GroundState'' and also the minimization
+parameters. We list and describe them in turn in what follows.
+
+\ptexPaste{ParamtersEngineInFunction}
 
 \section{The Spin Antiferromagnet}
 
