@@ -22,6 +22,15 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
+/* PSIDOC Example3class
+ Example3 illustrates the case of a training function with many variables
+ and consists of a function f(x0, x1, ..., x5) of six variables.
+ The variables are in the space of valid alphanumeric characters.
+ If x0 is a digit then the function returns that digit plus one.
+ If not, but if x1 is a digit then the function returns that digit plus one.
+ And so on until all arguments to f are evaluated. If none of them are digits,
+ then the function returns -1.
+ */
 template<typename EvolutionType_>
 class Example3 : public BaseFitness<EvolutionType_> {
 

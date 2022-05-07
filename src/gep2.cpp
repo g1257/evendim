@@ -39,11 +39,41 @@ void main1(EvolutionType& evolution,
 		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
 }
 
+/* PSIDOC Gep2main
+        This driver program named gep2 runs different ``example'' cases consisting
+        of using GEP to find a function knowning only some inputs and outputs.
+
+        The primitives are under Primitives/PlusMinusMultiplyDivide.h, and
+        the functions under Example1.h, Example2.h and Example3.h
+
+        The following command line arguments to gep2 are mandatory.
+        \begin{itemize}
+        \item[-i] inputs. The number of inputs to the function.
+        \item[-h] headSize. The maximum number of the head or effective gene size.
+        \item[-p] population. The number of GEP individuals to consider in each generation.
+        \item[-t] generations. The number of generations to run GEP.
+        \end{itemize}
+
+        The following command line arguments to gep2 are optional.
+        \begin{itemize}
+        \item[-e] example. The example number to run: 1, 2 or 3. Defaults to 1.
+        \item[-g] genes. The number of genes to be used. Defaults to 1.
+        \item[-s] seed. The seed for the random number generator.  Defaults to 1234.
+        \item[-c] constants. The number of GEP constants to use. Default to 0.
+        \item[-H] maximum head size for ADF. ADF stands for automatic defined funtions. Defaults to 0.
+        \item[-a] adfs. The number of ADFs to use. Defaults to 0.
+        \item[-n] samples. The number of training samples to cache. Defaults to 100.
+        \item[-v] indicates that GEP should be verbose. Defaults to false.
+        \item[-S] indicates that GEP should stop when a perfect individual is found. Defaults to false.
+        \end{itemize}
+
+        The options -v and -S take no arguments.
+ */
 int main(int argc, char* argv[])
 {
 	SizeType inputs = 0;
 	SizeType total = 0;
-	SizeType seed = 1000;
+	SizeType seed = 1234;
 	SizeType constants = 0;
 	SizeType example = 0;
 	bool verbose = false;
