@@ -200,7 +200,7 @@ private:
 		const SizeType n = inMatrix_.rows();
 		ComplexType sum = 0;
 		for (SizeType i = 0; i < n; ++i) {
-			inMatrix_(i, jnd) = 2.0*evolution_.primitives().rng() - 1.0;
+			inMatrix_(i, jnd) = 2.0*evolution_.rng() - 1.0;
 			sum += inMatrix_(i, jnd)*PsimagLite::conj(inMatrix_(i, jnd));
 		}
 

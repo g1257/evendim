@@ -196,11 +196,10 @@ private:
 		if (totalFitness < 0)
 			throw PsimagLite::RuntimeError("totalFitness<=0");
 
-		const PrimitivesType& primitives = evolution_.primitives();
 		if (totalFitness == 0)
-			return static_cast<SizeType>(primitives.rng() * parentFitness.size());
+			return static_cast<SizeType>(evolution_.rng() * parentFitness.size());
 
-		RealType r = primitives.rng()*totalFitness;
+		RealType r = evolution_.rng()*totalFitness;
 		RealType min = 0;
 		RealType max = 0;
 		for (SizeType i = 0; i < parentFitness.size(); i++) {

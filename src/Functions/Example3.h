@@ -98,7 +98,7 @@ private:
 	{
 		SizeType l = 0;
 		while ((l < 32) || (l > 126)) {
-			l = static_cast<SizeType>(128*evolution_.primitives().rng());
+			l = static_cast<SizeType>(128*evolution_.rng());
 		}
 
 		return l;

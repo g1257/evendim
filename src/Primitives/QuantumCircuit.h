@@ -60,7 +60,7 @@ public:
 
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates)
-	    : numberOfBits_(numberOfBits), rng_(1000)
+	    : numberOfBits_(numberOfBits)
 	{
 		PsimagLite::split(gates_, gates, ",");
 
@@ -103,7 +103,7 @@ public:
 
 	const VectorStringType& dcArray() const { return dcArray_; }
 
-	double rng() const { return rng_(); }
+	//double rng() const { return rng_(); }
 
 	SizeType numberOfBits() const { return numberOfBits_; }
 
@@ -253,7 +253,6 @@ private:
 	VectorStringType terminals_;
 	VectorStringType gates_;
 	VectorSizeType inputs_;
-	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 }; // class QuantumCircuit
 
 } // namespace Gep

@@ -222,9 +222,8 @@ public:
 	PairVectorStringType recombine(const ChromosomeType& other,
 	                               SizeType points) const
 	{
-		const PrimitivesType& primitives = evolution_.primitives();
 		SizeType genes = genes_.size();
-		SizeType index = static_cast<SizeType>(primitives.rng() * (genes+adfs_.size()));
+		SizeType index = static_cast<SizeType>(evolution_.rng() * (genes+adfs_.size()));
 		GeneType *gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
 
 		bool isCell = (index >= genes);
@@ -261,10 +260,8 @@ public:
 
 	VectorStringType evolve(const PsimagLite::String& action) const
 	{
-		const PrimitivesType& primitives = evolution_.primitives();
-
 		SizeType genes = genes_.size();
-		SizeType index = static_cast<SizeType>(primitives.rng() * (genes+adfs_.size()));
+		SizeType index = static_cast<SizeType>(evolution_.rng() * (genes+adfs_.size()));
 
 		GeneType *gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
 		bool isCell = (index >= genes);
@@ -318,11 +315,9 @@ private:
 	                      bool isCell) const
 	{
 		VectorStringType ret = str;
-		const PrimitivesType& primitives = evolution_.primitives();
-
 		SizeType index = head;
 		while (index + 1 >= head) {
-			index = static_cast<SizeType>(primitives.rng() * str.size());
+			index = static_cast<SizeType>(evolution_.rng() * str.size());
 		}
 
 		ret[index] = str[index+1];
@@ -339,8 +334,7 @@ private:
 		assert(str1.size() == str2.size());
 
 		SizeType len = str1.size();
-		const PrimitivesType& primitives = evolution_.primitives();
-		SizeType index = static_cast<SizeType>(primitives.rng() * len);
+		SizeType index = static_cast<SizeType>(evolution_.rng() * len);
 		PairVectorStringType newVecStrings;
 		newVecStrings.first = recombine(str1, str2, index);
 		newVecStrings.second = recombine(str2, str1, index);
@@ -386,9 +380,8 @@ private:
 
 		SizeType len = str1.size();
 
-		const PrimitivesType& primitives = evolution_.primitives();
-		SizeType i1 = static_cast<SizeType>(primitives.rng() * len);
-		SizeType i2 = static_cast<SizeType>(primitives.rng() * len);
+		SizeType i1 = static_cast<SizeType>(evolution_.rng() * len);
+		SizeType i2 = static_cast<SizeType>(evolution_.rng() * len);
 		SizeType index1 = (i1 < i2) ? i1 : i2;
 		SizeType index2 = (i1 < i2) ? i2 : i1;
 

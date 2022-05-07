@@ -25,6 +25,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "PsimagLite.h"
 #include "ProgramGlobals.h"
 #include "NodeFactory.h"
+#include "MersenneTwister.h"
 
 namespace Gep {
 
@@ -47,7 +48,8 @@ public:
 	    : primitives_(primitives),
 	      verbose_(verbose),
 	      maxArity_(0),
-	      nodeFactory_(primitives.nodes())
+	      nodeFactory_(primitives.nodes()),
+	      rng_(r)
 	{
 		maxArity_ = maxArity();
 	}
@@ -114,7 +116,7 @@ public:
 	{
 		SizeType len = str.size();
 
-		SizeType index = static_cast<SizeType>(primitives_.rng() * len);
+		SizeType index = static_cast<SizeType>(rng_() * len);
 
 		VectorStringType something = getStringForRegion(index, head, genes, isCell);
 
@@ -262,6 +264,8 @@ public:
 
 	const NodeFactoryType& nodeFactory() const { return nodeFactory_;}
 
+	double rng() const { return rng_(); }
+
 private:
 
 	VectorStringType selectRandomFrom(SizeType head, const VectorStringType& str) const
@@ -269,7 +273,7 @@ private:
 		VectorStringType ret(head);
 
 		for (SizeType i = 0; i < head; i++) {
-			SizeType index = static_cast<SizeType>(primitives_.rng()*str.size());
+			SizeType index = static_cast<SizeType>(rng_()*str.size());
 			ret[i] = str[index];
 		}
 
@@ -292,7 +296,7 @@ private:
 	SizeType maxArity_;
 	NodeFactoryType nodeFactory_;
 	VectorNodeType inputs_;
-
+	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 }; // class Evolution
 
 } // namespace Gep

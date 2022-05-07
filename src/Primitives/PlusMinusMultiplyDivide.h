@@ -111,8 +111,6 @@ public:
 
 	const VectorStringType& dcArray() const { return dcArray_; }
 
-	double rng() const { return rng_(); }
-
 	SizeType numberOfInputs() const { return inputs_.size(); }
 
 	void setInput(SizeType ind, SizeType x)
