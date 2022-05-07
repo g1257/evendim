@@ -48,7 +48,7 @@ public:
 	PlusMinusMultiplyDivide(SizeType inputs,
 	                        SizeType genes,
 	                        SizeType constants)
-	    : maxArity_(0), dcValues_(constants), dcArray_(constants), rng_(1000)
+	    : dcValues_(constants), dcArray_(constants), rng_(1000)
 	{
 		addConstants();
 
@@ -82,11 +82,6 @@ public:
 				nonTerminals_.push_back(nodes_[i]->code());
 			}
 		}
-
-		for (SizeType i=0;i<nodes_.size();i++) {
-			if (maxArity_ < nodes_[i]->arity())
-				maxArity_ = nodes_[i]->arity();
-		}
 	}
 
 	~PlusMinusMultiplyDivide()
@@ -111,10 +106,6 @@ public:
 	{
 		return terminals_;
 	}
-
-	SizeType arity() const { return maxArity_; }
-
-	bool hasDc() const { return (dcValues_.size() > 0); }
 
 	const VectorValueType& dcValues() const { return dcValues_; }
 
@@ -168,7 +159,6 @@ private:
 		nodes_.push_back(dc);
 	}
 
-	SizeType maxArity_;
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	VectorNodeType nodes_;

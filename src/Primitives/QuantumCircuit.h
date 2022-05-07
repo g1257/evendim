@@ -60,7 +60,7 @@ public:
 
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates)
-	    : maxArity_(0), numberOfBits_(numberOfBits), rng_(1000)
+	    : numberOfBits_(numberOfBits), rng_(1000)
 	{
 		PsimagLite::split(gates_, gates, ",");
 
@@ -73,11 +73,6 @@ public:
 			} else if (nodes_[i]->arity()>0 && nodes_[i]->code()[0] != '_') {
 				nonTerminals_.push_back(nodes_[i]->code());
 			}
-		}
-
-		for (SizeType i = 0; i < nodes_.size(); ++i) {
-			if (maxArity_ < nodes_[i]->arity())
-				maxArity_ = nodes_[i]->arity();
 		}
 	}
 
@@ -103,10 +98,6 @@ public:
 	{
 		return terminals_;
 	}
-
-	SizeType arity() const { return maxArity_; }
-
-	bool hasDc() const { return (dcValues_.size() > 0); }
 
 	const VectorValueType& dcValues() const { return dcValues_; }
 
@@ -254,7 +245,6 @@ private:
 		}
 	}
 
-	SizeType maxArity_;
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	const SizeType numberOfBits_;

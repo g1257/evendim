@@ -46,8 +46,11 @@ public:
 	          bool verbose)
 	    : primitives_(primitives),
 	      verbose_(verbose),
+	      maxArity_(0),
 	      nodeFactory_(primitives.nodes())
-	{}
+	{
+		maxArity_ = maxArity();
+	}
 
 	bool verbose() const { return verbose_; }
 
@@ -70,7 +73,7 @@ public:
 
 	SizeType tail(SizeType head) const
 	{
-		return head*(primitives_.arity() - 1) + 1;
+		return head*(maxArity_ - 1) + 1;
 	}
 
 	VectorStringType randomGene(SizeType head) const
@@ -80,7 +83,8 @@ public:
 		ProgramGlobals::pushVector(str, primitives_.terminals());
 		VectorStringType str1 = selectRandomFrom(head,str);
 		const VectorStringType str2 = selectRandomFrom(tail1, primitives_.terminals());
-		const SizeType dc = (primitives_.hasDc()) ? tail1 : 0;
+		bool hasDc = (primitives_.dcValues().size() > 0);
+		const SizeType dc = (hasDc) ? tail1 : 0;
 		const VectorStringType str3 = selectRandomFrom(dc, primitives_.dcArray());
 		ProgramGlobals::pushVector(str1, str2);
 		ProgramGlobals::pushVector(str1, str3);
@@ -183,7 +187,8 @@ public:
 	{
 		SizeType tail1 = tail(head);
 		SizeType len = vecStr.size();
-		SizeType dc = (primitives_.hasDc())? tail(head) : 0;
+		bool hasDc = (primitives_.dcValues().size() > 0);
+		SizeType dc = (hasDc)? tail(head) : 0;
 
 		if (len != head + tail1 + dc) {
 			PsimagLite::String errorMessage(__FILE__);
@@ -271,8 +276,20 @@ private:
 		return ret;
 	}
 
+	SizeType maxArity() const
+	{
+		SizeType maxArity = 0;
+		for (SizeType i = 0; i < primitives_.nodes().size(); ++i) {
+			if (maxArity < primitives_.nodes()[i]->arity())
+				maxArity = primitives_.nodes()[i]->arity();
+		}
+
+		return maxArity;
+	}
+
 	PrimitivesType& primitives_;
 	bool verbose_;
+	SizeType maxArity_;
 	NodeFactoryType nodeFactory_;
 	VectorNodeType inputs_;
 

@@ -51,7 +51,8 @@ public:
 	      params_(params)
 	{
 		SizeType len = vecStr.size();
-		SizeType dc = (evolution_.primitives().hasDc())? evolution.tail(params.head) : 0;
+		bool hasDc = (evolution_.primitives().dcValues().size() > 0);
+		SizeType dc = (hasDc)? evolution.tail(params.head) : 0;
 
 		SizeType geneLength = params.head + evolution.tail(params.head) + dc;
 

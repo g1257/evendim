@@ -280,6 +280,7 @@ parameters. We list and describe them in turn in what follows.
 \section{Mutations, Recombinations and Swaps}
 
 \section{Interfaces to Primitives}
+\ptexPaste{PrimitivesBase}
 
 \section{Interfaces to Functions}
 
