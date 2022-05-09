@@ -15,14 +15,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EXAMPLE_2_H
-#define EXAMPLE_2_H
+#ifndef EXAMPLE_2_FITNESS_H
+#define EXAMPLE_2_FITNESS_H
 #include "BaseFitness.h"
 
 namespace Gep {
 
 template<typename ChromosomeType>
-class Example2 : public BaseFitness<ChromosomeType> {
+class Example2Fitness : public BaseFitness<ChromosomeType> {
 
 public:
 
@@ -33,11 +33,11 @@ public:
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
-	Example2(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
+	Example2Fitness(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
 		if (evolution.numberOfInputs() != 1) {
-			throw PsimagLite::RuntimeError("Example2::ctor(): 1 input expected\n");
+			throw PsimagLite::RuntimeError("Example2Fitness::ctor(): 1 input expected\n");
 		}
 	}
 
@@ -80,8 +80,8 @@ private:
 
 	SizeType samples_;
 	EvolutionType& evolution_;
-}; // class Example2
+}; // class Example2Fitness
 
 } // namespace Gep
 
-#endif // EXAMPLE_2_H
+#endif // EXAMPLE_2_FITNESS_H

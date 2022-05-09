@@ -15,26 +15,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef EXAMPLE_3_H
-#define EXAMPLE_3_H
+#ifndef EXAMPLE_1_FITNESS_H
+#define EXAMPLE_1_FITNESS_H
 #include "BaseFitness.h"
-#include "Vector.h"
 
 namespace Gep {
 
-/* PSIDOC Example3class
- Example3 illustrates the case of a training function with many variables
- and consists of a function f(x0, x1, ..., x5) of six variables.
- The variables are in the space of valid alphanumeric characters.
- If x0 is a digit then the function returns that digit plus one.
- If not, but if x1 is a digit then the function returns that digit plus one.
- And so on until all arguments to f are evaluated. If none of them are digits,
- then the function returns -1.
- */
 template<typename ChromosomeType>
-class Example3 : public BaseFitness<ChromosomeType> {
-
-	static const SizeType stringLength_ = 6;
+class Example1Fitness : public BaseFitness<ChromosomeType> {
 
 public:
 
@@ -44,18 +32,20 @@ public:
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
-	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
-	Example3(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
+	Example1Fitness(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
 	    : samples_(samples),evolution_(evolution)
 	{
-		if (evolution.numberOfInputs() != stringLength_) {
-			throw PsimagLite::RuntimeError("Example3::ctor(): 1 input expected\n");
+		if (evolution.numberOfInputs() != 1) {
+			throw PsimagLite::RuntimeError("Example1Fitness::ctor(): 1 input expected\n");
 		}
+
+		for (SizeType i = 0; i < samples; i++)
+			samples_[i] = BaseType::rng() * 2.0 - 1.0;
 	}
 
 	RealType getFitness(const ChromosomeType& chromosome,
-	                    long unsigned int,
+	                    long unsigned int seed,
 	                    SizeType threadNum)
 	{
 		if (threadNum > 0)
@@ -64,49 +54,38 @@ public:
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
 
-		VectorRealType r(stringLength_);
-		for (SizeType i = 0; i < samples_; i++) {
-			for (SizeType j = 0; j < stringLength_; ++j)
-				r[j] = validLetter();
-
-			evolution_.setInput(r);
+		PsimagLite::MersenneTwister rng(seed);
+		for (SizeType i = 0; i < maxFitness(); i++) {
+			bool b = true; //(evolution_.rng() < 0.5) ? true : false;
+			RealType r = rng() * 10.0 - 10.0;
+			RealType x = (b) ? r : samples_[i];
+			samples_[i] = r;
+			RealType fOfX = f(x);
+			evolution_.setInput(0, x);
 
 			if (verbose) evolution_.printInputs(std::cout);
-			RealType fOfX = f(r);
+
 			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
 
 			sum += (1.0 - fabs(tmp));
 		}
-
 		return sum;
 	}
 
-	RealType maxFitness() const { return samples_; }
+	RealType maxFitness() const { return samples_.size(); }
 
 private:
 
-	RealType f(const VectorRealType& r) const
+	RealType f(const RealType& x)
 	{
-		for (SizeType i = 0; i < r.size(); ++i)
-			if (r[i] >= 65 && r[i] <= 90) return i+1;
-
-		return -1.0;
+		RealType tmp = x * (x - 1) * (x + 1);
+		return tmp;
 	}
 
-	SizeType validLetter() const
-	{
-		SizeType l = 0;
-		while ((l < 32) || (l > 126)) {
-			l = static_cast<SizeType>(128*evolution_.rng());
-		}
-
-		return l;
-	}
-
-	SizeType samples_;
-	const EvolutionType& evolution_;
-}; // class Example3
+	VectorRealType samples_;
+	EvolutionType& evolution_;
+}; // class Example1Fitness
 
 } // namespace Gep
 
-#endif // EXAMPLE_3_H
+#endif // EXAMPLE_1_FITNESS_H

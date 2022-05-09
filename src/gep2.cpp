@@ -19,9 +19,9 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Primitives/PlusMinusMultiplyDivide.h"
 #include "Engine.h"
 #include <unistd.h>
-#include "Functions/Example1.h"
-#include "Functions/Example2.h"
-#include "Functions/Example3.h"
+#include "Functions/Example1Fitness.h"
+#include "Functions/Example2Fitness.h"
+#include "Functions/Example3Fitness.h"
 
 /* PSIDOC EngineOverviewFunction
  The main loop in gep2 is
@@ -163,12 +163,12 @@ int main(int argc, char* argv[])
 	EvolutionType evolution(primitives,seed,verbose);
 
 	if (example < 2) {
-		main1<Gep::Example1,EvolutionType>(evolution, gepOptions);
+		main1<Gep::Example1Fitness, EvolutionType>(evolution, gepOptions);
 		return 0;
 	} else if (example == 2) {
-		main1<Gep::Example2,EvolutionType>(evolution, gepOptions);
+		main1<Gep::Example2Fitness, EvolutionType>(evolution, gepOptions);
 		return 0;
 	}
 
-	main1<Gep::Example3,EvolutionType>(evolution, gepOptions);
+	main1<Gep::Example3Fitness, EvolutionType>(evolution, gepOptions);
 }
