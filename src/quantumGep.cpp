@@ -19,9 +19,9 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Primitives/QuantumCircuit.h"
 #include "Engine.h"
 #include <unistd.h>
-#include "Functions/QuantumOracle.h"
-#include "Functions/GroundStateOracle.h"
-#include "Functions/HamiltonianExample.h"
+#include "Functions/QuantumFitness.h"
+#include "Functions/GroundStateFitness.h"
+#include "Functions/Hamiltonian.h"
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "FloatingPoint.h"
@@ -158,9 +158,9 @@ int main(int argc, char* argv[])
 	EvolutionType evolution(primitives, seed, verbose);
 
 	if (runType == "FunctionFit") {
-		main2<Gep::QuantumOracle, EvolutionType>(evolution, params, io);
+		main2<Gep::QuantumFitness, EvolutionType>(evolution, params, io);
 	} else if (runType == "GroundState") {
-		main2<Gep::GroundStateOracle, EvolutionType>(evolution, params, io);
+		main2<Gep::QuantumFitness, EvolutionType>(evolution, params, io);
 	} else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
 	}

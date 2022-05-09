@@ -15,8 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef QUANTUM_ORACLE_H
-#define QUANTUM_ORACLE_H
+#ifndef EVEDIM_QUANTUM_FITNESS_H
+#define EVEDIM_QUANTUM_FITNESS_H
 #include "PsimagLite.h"
 #include "Minimizer.h"
 #include "MinimizerParams.h"
@@ -351,7 +351,7 @@ private:
 };
 
 template<typename ChromosomeType>
-class QuantumOracle : public BaseFitness<ChromosomeType> {
+class QuantumFitness : public BaseFitness<ChromosomeType> {
 
 public:
 
@@ -369,14 +369,14 @@ public:
 	typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 
-	QuantumOracle(SizeType samples, EvolutionType& evolution, MinimizerParamsType* minParams)
+	QuantumFitness(SizeType samples, EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
 	      evolution_(evolution),
 	      minParams_(*minParams),
 	      status_(0)
 	{
 		if (evolution.numberOfInputs() != 1)
-			err("QuantumOracle::ctor(): 1 input expected\n");
+			err("QuantumFitness::ctor(): 1 input expected\n");
 	}
 
 	RealType getFitness(ChromosomeType& chromosome,
@@ -384,7 +384,7 @@ public:
 	                    SizeType threadNum)
 	{
 		if (threadNum > 0)
-			err("QuantumOracle: Threading not supported yet (sorry)\n");
+			err("QuantumFitness: Threading not supported yet (sorry)\n");
 
 		FunctionToMinimizeType f(evolution_, chromosome, samples_, threadNum);
 
@@ -438,7 +438,7 @@ public:
 
 		if (!printFooter) return value; // <--- EARLY EXIT HERE
 
-		std::cerr<<"QuantumOracle::minimize(): ";
+		std::cerr<<"QuantumFitness::minimize(): ";
 		if (min.status() == MinimizerType::GSL_SUCCESS) {
 			std::cerr<<" converged after ";
 		} else {
@@ -468,7 +468,7 @@ private:
 	EvolutionType& evolution_;
 	const MinimizerParamsType minParams_;
 	int status_;
-}; // class QuantumOracle
+}; // class QuantumFitness
 } // namespace Gep
 
-#endif // QUANTUM_ORACLE_H
+#endif // EVEDIM_QUANTUM_FITNESS_H

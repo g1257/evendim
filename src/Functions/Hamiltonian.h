@@ -1,5 +1,5 @@
-#ifndef HAMILTONIANEXAMPLE_H
-#define HAMILTONIANEXAMPLE_H
+#ifndef EVENDIM_HAMILTONIAN_H
+#define EVENDIM_HAMILTONIAN_H
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "PsimagLite.h"
@@ -11,7 +11,7 @@ namespace Gep {
 
 // H = coupling*\sum_{i} sigma^x_i sigma^x_{i + 1}
 template<typename ComplexType>
-class HamiltonianExample {
+class Hamiltonian {
 
 public:
 
@@ -28,7 +28,7 @@ public:
 	typedef HamiltonianFromExpression<ComplexType> HamiltonianFromExpressionType;
 	typedef IsingGraph<ComplexType> IsingGraphType;
 
-	HamiltonianExample(typename InputNgType::Readable& io, SizeType numberOfThreads)
+	Hamiltonian(typename InputNgType::Readable& io, SizeType numberOfThreads)
 	    : hamTipo(TypeEnum::XX),
 	      bits_(0),
 	      periodic_(false),
@@ -218,4 +218,4 @@ private:
 	mutable VectorVectorType cacheVector_;
 };
 }
-#endif // HAMILTONIANEXAMPLE_H
+#endif // EVENDIM_HAMILTONIAN_H

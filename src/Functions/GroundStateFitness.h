@@ -15,15 +15,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef GROUND_STATE_ORACLE_H
-#define GROUND_STATE_ORACLE_H
+#ifndef EVENDIM_GROUND_STATE_FITNESS_H
+#define EVENDIM_GROUND_STATE_FITNESS_H
 #include "PsimagLite.h"
 #include "Minimizer.h"
 #include "MinimizerParams.h"
 #include "BaseFitness.h"
 #include "MersenneTwister.h"
 #include "GroundStateParams.h"
-#include "HamiltonianExample.h"
+#include "Hamiltonian.h"
 
 namespace Gep {
 
@@ -296,17 +296,17 @@ private:
 	SizeType threadNum_;
 };
 
-/* PSIDOC GroundStateOracleClass
+/* PSIDOC GroundStateFitnessClass
 When Runtype=``GroundState'' in the input file, quantumGEP finds
 circuits that, when applied to the initial state, yield the ground
-state of a chosen Hamiltonian. Class GroundStateOracle implements
+state of a chosen Hamiltonian. Class GroundStateFitness implements
 the fitness for this case. The fitness of an individual equals minus the value of
 $\langle v|H|v\rangle,$ where $|v\rangle$ is the vector produced
 by the individual (that is, the quantum circuit) when applied to the
 initial state, and $H$ is the Hamiltonian.
 */
 template<typename ChromosomeType>
-class GroundStateOracle : public BaseFitness<ChromosomeType> {
+class GroundStateFitness : public BaseFitness<ChromosomeType> {
 
 public:
 
@@ -317,13 +317,13 @@ public:
 	typedef typename VectorType::value_type ComplexType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
-	typedef HamiltonianExample<ComplexType> HamiltonianType;
+	typedef Hamiltonian<ComplexType> HamiltonianType;
 	typedef GroundStateParams<HamiltonianType, ComplexType> GroundStateParamsType;
 	typedef typename GroundStateParamsType::MinimizerParamsType MinimizerParamsType;
 
 	typedef GroundStateParamsType FitnessParamsType;
 
-	GroundStateOracle(SizeType samples,
+	GroundStateFitness(SizeType samples,
 	                  EvolutionType& evolution,
 	                  FitnessParamsType* fitParams)
 	    : evolution_(evolution),
@@ -434,4 +434,4 @@ private:
 }; // class QuantumOracle
 } // namespace Gep
 
-#endif // GROUND_STATE_ORACLE_H
+#endif // EVENDIM_GROUND_STATE_FITNESS_H
