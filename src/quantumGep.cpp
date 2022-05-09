@@ -34,10 +34,6 @@ void main2(typename FitnessType::EvolutionType& evolution,
 	typedef Gep::Engine<FitnessType> EngineType;
 	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 
-	SizeType total = 0;
-	if (total == 0)
-		err("Generations must be greater than zero\n");
-
 	FitnessParamsType fitParams(io, params.threads);
 
 	EngineType engine(params, evolution, &fitParams);
