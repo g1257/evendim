@@ -21,14 +21,14 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename EvolutionType_>
-class Example1 : public BaseFitness<EvolutionType_> {
+template<typename ChromosomeType>
+class Example1 : public BaseFitness<ChromosomeType> {
 
 public:
 
-	typedef BaseFitness<EvolutionType_> BaseType;
+	typedef BaseFitness<ChromosomeType> BaseType;
 	typedef typename BaseType::FitnessParamsType FitnessParamsType;
-	typedef EvolutionType_ EvolutionType;
+	typedef typename ChromosomeType::EvolutionType EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
@@ -44,8 +44,7 @@ public:
 			samples_[i] = BaseType::rng() * 2.0 - 1.0;
 	}
 
-	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome,
+	RealType getFitness(const ChromosomeType& chromosome,
 	                    long unsigned int seed,
 	                    SizeType threadNum)
 	{

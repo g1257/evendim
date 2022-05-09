@@ -26,12 +26,13 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputCheck.h"
 #include "FloatingPoint.h"
 
-template<typename FitnessType, typename ParametersEngineType>
-void main2(typename FitnessType::EvolutionType& evolution,
-           const ParametersEngineType& params,
+template<template<typename> class FitnessTemplate, typename EvolutionType>
+void main2(EvolutionType& evolution,
+           const Gep::ParametersEngine<double>& params,
            PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
 {
-	typedef Gep::Engine<FitnessType> EngineType;
+	typedef Gep::Engine<FitnessTemplate, EvolutionType> EngineType;
+	typedef typename EngineType::FitnessType FitnessType;
 	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 
 	FitnessParamsType fitParams(io, params.threads);
@@ -157,11 +158,9 @@ int main(int argc, char* argv[])
 	EvolutionType evolution(primitives, seed, verbose);
 
 	if (runType == "FunctionFit") {
-		main2<Gep::QuantumOracle<EvolutionType> >(evolution, params, io);
+		main2<Gep::QuantumOracle, EvolutionType>(evolution, params, io);
 	} else if (runType == "GroundState") {
-		typedef Gep::HamiltonianExample<ComplexType> HamiltonianType;
-		typedef Gep::GroundStateOracle<EvolutionType, HamiltonianType>  FitnessType;
-		main2<FitnessType>(evolution, params, io);
+		main2<Gep::GroundStateOracle, EvolutionType>(evolution, params, io);
 	} else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
 	}

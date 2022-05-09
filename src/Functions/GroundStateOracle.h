@@ -23,6 +23,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "BaseFitness.h"
 #include "MersenneTwister.h"
 #include "GroundStateParams.h"
+#include "HamiltonianExample.h"
 
 namespace Gep {
 
@@ -304,18 +305,19 @@ $\langle v|H|v\rangle,$ where $|v\rangle$ is the vector produced
 by the individual (that is, the quantum circuit) when applied to the
 initial state, and $H$ is the Hamiltonian.
 */
-template<typename EvolutionType_, typename HamiltonianType>
-class GroundStateOracle : public BaseFitness<EvolutionType_> {
+template<typename ChromosomeType>
+class GroundStateOracle : public BaseFitness<ChromosomeType> {
 
 public:
 
-	typedef EvolutionType_ EvolutionType;
-	typedef BaseFitness<EvolutionType_> BaseType;
+	typedef typename ChromosomeType::EvolutionType EvolutionType;
+	typedef BaseFitness<ChromosomeType> BaseType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType VectorType;
 	typedef typename VectorType::value_type ComplexType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
+	typedef HamiltonianExample<ComplexType> HamiltonianType;
 	typedef GroundStateParams<HamiltonianType, ComplexType> GroundStateParamsType;
 	typedef typename GroundStateParamsType::MinimizerParamsType MinimizerParamsType;
 
@@ -335,15 +337,14 @@ public:
 		evolution.setInput(0, fitParams->inVector);
 	}
 
-	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome,
+	RealType getFitness(ChromosomeType& chromosome,
 	                    long unsigned int seed,
 	                    SizeType threadNum)
 	{
-		typedef FunctionToMinimize2<SomeChromosomeType, EvolutionType, GroundStateParamsType>
+		typedef FunctionToMinimize2<ChromosomeType, EvolutionType, GroundStateParamsType>
 		        FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
-		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
+		typedef typename ChromosomeType::VectorStringType VectorStringType;
 
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
@@ -378,10 +379,10 @@ public:
 		if (status == 0) {
 			VectorStringType vecStr = chromosome.vecString();
 			FunctionToMinimizeType::encodeAngles(vecStr, angles);
-			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
-			                                                               evolution_,
-			                                                               vecStr,
-			                                                               threadNum);
+			const ChromosomeType* chromosome2 = new ChromosomeType(chromosome.params(),
+			                                                       evolution_,
+			                                                       vecStr,
+			                                                       threadNum);
 			chromosome = *chromosome2;
 
 			delete chromosome2;
@@ -412,8 +413,7 @@ public:
 
 	RealType maxFitness() const { return 100; }
 
-	template<typename SomeChromosomeType>
-	PsimagLite::String info(const SomeChromosomeType& chromosome) const
+	PsimagLite::String info(const ChromosomeType& chromosome) const
 	{
 		return fitParams_.hamiltonian.info(chromosome);
 	}

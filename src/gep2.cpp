@@ -40,8 +40,7 @@ template<template<typename> class FitnessTemplate,
          typename EvolutionType>
 void main1(EvolutionType& evolution, const Gep::ParametersInput& gepOptions)
 {
-	typedef FitnessTemplate<EvolutionType> FitnessType;
-	typedef Gep::Engine<FitnessType> EngineType;
+	typedef Gep::Engine<FitnessTemplate, EvolutionType> EngineType;
 
 	typename EngineType::ParametersEngineType params(gepOptions);
 	EngineType engine(params, evolution);

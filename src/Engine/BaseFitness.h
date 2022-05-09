@@ -7,7 +7,7 @@ namespace Gep {
 
 class NullClass {};
 
-template<typename EvolutionType>
+template<typename ChromosomeType>
 class BaseFitness {
 public:
 
@@ -21,8 +21,7 @@ public:
 
 	const SizeType status() const { return 0; }
 
-	template<typename SomeChromosomeType>
-	PsimagLite::String info(const SomeChromosomeType&) const
+	PsimagLite::String info(const ChromosomeType&) const
 	{
 		return "";
 	}

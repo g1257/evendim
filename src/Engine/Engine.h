@@ -26,18 +26,20 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename FitnessType>
+template<template<typename> class FitnessTemplate, typename EvolutionType>
 class Engine {
 
-	typedef typename FitnessType::EvolutionType EvolutionType;
-	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
+public:
+
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
-	typedef typename FitnessType::RealType RealType;
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename PrimitivesType::CanonicalFormType CanonicalFormType;
 	typedef Tree<PrimitivesType> TreeType;
+	typedef double RealType;
 	typedef ParametersEngine<RealType> ParametersEngineType_;
 	typedef Chromosome<TreeType,EvolutionType,ParametersEngineType_> ChromosomeType;
+	typedef FitnessTemplate<ChromosomeType> FitnessType;
+	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 	typedef typename PsimagLite::Vector<ChromosomeType*>::Type VectorChromosomeType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
@@ -47,9 +49,6 @@ class Engine {
 	typedef typename ChromosomeType::VectorVectorStringType VectorVectorStringType;
 	typedef typename ChromosomeType::VectorAnglesType VectorAnglesType;
 	typedef PsimagLite::Vector<long unsigned int>::Type VectorLongUnsignedType;
-
-public:
-
 	typedef ParametersEngineType_ ParametersEngineType;
 
 	Engine(const ParametersEngineType& params,

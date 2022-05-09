@@ -350,13 +350,13 @@ private:
 	VectorType differential_;
 };
 
-template<typename EvolutionType_>
-class QuantumOracle : public BaseFitness<EvolutionType_> {
+template<typename ChromosomeType>
+class QuantumOracle : public BaseFitness<ChromosomeType> {
 
 public:
 
-	typedef BaseFitness<EvolutionType_> BaseType;
-	typedef EvolutionType_ EvolutionType;
+	typedef BaseFitness<ChromosomeType> BaseType;
+	typedef typename ChromosomeType::EvolutionType EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType VectorType;
 	typedef typename VectorType::value_type ComplexType;
@@ -364,6 +364,10 @@ public:
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef MinimizerParams<RealType> MinimizerParamsType;
 	typedef MinimizerParamsType FitnessParamsType;
+	typedef FunctionToMinimize<ChromosomeType, EvolutionType, ComplexType>
+	FunctionToMinimizeType;
+	typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
+	typedef typename ChromosomeType::VectorStringType VectorStringType;
 
 	QuantumOracle(SizeType samples, EvolutionType& evolution, MinimizerParamsType* minParams)
 	    : samples_(samples),
@@ -375,16 +379,10 @@ public:
 			err("QuantumOracle::ctor(): 1 input expected\n");
 	}
 
-	template<typename SomeChromosomeType>
-	RealType getFitness(SomeChromosomeType& chromosome,
+	RealType getFitness(ChromosomeType& chromosome,
 	                    long unsigned int seed,
 	                    SizeType threadNum)
 	{
-		typedef FunctionToMinimize<SomeChromosomeType, EvolutionType, ComplexType>
-		        FunctionToMinimizeType;
-		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
-		typedef typename SomeChromosomeType::VectorStringType VectorStringType;
-
 		if (threadNum > 0)
 			err("QuantumOracle: Threading not supported yet (sorry)\n");
 
@@ -421,10 +419,10 @@ public:
 		if (status_ == 0) {
 			VectorStringType vecStr = chromosome.vecString();
 			FunctionToMinimizeType::encodeAngles(vecStr, angles);
-			const SomeChromosomeType* chromosome2 = new SomeChromosomeType(chromosome.params(),
-			                                                              evolution_,
-			                                                              vecStr,
-			                                                               threadNum);
+			const ChromosomeType* chromosome2 = new ChromosomeType(chromosome.params(),
+			                                                       evolution_,
+			                                                       vecStr,
+			                                                       threadNum);
 			chromosome = *chromosome2;
 
 			delete chromosome2;

@@ -9,11 +9,8 @@ are the functions that a programmer needs to write
 to implement a new Primitives class to use with EVENDIM.
 
 PSIDOCCOPY PrimitivesBase::nodes
-PSIDOCCOPY PrimitivesBase::nonTerminals
-PSIDOCCOPY PrimitivesBase::terminals
-PSIDOCCOPY PrimitivesBase::hasDc
-PrimitivesBase::dcValues
-PrimitivesBase::dcArray
+PSIDOCCOPY PrimitivesBase::dcValues
+PSIDOCCOPY PrimitivesBase::dcArray
 */
 template<typename ValueType_>
 class PrimitivesBase {

@@ -24,11 +24,12 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename TreeType,typename EvolutionType,typename ParametersType>
+template<typename TreeType, typename EvolutionType_, typename ParametersType>
 class Chromosome {
 
 public:
 
+	typedef EvolutionType_ EvolutionType;
 	typedef Gene<TreeType,EvolutionType> GeneType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType ValueType;

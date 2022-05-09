@@ -31,16 +31,16 @@ namespace Gep {
  And so on until all arguments to f are evaluated. If none of them are digits,
  then the function returns -1.
  */
-template<typename EvolutionType_>
-class Example3 : public BaseFitness<EvolutionType_> {
+template<typename ChromosomeType>
+class Example3 : public BaseFitness<ChromosomeType> {
 
 	static const SizeType stringLength_ = 6;
 
 public:
 
-	typedef BaseFitness<EvolutionType_> BaseType;
+	typedef BaseFitness<ChromosomeType> BaseType;
 	typedef typename BaseType::FitnessParamsType FitnessParamsType;
-	typedef EvolutionType_ EvolutionType;
+	typedef typename ChromosomeType::EvolutionType EvolutionType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
@@ -54,8 +54,7 @@ public:
 		}
 	}
 
-	template<typename SomeChromosomeType>
-	RealType getFitness(const SomeChromosomeType& chromosome,
+	RealType getFitness(const ChromosomeType& chromosome,
 	                    long unsigned int,
 	                    SizeType threadNum)
 	{
