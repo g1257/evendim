@@ -66,21 +66,12 @@ public:
 
 		for (SizeType i = 0; i < inputs; i++) {
 			NodeType* input = new InputType(i,0);
-			inputs_.push_back(nodes_.size());
 			nodes_.push_back(input);
 		}
 
 		for (SizeType i = 0; i < genes; i++) {
 			NodeType* adf = new NodeAdfType(i,0);
 			nodes_.push_back(adf);
-		}
-
-		for (SizeType i=0;i<nodes_.size();i++) {
-			if (nodes_[i]->isInput()) {
-				terminals_.push_back(nodes_[i]->code());
-			} else if (nodes_[i]->arity()>0) {
-				nonTerminals_.push_back(nodes_[i]->code());
-			}
 		}
 	}
 
@@ -97,50 +88,9 @@ public:
 		return nodes_;
 	}
 
-	const VectorStringType& nonTerminals() const
-	{
-		return nonTerminals_;
-	}
-
-	const VectorStringType& terminals() const
-	{
-		return terminals_;
-	}
-
 	const VectorValueType& dcValues() const { return dcValues_; }
 
 	const VectorStringType& dcArray() const { return dcArray_; }
-
-	SizeType numberOfInputs() const { return inputs_.size(); }
-
-	void setInput(SizeType ind, SizeType x)
-	{
-		assert(ind < inputs_.size());
-		assert(inputs_[ind] < nodes_.size());
-		return nodes_[inputs_[ind]]->set(x);
-	}
-
-	void setInput(const VectorValueType& x) const
-	{
-		assert(x.size() == inputs_.size());
-		SizeType n = std::min(x.size(), inputs_.size());
-		assert(n > 0);
-		assert(n < nodes_.size() + 1);
-		for (SizeType i = 0; i < n; ++i) {
-			nodes_[inputs_[i]]->set(x[i]);
-		}
-	}
-
-	void printInputs(std::ostream& os) const
-	{
-		assert(inputs_.size() > 0);
-		assert(inputs_[inputs_.size() - 1] < nodes_.size());
-
-		os<<"inputs= ";
-		for (SizeType i = 0; i < inputs_.size(); i++)
-			nodes_[inputs_[i]]->print(os);
-		os<<"\n";
-	}
 
 private:
 
@@ -160,9 +110,6 @@ private:
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	VectorNodeType nodes_;
-	VectorStringType nonTerminals_;
-	VectorStringType terminals_;
-	VectorSizeType inputs_;
 	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 }; // class PlusMinusMultiplyDivide
 

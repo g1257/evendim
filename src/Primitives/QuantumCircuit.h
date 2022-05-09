@@ -65,15 +65,6 @@ public:
 		PsimagLite::split(gates_, gates, ",");
 
 		makeNodes(nodes_);
-
-		for (SizeType i = 0; i < nodes_.size(); ++i) {
-			if (nodes_[i]->isInput()) {
-				inputs_.push_back(i);
-				terminals_.push_back(nodes_[i]->code());
-			} else if (nodes_[i]->arity()>0 && nodes_[i]->code()[0] != '_') {
-				nonTerminals_.push_back(nodes_[i]->code());
-			}
-		}
 	}
 
 	~QuantumCircuit()
@@ -89,44 +80,11 @@ public:
 		return nodes_;
 	}
 
-	const VectorStringType& nonTerminals() const
-	{
-		return nonTerminals_;
-	}
-
-	const VectorStringType& terminals() const
-	{
-		return terminals_;
-	}
-
 	const VectorValueType& dcValues() const { return dcValues_; }
 
 	const VectorStringType& dcArray() const { return dcArray_; }
 
-	//double rng() const { return rng_(); }
-
 	SizeType numberOfBits() const { return numberOfBits_; }
-
-	SizeType numberOfInputs() const { return inputs_.size(); }
-
-	void setInput(SizeType ind, ValueType x)
-	{
-		assert(ind < inputs_.size());
-		assert(inputs_[ind] < nodes_.size());
-		return nodes_[inputs_[ind]]->set(x);
-	}
-
-	void printInputs(std::ostream& os) const
-	{
-		assert(inputs_.size() > 0);
-		assert(nodes_.size() > 0);
-		assert(inputs_[inputs_.size() - 1] < nodes_.size());
-
-		os<<"inputs= ";
-		for (SizeType i = 0; i < inputs_.size(); i++)
-			nodes_[inputs_[i]]->print(os);
-		os<<"\n";
-	}
 
 private:
 
@@ -249,10 +207,7 @@ private:
 	VectorStringType dcArray_;
 	const SizeType numberOfBits_;
 	VectorNodeType nodes_;
-	VectorStringType nonTerminals_;
-	VectorStringType terminals_;
 	VectorStringType gates_;
-	VectorSizeType inputs_;
 }; // class QuantumCircuit
 
 } // namespace Gep

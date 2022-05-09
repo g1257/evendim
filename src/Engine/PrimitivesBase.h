@@ -25,18 +25,6 @@ Returns a vector of nodes containing all different nodes.
 	 */
 	virtual const VectorNodeType& nodes() const = 0;
 
-	/* PSIDOC PrimitivesBase::nonTerminals
-PSIDOCCOPY $FirstProtoBelow
-Returns a vector of strings containing all the names of the non-terminal nodes
-	 */
-	virtual const VectorStringType& nonTerminals() const = 0;
-
-	/* PSIDOC PrimitivesBase::terminals
-PSIDOCCOPY $FirstProtoBelow
-Returns a vector of strings containing all the names of the terminal nodes
-	 */
-	virtual const VectorStringType& terminals() const = 0;
-
 	/* PSIDOC PrimitivesBase::dcValues
 PSIDOCCOPY $FirstProtoBelow
 Returns a vector of defined constant values

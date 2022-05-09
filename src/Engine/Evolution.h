@@ -41,6 +41,7 @@ public:
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef PrimitivesType_ PrimitivesType;
 	typedef NodeFactory<NodeType> NodeFactoryType;
+	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
 	Evolution(PrimitivesType& primitives,
 	          SizeType r,
@@ -52,26 +53,11 @@ public:
 	      rng_(r)
 	{
 		maxArity_ = maxArity();
+
+		setInputsTerminalsAndNonTerminals();
 	}
 
 	bool verbose() const { return verbose_; }
-
-	void setInput(SizeType i, ValueType x)
-	{
-		primitives_.setInput(i, x);
-	}
-
-	void setInput(const VectorValueType& x) const
-	{
-		primitives_.setInput(x);
-	}
-
-	void printInputs(std::ostream& os) const
-	{
-		primitives_.printInputs(os);
-	}
-
-	SizeType numberOfInputs() const { return primitives_.numberOfInputs(); }
 
 	SizeType tail(SizeType head) const
 	{
@@ -81,10 +67,10 @@ public:
 	VectorStringType randomGene(SizeType head) const
 	{
 		const SizeType tail1 = tail(head);
-		VectorStringType str = primitives_.nonTerminals();
-		ProgramGlobals::pushVector(str, primitives_.terminals());
+		VectorStringType str = nonTerminals_;
+		ProgramGlobals::pushVector(str, terminals_);
 		VectorStringType str1 = selectRandomFrom(head,str);
-		const VectorStringType str2 = selectRandomFrom(tail1, primitives_.terminals());
+		const VectorStringType str2 = selectRandomFrom(tail1, terminals_);
 		bool hasDc = (primitives_.dcValues().size() > 0);
 		const SizeType dc = (hasDc) ? tail1 : 0;
 		const VectorStringType str3 = selectRandomFrom(dc, primitives_.dcArray());
@@ -99,7 +85,7 @@ public:
 		for (SizeType i = 0; i < genes; i++)
 			terminals[i] = ttos(i);
 		SizeType ctail = tail(chead);
-		VectorStringType str = primitives_.nonTerminals();
+		VectorStringType str = nonTerminals_;
 		ProgramGlobals::pushVector(str, terminals);
 		VectorStringType str1 = selectRandomFrom(chead, str);
 		const VectorStringType str2 = selectRandomFrom(ctail, terminals);
@@ -149,13 +135,13 @@ public:
 	{
 		SizeType tail1 = tail(head);
 		if (index < head) {
-			VectorStringType ret = primitives_.terminals();
-			ProgramGlobals::pushVector(ret, primitives_.nonTerminals());
+			VectorStringType ret = terminals_;
+			ProgramGlobals::pushVector(ret, nonTerminals_);
 			return ret;
 		}
 
 		if (index < head + tail1)
-			return primitives_.terminals();
+			return terminals_;
 
 		return primitives_.dcArray();
 	}
@@ -170,7 +156,7 @@ public:
 			terminals[i] = ttos(i);
 
 		if (index < head)
-			ProgramGlobals::pushVector(terminals, primitives_.nonTerminals());
+			ProgramGlobals::pushVector(terminals, nonTerminals_);
 
 		return terminals;
 	}
@@ -200,7 +186,7 @@ public:
 			err(errorMessage);
 		}
 
-		VectorStringType terminals = primitives_.terminals();
+		VectorStringType terminals = terminals_;
 
 		for (SizeType i = head; i < len -dc; i++) {
 			if (std::find(terminals.begin(),terminals.end(), vecStr[i]) != terminals.end())
@@ -266,6 +252,40 @@ public:
 
 	double rng() const { return rng_(); }
 
+	SizeType numberOfInputs() const { return inputs_.size(); }
+
+	void setInput(SizeType ind, ValueType x)
+	{
+		assert(ind < inputs_.size());
+		assert(inputs_[ind] < primitives_.nodes().size());
+		return primitives_.nodes()[inputs_[ind]]->set(x);
+	}
+
+	void setInput(const VectorValueType& x) const
+	{
+		assert(x.size() == inputs_.size());
+		SizeType n = std::min(x.size(), inputs_.size());
+		assert(n > 0);
+		assert(n < primitives_.nodes().size() + 1);
+		for (SizeType i = 0; i < n; ++i) {
+			primitives_.nodes()[inputs_[i]]->set(x[i]);
+		}
+	}
+
+	void printInputs(std::ostream& os) const
+	{
+		assert(primitives_.nodes().size() > 0);
+
+		os<<"inputs= ";
+		for (SizeType i = 0; i < inputs_.size(); i++) {
+			SizeType j = inputs_[i];
+			assert(j < primitives().nodes().size());
+			primitives_.nodes()[j]->print(os);
+		}
+
+		os<<"\n";
+	}
+
 private:
 
 	VectorStringType selectRandomFrom(SizeType head, const VectorStringType& str) const
@@ -291,11 +311,26 @@ private:
 		return maxArity;
 	}
 
+	void setInputsTerminalsAndNonTerminals()
+	{
+		for (SizeType i = 0; i < primitives_.nodes().size(); ++i) {
+			if (primitives_.nodes()[i]->isInput()) {
+				inputs_.push_back(i);
+				terminals_.push_back(primitives_.nodes()[i]->code());
+			} else if (primitives_.nodes()[i]->arity()>0 &&
+			           primitives_.nodes()[i]->code()[0] != '_') {
+				nonTerminals_.push_back(primitives_.nodes()[i]->code());
+			}
+		}
+	}
+
 	PrimitivesType& primitives_;
 	bool verbose_;
 	SizeType maxArity_;
 	NodeFactoryType nodeFactory_;
-	VectorNodeType inputs_;
+	VectorSizeType inputs_;
+	VectorStringType nonTerminals_;
+	VectorStringType terminals_;
 	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
 }; // class Evolution
 
