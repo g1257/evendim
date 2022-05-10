@@ -7,6 +7,11 @@ namespace Gep {
 
 class NullClass {};
 
+/* PSIDOC BaseFitness
+The BaseFitness class provides an interface that fitness classes must follow.
+It does also provide some basic non-virtual functionality.
+PSIDOCCOPY getFitness
+*/
 template<typename ChromosomeType>
 class BaseFitness {
 public:
@@ -18,6 +23,16 @@ public:
 	BaseFitness(long unsigned int seed) : rng_(seed) {}
 
 	BaseFitness() : rng_(12344) {}
+
+	/* PSIDOC getFitness
+PSIDOCCOPY $FirstProtoBelow
+Returns the fitness of the passed chromosome, where seed is a seed
+for a random number generator, and threadNum is the number of the
+thread in case fitness is computed in parallel.
+*/
+	virtual RealType getFitness(const ChromosomeType& chromosome,
+	                            long unsigned int seed,
+			                    SizeType threadNum) = 0;
 
 	const SizeType status() const { return 0; }
 

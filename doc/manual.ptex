@@ -282,7 +282,8 @@ parameters. We list and describe them in turn in what follows.
 \section{Interfaces to Primitives}
 \ptexPaste{PrimitivesBase}
 
-\section{Interfaces to Functions}
+\section{Interfaces to Fitness}
+\ptexPaste{BaseFitness}
 
 \section{An Example Involving Strings}
 
