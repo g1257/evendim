@@ -19,9 +19,9 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Primitives/QuantumCircuit.h"
 #include "Engine.h"
 #include <unistd.h>
-#include "Functions/QuantumFitness.h"
-#include "Functions/GroundStateFitness.h"
-#include "Functions/Hamiltonian.h"
+#include "Fitness/QuantumFitness.h"
+#include "Fitness/GroundStateFitness.h"
+#include "Fitness/Hamiltonian.h"
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "FloatingPoint.h"

@@ -1,4 +1,4 @@
-#include "Functions/Graph.hh"
+#include "Fitness/Graph.hh"
 
 int main(int argc, char* argv[])
 {

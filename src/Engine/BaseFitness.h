@@ -19,6 +19,7 @@ public:
 	typedef NullClass FitnessParamsType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef PsimagLite::Vector<long unsigned int>::Type VectorLongUnsignedIntType;
+	typedef double RealType;
 
 	BaseFitness(long unsigned int seed) : rng_(seed) {}
 

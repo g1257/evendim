@@ -19,9 +19,9 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Primitives/PlusMinusMultiplyDivide.h"
 #include "Engine.h"
 #include <unistd.h>
-#include "Functions/Example1Fitness.h"
-#include "Functions/Example2Fitness.h"
-#include "Functions/Example3Fitness.h"
+#include "Fitness/Example1Fitness.h"
+#include "Fitness/Example2Fitness.h"
+#include "Fitness/Example3Fitness.h"
 
 /* PSIDOC EngineOverviewFunction
  The main loop in gep2 is
