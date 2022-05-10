@@ -231,7 +231,7 @@ if you don't have them.
     and is $f(x) =  x * (x - 1) * (x + 1).$
 
 \section{Multiple Variables}
-\ptexPaste{Example3class}
+\ptexPaste{Example3FitnessClass}
 
 \section{Computational Engine Overview}
 \ptexPaste{EngineOverviewFunction}
@@ -245,7 +245,7 @@ if you don't have them.
 \ptexPaste{quantumGepMain}
 
 \section{QuantumGEP for Ground State}
-\ptexPaste{GroundStateOracleClass}
+\ptexPaste{GroundStateFitnessClass}
 
 \section{Input File Details}
 The input file contains parameters of the form

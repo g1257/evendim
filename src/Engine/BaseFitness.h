@@ -11,6 +11,7 @@ class NullClass {};
 The BaseFitness class provides an interface that fitness classes must follow.
 It does also provide some basic non-virtual functionality.
 PSIDOCCOPY getFitness
+PSIDOCCOPY maxFitness
 */
 template<typename ChromosomeType>
 class BaseFitness {
@@ -34,6 +35,12 @@ thread in case fitness is computed in parallel.
 	virtual RealType getFitness(const ChromosomeType& chromosome,
 	                            long unsigned int seed,
 			                    SizeType threadNum) = 0;
+
+	/* PSIDOC maxFitness
+PSIDOCCOPY $FirstProtoBelow
+Returns the maximum fitness for this problem.
+*/
+	virtual RealType maxFitness() const = 0;
 
 	const SizeType status() const { return 0; }
 

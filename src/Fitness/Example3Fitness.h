@@ -22,7 +22,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-/* PSIDOC Example3Fitnessclass
+/* PSIDOC Example3FitnessClass
  Example3Fitness illustrates the case of a training function with many variables
  and consists of a function f(x0, x1, ..., x5) of six variables.
  The variables are in the space of valid alphanumeric characters.
