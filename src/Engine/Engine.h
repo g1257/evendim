@@ -51,6 +51,9 @@ public:
 	typedef PsimagLite::Vector<long unsigned int>::Type VectorLongUnsignedType;
 	typedef ParametersEngineType_ ParametersEngineType;
 
+	/* PSIDOC Engine::ctor
+The engine constructor creates the initial individuals randomly.
+	 */
 	Engine(const ParametersEngineType& params,
 	       EvolutionType& evolution,
 	       FitnessParamsType* fitnessParams = nullptr)

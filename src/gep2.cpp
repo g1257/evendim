@@ -31,10 +31,10 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
     engine.evolve(i);
 \end{lstlisting}
 
- The \verb!Engine! class is templated on a \verb!Fitness! type that represents
+ The \verb!Engine! class is templated on a \verb!Fitness! template that represents
  the training class, and determines how fit a GEP individual is.
+ It is also templated on the Evolution type.
  The \verb!Engine! constructor takes an input parameters object, and an evolution object.
- The \verb!Fitness! class is in turn templated on an Evolution type.
  */
 template<template<typename> class FitnessTemplate,
          typename EvolutionType>

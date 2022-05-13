@@ -267,33 +267,47 @@ parameters. We list and describe them in turn in what follows.
 
 \ptexPaste{ParamtersEngineInFunction}
 
-\section{The Spin Antiferromagnet}
-
-\section{The Graph Ising Model}
-
-
 
 \chapter{Evendim}\label{sec:evendim}
 
 \section{Procedural Description}
+\ptexPaste{Engine::ctor}
+\ptexPaste{Engine::evolve}
 
 \section{Mutations, Recombinations and Swaps}
+
+The evolve function in the computational engine starts by creating new individuals, in its first call from the initial population, and in
+subsequent calls from the surviving individuals. It does so by using the following four algorithms in succession:
+(1) one-point recombination, (2) two-point recombination, (3) mutation, (4) inversion, and (4) swap; all these
+algorithms were implemented as detailed in \cite{re:ferreira06}, and we briefly review them in the following.
+
+Recombination involves two parent chromosomes and results in two new individuals.
+One-point recombination consists of paring the parent chromosomes side by side,
+choosing a random point at which the parent chromosomes are split up, and exchanging
+the genetic content after the recombination point between the two chromosomes.
+Two-point recombination pairs the chromosomes side by side as before, chooses two random points,
+and exchanges the genetic material between these two points, creating two new individuals.
+A mutation changes one character of the string representation of the chromosome; in the head any character
+can change to any other, so any function can be changed to any other without regards to the number of arguments.
+In the tail, terminal or leafs are changed only into terminal or leafs so that the head and tail structure of the
+chromosome is preserved by the mutation. Inversion involves inverting the characters in the head of the chromosome,
+and does not affect the tail. \textsc{evendim} inverts the complete head even though subsets of the head could be inverted also.
+Finally, a swap exchanges two characters in the string representation of a chromosome such that the head and tail
+structure is preserved.
+
+After the new population has been created, which also includes the surviving individuals from the previous generation,
+an optional canonicalization procedure is applied. For quantum circuits, the canonicalization orders the gates by the
+bit it acts on; there is also here an opportunity for symbolic simplifications: for example, the Pauli matrix gate 
+$\sigma^z$ if applied on the same bit twice yields the identity. More complicated simplifications could be added here as well,
+based on commutation rules among operators or gates. Finally, QuantumGEP sort the individuals by fitness, its definition
+depending on the problem to be solved, and discards as many individuals with lowest fitness
+as needed to obtain the population supplied in the input file.
 
 \section{Interfaces to Primitives}
 \ptexPaste{PrimitivesBase}
 
 \section{Interfaces to Fitness}
 \ptexPaste{BaseFitness}
-
-\section{An Example Involving Strings}
-
-%\ptexPaste{DmrgDriver}
-
-Examples of input files can be found under \verb!TestSuite/inputs/!
-There are three kinds of parameters in the input file:
-(i) Primitives parameters, (ii) Oracle parameters
-and (iii) EVENDIM Solver parameters.
-Each type of input parameters is discussed below.
 
 \section{The TestSuite}
 
