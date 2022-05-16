@@ -83,14 +83,14 @@ public:
 		nodes_.clear();
 	}
 
-	const VectorNodeType& nodes() const
-	{
-		return nodes_;
-	}
-
 	const VectorValueType& dcValues() const { return dcValues_; }
 
 	const VectorStringType& dcArray() const { return dcArray_; }
+
+	const VectorNodeType& nodesSerial() const
+	{
+		return nodes_;
+	}
 
 private:
 

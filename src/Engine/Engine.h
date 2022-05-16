@@ -139,11 +139,12 @@ private:
 
 	void canonicalizeAll(VectorVectorStringType& newChromosomes)
 	{
-		for (SizeType i = 0; i < newChromosomes.size(); i++) {
+		/*for (SizeType i = 0; i < newChromosomes.size(); i++) {
 			CanonicalFormType canonicalForm(newChromosomes[i],
 			                                evolution_.primitives().nodes());
 			canonicalForm.changeIfNeeded(newChromosomes[i]);
-		}
+		}*/
+		//err("canonicalizeAll\n");
 	}
 
 	void deleteAll()

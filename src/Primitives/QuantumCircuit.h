@@ -75,7 +75,7 @@ public:
 		}
 	}
 
-	const VectorNodeType& nodes() const
+	const VectorNodeType& nodesSerial() const
 	{
 		return nodes_;
 	}

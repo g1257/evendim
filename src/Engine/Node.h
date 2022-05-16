@@ -55,7 +55,7 @@ public:
 	virtual void setAngle(PsimagLite::String) const
 	{}
 
-	virtual void print(std::ostream&) {}
+	virtual void print(std::ostream&) const {}
 
 	virtual void setDcValue(const ValueType&) const
 	{

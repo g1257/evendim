@@ -74,6 +74,20 @@ public:
 		return str.substr(0, it - str.begin());
 	}
 
+	NodeType& node(SizeType ind, SizeType threadNum)
+	{
+		NodeType* newNode = findOrCreateCombo(ind, threadNum);
+		return *newNode;
+	}
+
+	const NodeType& node(SizeType ind, SizeType threadNum) const
+	{
+		NodeType* newNode = findOrCreateCombo(ind, threadNum);
+		return *newNode;
+	}
+
+	SizeType numberOfNodes() const { return nodes_.size(); }
+
 private:
 
 	NodeType* findOrCreateCombo(SizeType ind, SizeType threadNum) const

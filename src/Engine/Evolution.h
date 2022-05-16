@@ -49,7 +49,7 @@ public:
 	    : primitives_(primitives),
 	      verbose_(verbose),
 	      maxArity_(0),
-	      nodeFactory_(primitives.nodes()),
+	      nodeFactory_(primitives.nodesSerial()),
 	      rng_(r)
 	{
 		maxArity_ = maxArity();
@@ -256,9 +256,10 @@ public:
 
 	void setInput(SizeType ind, ValueType x)
 	{
+		const SizeType threadNum = 0;
 		assert(ind < inputs_.size());
-		assert(inputs_[ind] < primitives_.nodes().size());
-		return primitives_.nodes()[inputs_[ind]]->set(x);
+		assert(inputs_[ind] < nodeFactory_.numberOfNodes());
+		return nodeFactory_.node(inputs_[ind], threadNum).set(x);
 	}
 
 	void setInput(const VectorValueType& x) const
@@ -266,21 +267,22 @@ public:
 		assert(x.size() == inputs_.size());
 		SizeType n = std::min(x.size(), inputs_.size());
 		assert(n > 0);
-		assert(n < primitives_.nodes().size() + 1);
+		assert(n < nodeFactory_.numberOfNodes() + 1);
+		const SizeType threadNum = 0;
 		for (SizeType i = 0; i < n; ++i) {
-			primitives_.nodes()[inputs_[i]]->set(x[i]);
+			nodeFactory_.node(inputs_[i], threadNum).set(x[i]);
 		}
 	}
 
 	void printInputs(std::ostream& os) const
 	{
-		assert(primitives_.nodes().size() > 0);
+		assert(nodeFactory_.numberOfNodes() > 0);
 
+		const SizeType threadNum = 0;
 		os<<"inputs= ";
 		for (SizeType i = 0; i < inputs_.size(); i++) {
 			SizeType j = inputs_[i];
-			assert(j < primitives().nodes().size());
-			primitives_.nodes()[j]->print(os);
+			nodeFactory_.node(j, threadNum).print(os);
 		}
 
 		os<<"\n";
@@ -302,10 +304,11 @@ private:
 
 	SizeType maxArity() const
 	{
+		SizeType threadNum = 0;
 		SizeType maxArity = 0;
-		for (SizeType i = 0; i < primitives_.nodes().size(); ++i) {
-			if (maxArity < primitives_.nodes()[i]->arity())
-				maxArity = primitives_.nodes()[i]->arity();
+		for (SizeType i = 0; i < nodeFactory_.numberOfNodes(); ++i) {
+			if (maxArity < nodeFactory_.node(i, threadNum).arity())
+				maxArity = nodeFactory_.node(i, threadNum).arity();
 		}
 
 		return maxArity;
@@ -313,13 +316,14 @@ private:
 
 	void setInputsTerminalsAndNonTerminals()
 	{
-		for (SizeType i = 0; i < primitives_.nodes().size(); ++i) {
-			if (primitives_.nodes()[i]->isInput()) {
+		SizeType threadNum = 0;
+		for (SizeType i = 0; i < nodeFactory_.numberOfNodes(); ++i) {
+			if (nodeFactory_.node(i, threadNum).isInput()) {
 				inputs_.push_back(i);
-				terminals_.push_back(primitives_.nodes()[i]->code());
-			} else if (primitives_.nodes()[i]->arity()>0 &&
-			           primitives_.nodes()[i]->code()[0] != '_') {
-				nonTerminals_.push_back(primitives_.nodes()[i]->code());
+				terminals_.push_back(nodeFactory_.node(i, threadNum).code());
+			} else if (nodeFactory_.node(i, threadNum).arity()>0 &&
+			           nodeFactory_.node(i, threadNum).code()[0] != '_') {
+				nonTerminals_.push_back(nodeFactory_.node(i, threadNum).code());
 			}
 		}
 	}
