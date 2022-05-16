@@ -12,6 +12,12 @@ my $output = captureStdout($testN, "../src/gep2 -i 1 -h 5 -p 20 -t 10 -e 1");
 compareStdout($testN, $output);
 endTest($testN);
 
+$testN = 103;
+announce($testN);
+$output = captureStdout($testN, "../src/gep2 -i 6 -h 14 -p 60 -t 30 -e 3");
+compareStdout($testN, $output);
+endTest($testN);
+
 sub announce
 {
 	my ($testNumber) = @_;

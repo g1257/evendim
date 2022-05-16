@@ -50,7 +50,8 @@ public:
 	    : samples_(samples),evolution_(evolution)
 	{
 		if (evolution.numberOfInputs() != stringLength_) {
-			throw PsimagLite::RuntimeError("Example3Fitness::ctor(): 1 input expected\n");
+			throw PsimagLite::RuntimeError("Example3Fitness::ctor(): " +
+			                               ttos(stringLength_) + " inputs expected\n");
 		}
 	}
 
@@ -67,7 +68,7 @@ public:
 		VectorRealType r(stringLength_);
 		for (SizeType i = 0; i < samples_; i++) {
 			for (SizeType j = 0; j < stringLength_; ++j)
-				r[j] = validLetter();
+				r[j] = static_cast<SizeType>(128*evolution_.rng());
 
 			evolution_.setInput(r);
 
@@ -87,20 +88,11 @@ private:
 
 	RealType f(const VectorRealType& r) const
 	{
+		RealType sum = 0;
 		for (SizeType i = 0; i < r.size(); ++i)
-			if (r[i] >= 65 && r[i] <= 90) return i+1;
+			sum += r[i];
 
-		return -1.0;
-	}
-
-	SizeType validLetter() const
-	{
-		SizeType l = 0;
-		while ((l < 32) || (l > 126)) {
-			l = static_cast<SizeType>(128*evolution_.rng());
-		}
-
-		return l;
+		return sum;
 	}
 
 	SizeType samples_;
