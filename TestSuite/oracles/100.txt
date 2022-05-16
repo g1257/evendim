@@ -1,0 +1,57 @@
++ * 0 + 0 * 0 0 0 0 0 0  fitness 39.3968  effective size= 7
++ + * 0 * 0 0 0 0 0 0 0  fitness 38.1361  effective size= 7
++ * 0 + * - 0 0 0 0 0 0  fitness 36.0123  effective size= 9
++ * 0 + * - 0 0 0 0 0 0  fitness 26.6849  effective size= 9
++ + * + * 0 0 0 0 0 0 0  fitness 16.6353  effective size= 9
++ - * * * 0 0 0 0 0 0 0  fitness 4.12515  effective size= 9
++ + 0 * - + 0 0 0 0 0 0  fitness 3.09996  effective size= 9
++ + * 0 * - 0 0 0 0 0 0  fitness 0.56768  effective size= 9
++ - * * 0 0 0 0 0 0 0 0  fitness 0  effective size= 7
++ * 0 * + - 0 0 0 0 0 0  fitness 0  effective size= 9
++ * - - 0 - 0 0 0 0 0 0  fitness 0  effective size= 9
++ + * - - * 0 0 0 0 0 0  fitness 0  effective size= 11
++ * * - 0 - 0 0 0 0 0 0  fitness 0  effective size= 9
++ - * - 0 - 0 0 0 0 0 0  fitness 0  effective size= 9
++ * - - * 0 0 0 0 0 0 0  fitness 0  effective size= 9
++ * * + * - 0 0 0 0 0 0  fitness 0  effective size= 11
++ + * 0 + - 0 0 0 0 0 0  fitness -7.43757  effective size= 9
++ + * 0 + - 0 0 0 0 0 0  fitness -7.43757  effective size= 9
++ + * 0 + - 0 0 0 0 0 0  fitness -7.43757  effective size= 9
++ + * 0 + - 0 0 0 0 0 0  fitness -7.43757  effective size= 9
+----------------
++ - * 0 * 0 0 0 0 0 0 0  fitness 50  effective size= 7
++ * 0 + * - 0 0 0 0 0 0  fitness 39.9186  effective size= 9
++ * 0 + * 0 0 0 0 0 0 0  fitness 37.9249  effective size= 7
++ * 0 + * 0 0 0 0 0 0 0  fitness 37.261  effective size= 7
++ * 0 + 0 * 0 0 0 0 0 0  fitness 36.1102  effective size= 7
++ - * + 0 * 0 0 0 0 0 0  fitness 34.6992  effective size= 9
++ - * - 0 * 0 0 0 0 0 0  fitness 29.9753  effective size= 9
++ - * - * 0 0 0 0 0 0 0  fitness 29.1083  effective size= 9
++ - * + 0 * 0 0 0 0 0 0  fitness 28.9783  effective size= 9
++ - * + 0 * 0 0 0 0 0 0  fitness 24.707  effective size= 9
++ * + + * 0 0 0 0 0 0 0  fitness 20.2046  effective size= 9
++ + * + * 0 0 0 0 0 0 0  fitness 17.798  effective size= 9
++ + * 0 0 * 0 0 0 0 0 0  fitness 17.2699  effective size= 7
++ + * + 0 * 0 0 0 0 0 0  fitness 15.5568  effective size= 9
++ - * * 0 - 0 0 0 0 0 0  fitness 6.68528  effective size= 9
++ + 0 * + - 0 0 0 0 0 0  fitness 2.66903  effective size= 9
++ - * - + - 0 0 0 0 0 0  fitness 0  effective size= 11
++ * - - * + 0 0 0 0 0 0  fitness 0  effective size= 11
++ * - - * + 0 0 0 0 0 0  fitness 0  effective size= 11
++ - * - + - 0 0 0 0 0 0  fitness 0  effective size= 11
+----------------
++ - * 0 * 0 0 0 0 0 0 0  fitness 50  effective size= 7
++ - * 0 0 * 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
++ - * 0 * 0 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
++ - * 0 * 0 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
++ - * 0 0 * 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
++ - * 0 0 * 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
++ - * 0 0 * 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
++ - * 0 0 * 0 0 0 0 0 0  fitness 50  effective size= 7
+----------------
