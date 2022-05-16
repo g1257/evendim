@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 	if (runType == "FunctionFit") {
 		main2<Gep::QuantumFitness, EvolutionType>(evolution, params, io);
 	} else if (runType == "GroundState") {
-		main2<Gep::QuantumFitness, EvolutionType>(evolution, params, io);
+		main2<Gep::GroundStateFitness, EvolutionType>(evolution, params, io);
 	} else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
 	}

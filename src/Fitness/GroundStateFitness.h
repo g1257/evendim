@@ -337,7 +337,7 @@ public:
 		evolution.setInput(0, fitParams->inVector);
 	}
 
-	RealType getFitness(ChromosomeType& chromosome,
+	RealType getFitness(const ChromosomeType& chromosome,
 	                    long unsigned int seed,
 	                    SizeType threadNum)
 	{
@@ -383,7 +383,8 @@ public:
 			                                                       evolution_,
 			                                                       vecStr,
 			                                                       threadNum);
-			chromosome = *chromosome2;
+			ChromosomeType& chromosomeNonconst = const_cast<ChromosomeType&>(chromosome);
+			chromosomeNonconst = *chromosome2;
 
 			delete chromosome2;
 			chromosome2 = nullptr;

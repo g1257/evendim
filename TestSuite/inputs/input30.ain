@@ -18,7 +18,7 @@ GraphFile="../TestSuite/inputs/graph30.txt";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector24.txt";
-#string EngineOptions="noncanonical";
+EngineOptions="printcompact";
 
 #CHeadSize=0;
 #AdfsSize=0;

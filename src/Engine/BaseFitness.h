@@ -44,7 +44,7 @@ Returns the maximum fitness for this problem.
 
 	const SizeType status() const { return 0; }
 
-	PsimagLite::String info(const ChromosomeType&) const
+	virtual PsimagLite::String info(const ChromosomeType&) const
 	{
 		return "";
 	}
