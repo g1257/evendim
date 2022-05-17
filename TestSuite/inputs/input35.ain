@@ -18,7 +18,7 @@ GraphFile="graph35.txt";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="vector33.txt";
-string EngineOptions="printcompact";
+EngineOptions="printcompact";
 
 #CHeadSize=0;
 #AdfsSize=0;

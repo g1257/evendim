@@ -37,7 +37,7 @@ public:
 			return;
 		}
 
-		if (name.length() >= 2 && name[1] == 'R') {
+		if (name.length() >= 2 && name[0] == 'R') {
 			SizeType ind = directionCharToInteger(name[1]);
 			RealType angle = 0;
 			if (name.length() >= 4) {
