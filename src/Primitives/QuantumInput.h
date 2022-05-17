@@ -25,7 +25,9 @@ public:
 
 	QuantumInput* clone() const
 	{
-		return new QuantumInput(*this);
+		auto ptr = new QuantumInput(*this);
+		ptr->input_ = input_;
+		return ptr;
 	}
 
 	virtual PsimagLite::String code() const { return "0"; }
@@ -35,6 +37,7 @@ public:
 	virtual ValueType exec(const VectorValueType& v) const
 	{
 		assert(v.size() == 0);
+		assert(input_.size() > 0);
 		return input_;
 	}
 

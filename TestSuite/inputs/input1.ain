@@ -1,19 +1,21 @@
 ##Ainur1.0
 
-HeadSize=10;
+HeadSize=4;
 #Seed=12345;
 Population=50;
-Generations=100;
+Generations=200;
 NumberOfBits=4;
 MinimizerTolerance=0.1;
-Primitives="H,P,C,Rx";
+Primitives="Ry";
 MinimizerDelta=0.05;
 MinimizerDelta2=0.05;
 Samples=20;
 RunType="GroundState";
 Hamiltonian="xx";
+HamiltonianIsPeriodic=0;
 InVectorFile="../TestSuite/inputs/vector10.txt";
 MinimizerAlgorithm="Simplex";
+EngineOptions="printcompact";
 #CHeadSize=0;
 #AdfsSize=0;
 #StopEarly=false;

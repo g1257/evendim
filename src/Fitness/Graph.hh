@@ -148,9 +148,11 @@ private:
 		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
 			VectorBoolType v(vertices_ - vertex - 1, false);
 			v[0] = true;
-			if (!periodic || vertex > 0 || v.size() < 2) continue;
-			assert(v.size() > 1);
-			v[v.size() - 1] = true;
+			if (periodic && vertex == 0 && v.size() >= 2) {
+				assert(v.size() > 1);
+				v[v.size() - 1] = true;
+			}
+
 			triangular_.push_back(v);
 		}
 	}

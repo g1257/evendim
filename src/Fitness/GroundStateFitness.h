@@ -79,6 +79,7 @@ public:
 		                                                      threadNum_);
 
 		dest.resize(angles.size());
+		evolution_.setInput(0, groundStateParams_.inVector);
 
 		const VectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
@@ -109,6 +110,7 @@ public:
 			chromosome = &chromosome_;
 		}
 
+		evolution_.setInput(0, groundStateParams_.inVector);
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
@@ -346,6 +348,8 @@ public:
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename ChromosomeType::VectorStringType VectorStringType;
 
+		evolution_.setInput(0, fitParams_.inVector);
+
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {
@@ -383,8 +387,9 @@ public:
 			                                                       evolution_,
 			                                                       vecStr,
 			                                                       threadNum);
-			ChromosomeType& chromosomeNonconst = const_cast<ChromosomeType&>(chromosome);
-			chromosomeNonconst = *chromosome2;
+
+			ChromosomeType* chromosomeNonconst = const_cast<ChromosomeType*>(&chromosome);
+			*chromosomeNonconst = *chromosome2;
 
 			delete chromosome2;
 			chromosome2 = nullptr;
@@ -416,6 +421,7 @@ public:
 
 	PsimagLite::String info(const ChromosomeType& chromosome) const
 	{
+		evolution_.setInput(0, fitParams_.inVector);
 		return fitParams_.hamiltonian.info(chromosome);
 	}
 
