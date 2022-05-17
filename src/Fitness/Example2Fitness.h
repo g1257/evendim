@@ -43,7 +43,7 @@ public:
 
 	RealType getFitness(const ChromosomeType& chromosome,
 	                    unsigned long int seed,
-	                    SizeType /* threadNum */)
+	                    SizeType threadNum)
 	{
 		bool verbose = evolution_.verbose();
 		RealType sum = 0;
@@ -51,7 +51,7 @@ public:
 		for (SizeType i = 0; i < maxFitness(); i++) {
 			SizeType x = static_cast<SizeType>(rng()*1000);
 			RealType fOfX = f(x);
-			evolution_.setInput(0, x);
+			evolution_.setInput(0, x, threadNum);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);

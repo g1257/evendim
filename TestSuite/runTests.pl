@@ -32,6 +32,9 @@ sub runOneTest
 	|| $testN == 35) {
 		my $output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
 		compareStdout($testN, $output);
+	} elsif ($testN == 36) {
+		 my $output = captureStdout($testN, "../src/quantumGep -f inputs/input35.ain -p 12 -S 4");
+        compareStdout($testN, $output);
 	} else {
 		die "$0: Unknown test $testN\n";
 	}

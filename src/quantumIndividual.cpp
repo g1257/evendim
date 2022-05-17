@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
 
-	evolution.setInput(0, inVector);
+	evolution.setInput(0, inVector, threadNum);
 
 	VectorType outVector = chromosome.exec(0);
 

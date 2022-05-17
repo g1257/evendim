@@ -79,11 +79,11 @@ public:
 		                                                      threadNum_);
 
 		dest.resize(angles.size());
-		evolution_.setInput(0, groundStateParams_.inVector);
+		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
 
 		const VectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
-			evolution_.setInput(0, inVector);
+			evolution_.setInput(0, inVector, threadNum_);
 
 			computeDifferentialVector(differential_, angles, angleIndex);
 
@@ -110,7 +110,7 @@ public:
 			chromosome = &chromosome_;
 		}
 
-		evolution_.setInput(0, groundStateParams_.inVector);
+		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
@@ -260,7 +260,7 @@ private:
 		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString, threadNum_);
 
 		// apply to inVector
-		evolution_.setInput(0, groundStateParams_.inVector);
+		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
 		differential = newChromosome.exec(0);
 	}
 
@@ -337,7 +337,8 @@ public:
 		if (samples != 1)
 			err("Expecting samples == 1\n");
 
-		evolution.setInput(0, fitParams->inVector);
+		const SizeType threadNum = 0;
+		evolution.setInput(0, fitParams->inVector, threadNum);
 	}
 
 	RealType getFitness(const ChromosomeType& chromosome,
@@ -349,7 +350,7 @@ public:
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename ChromosomeType::VectorStringType VectorStringType;
 
-		evolution_.setInput(0, fitParams_.inVector);
+		evolution_.setInput(0, fitParams_.inVector, threadNum);
 
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
@@ -422,7 +423,8 @@ public:
 
 	PsimagLite::String info(const ChromosomeType& chromosome) const
 	{
-		evolution_.setInput(0, fitParams_.inVector);
+		SizeType threadNum = 0;
+		evolution_.setInput(0, fitParams_.inVector, threadNum);
 		return fitParams_.hamiltonian.info(chromosome);
 	}
 

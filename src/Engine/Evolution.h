@@ -254,9 +254,8 @@ public:
 
 	SizeType numberOfInputs() const { return inputs_.size(); }
 
-	void setInput(SizeType ind, ValueType x)
+	void setInput(SizeType ind, ValueType x, SizeType threadNum)
 	{
-		const SizeType threadNum = 0;
 		assert(ind < inputs_.size());
 		assert(inputs_[ind] < nodeFactory_.numberOfNodes());
 		return nodeFactory_.node(inputs_[ind], threadNum).set(x);

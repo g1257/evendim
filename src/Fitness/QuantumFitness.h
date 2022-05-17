@@ -85,7 +85,7 @@ public:
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
 			for (SizeType i = 0; i < samples; ++i) {
 				setInVector(i);
-				evolution_.setInput(0, inVector_);
+				evolution_.setInput(0, inVector_, threadNum_);
 				functionF(outVector_, inVector_);
 
 				computeDifferentialVector(differential_, angles, angleIndex);
@@ -117,7 +117,7 @@ public:
 		RealType sum = 0;
 		for (SizeType i = 0; i < samples; ++i) {
 			setInVector(i);
-			evolution_.setInput(0, inVector_);
+			evolution_.setInput(0, inVector_, threadNum_);
 			if (verbose) evolution_.printInputs(std::cout);
 
 			functionF(outVector_, inVector_);
