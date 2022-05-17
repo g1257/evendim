@@ -2,8 +2,8 @@
 
 HeadSize=4;
 #Seed=12345;
-Population=100;
-Generations=200;
+Population=60;
+Generations=100;
 NumberOfBits=4;
 MinimizerTolerance=0.1;
 Primitives="Ry,P";
@@ -18,7 +18,7 @@ GraphFile="../TestSuite/inputs/graph31.txt";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector24.txt";
-string EngineOptions="printcompact";
+EngineOptions="printcompact";
 
 #CHeadSize=0;
 #AdfsSize=0;

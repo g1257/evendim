@@ -1,5 +1,6 @@
 ##Ainur1.0
 
+#This tests the ZZ Ising on a chain
 HeadSize=4;
 #Seed=12345;
 Population=60;

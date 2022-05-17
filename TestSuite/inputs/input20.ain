@@ -1,5 +1,6 @@
 ##Ainur1.0
 
+#This tests a 2x2 matrix (1-bit)
 HeadSize=4;
 #Seed=12345;
 Population=60; #Pop

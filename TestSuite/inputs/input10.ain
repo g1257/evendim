@@ -1,5 +1,6 @@
 ##Ainur1.0
 
+#This tests GroundState for the XX model on a chain
 HeadSize=4;
 #Seed=12345;
 Population=60; #Pop
