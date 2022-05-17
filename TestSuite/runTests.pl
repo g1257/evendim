@@ -6,29 +6,43 @@ use utf8;
 
 use Term::ANSIColor;
 
-my $testN = 100;
-announce($testN);
-my $output = captureStdout($testN, "../src/gep2 -i 1 -h 5 -p 20 -t 10 -e 1");
-compareStdout($testN, $output);
-endTest($testN);
+my ($testNumber) = @ARGV;
+my @testNs = (100, 103, 10, 14, 20);
 
-$testN = 103;
-announce($testN);
-$output = captureStdout($testN, "../src/gep2 -i 6 -h 14 -p 60 -t 30 -e 3");
-compareStdout($testN, $output);
-endTest($testN);
+if ($testNumber) {
+	@testNs = ($testNumber);
+}
 
-$testN = 10;
-announce($testN);
-$output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
-compareStdout($testN, $output);
-endTest($testN);
+foreach my $testN (@testNs) {
+	runOneTest($testN);
+}
 
-$testN = 14;
-announce($testN);
-$output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
-compareStdout($testN, $output);
-endTest($testN);
+sub runOneTest
+{
+	my ($testN) = @_;
+
+	announce($testN);
+	if ($testN == 100) {
+		my $output = captureStdout($testN, "../src/gep2 -i 1 -h 5 -p 20 -t 10 -e 1");
+		compareStdout($testN, $output);
+	} elsif ($testN == 103) {
+		my $output = captureStdout($testN, "../src/gep2 -i 6 -h 14 -p 60 -t 30 -e 3");
+		compareStdout($testN, $output);
+	} elsif ($testN == 10) {
+		my $output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
+		compareStdout($testN, $output);
+	} elsif ($testN == 14) {
+		my $output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
+		compareStdout($testN, $output);
+	} elsif ($testN == 20) {
+		my $output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
+		compareStdout($testN, $output);
+	} else {
+		die "$0: Unknown test $testN\n";
+	}
+
+	endTest($testN);
+}
 
 sub announce
 {

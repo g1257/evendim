@@ -2,8 +2,8 @@
 
 HeadSize=4;
 #Seed=12345;
-Population=100; #Pop
-Generations=200;
+Population=60; #Pop
+Generations=50;
 NumberOfBits=1;
 MinimizerTolerance=0.1;
 Primitives="Ry,P";
