@@ -20,7 +20,13 @@ endTest($testN);
 
 $testN = 10;
 announce($testN);
-$output = captureStdout($testN, "../src/quantumGep -f inputs/input10.ain -p 12 -S 1");
+$output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
+compareStdout($testN, $output);
+endTest($testN);
+
+$testN = 14;
+announce($testN);
+$output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
 compareStdout($testN, $output);
 endTest($testN);
 
