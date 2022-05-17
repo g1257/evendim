@@ -2,8 +2,8 @@
 
 HeadSize=8;
 #Seed=12345;
-Population=100;
-Generations=200;
+Population=90;
+Generations=80;
 NumberOfBits=8;
 MinimizerTolerance=0.1;
 Primitives="Ry,P";
@@ -14,10 +14,10 @@ ProgressBar=1;
 MinimizerAlgorithm="Simplex";
 RunType="GroundState";
 Hamiltonian="IsingGraph";
-GraphFile="graph35.txt";
+GraphFile="../TestSuite/inputs/graph35.txt";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
-InVectorFile="vector33.txt";
+InVectorFile="../TestSuite/inputs/vector34.txt";
 EngineOptions="printcompact";
 
 #CHeadSize=0;
