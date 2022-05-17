@@ -260,6 +260,7 @@ private:
 		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString, threadNum_);
 
 		// apply to inVector
+		evolution_.setInput(0, groundStateParams_.inVector);
 		differential = newChromosome.exec(0);
 	}
 

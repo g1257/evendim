@@ -1,12 +1,12 @@
 ##Ainur1.0
 
-HeadSize=4;
+HeadSize=10;
 #Seed=12345;
 Population=100;
 Generations=200;
 NumberOfBits=4;
-MinimizerTolerance=0.1;
-Primitives="Rx,P,H,C";
+MinimizerTolerance=0.01;
+Primitives="Ry,Rx,Rz,P,H,C";
 MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
 MinimizerVerbose=0;
