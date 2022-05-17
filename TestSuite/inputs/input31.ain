@@ -1,5 +1,7 @@
 ##Ainur1.0
 
+#This tests a star-geometry IsingGraph
+#
 HeadSize=4;
 #Seed=12345;
 Population=60;

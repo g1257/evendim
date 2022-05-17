@@ -7,7 +7,7 @@ use utf8;
 use Term::ANSIColor;
 
 my ($testNumber) = @ARGV;
-my @testNs = (100, 103, 10, 14, 20);
+my @testNs = (100, 103, 10, 14, 20, 30, 31, 34);
 
 if ($testNumber) {
 	@testNs = ($testNumber);
@@ -28,7 +28,7 @@ sub runOneTest
 	} elsif ($testN == 103) {
 		my $output = captureStdout($testN, "../src/gep2 -i 6 -h 14 -p 60 -t 30 -e 3");
 		compareStdout($testN, $output);
-	} elsif ($testN == 10 || $testN == 14 || $testN == 20 || $testN == 30 || $testN == 31) {
+	} elsif ($testN == 10 || $testN == 14 || $testN == 20 || $testN == 30 || $testN == 31 || $testN == 34) {
 		my $output = captureStdout($testN, "../src/quantumGep -f inputs/input$testN.ain -p 12 -S 1");
 		compareStdout($testN, $output);
 	} else {
