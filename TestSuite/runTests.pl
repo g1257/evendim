@@ -18,6 +18,12 @@ $output = captureStdout($testN, "../src/gep2 -i 6 -h 14 -p 60 -t 30 -e 3");
 compareStdout($testN, $output);
 endTest($testN);
 
+$testN = 10;
+announce($testN);
+$output = captureStdout($testN, "../src/quantumGep -f inputs/input10.ain -p 12 -S 1");
+compareStdout($testN, $output);
+endTest($testN);
+
 sub announce
 {
 	my ($testNumber) = @_;
