@@ -20,6 +20,7 @@ public:
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 	typedef typename PsimagLite::Vector<VectorType>::Type VectorVectorType;
+	typedef typename PsimagLite::Vector<int>::Type VectorIntType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
@@ -33,6 +34,7 @@ public:
 	      bits_(0),
 	      periodic_(false),
 	      isingGraph_(nullptr),
+	      needsTransformAndTruncate_(false),
 	      cacheVector_(numberOfThreads)
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
@@ -40,14 +42,21 @@ public:
 		PsimagLite::String ham;
 		io.readline(ham, "Hamiltonian=");
 		if (ham.substr(0, 5) == "file:") {
-			fillFromFile(ham.substr(5, ham.length() - 5));
-			const SizeType hilbert = 1<<bits_;
+
+			fillFromFile(ham.substr(5, ham.length() - 5), io);
+
 			hamTipo = TypeEnum::FILE;
-			if (matrix_.rows() != hilbert)
+
+			SizeType hilbert = (1 << bits_);
+
+			if (matrix_.rows() != hilbert && !needsTransformAndTruncate_)
 				err("Matrix rows = " + ttos(matrix_.rows()) + " but " +
-				    ttos(hilbert) + " expected.\n");
+				    ttos(hilbert) + " expected or a Basis= line needed\n");
+
 			assert(isHermitian(matrix_, true));
+
 			allocateCacheVector(hilbert);
+
 			return;
 		}
 
@@ -97,17 +106,23 @@ public:
 	RealType energy(const VectorType& y, SizeType threadNum) const
 	{
 		switch (hamTipo) {
-		case  TypeEnum::ISING_GRAPH:
+		case  TypeEnum::ISING_GRAPH: {
 			assert(isingGraph_);
 			return isingGraph_->energyZZ(y);
 			break;
-		default:
+		}
+
+		default: {
 			assert(cacheVector_.size() > threadNum);
 			assert(cacheVector_[threadNum].size() == matrix_.rows());
 			std::fill(cacheVector_[threadNum].begin(), cacheVector_[threadNum].end(), 0);
+
 			matrix_.matrixVectorProduct(cacheVector_[threadNum], y);
+
 			return PsimagLite::real(y*cacheVector_[threadNum]); // does conjugation of first vector
 			break;
+		}
+
 		}
 	}
 
@@ -178,12 +193,8 @@ private:
 		return counter;
 	}
 
-	void fillFromFile(PsimagLite::String filename)
+	void fillFromFile(PsimagLite::String filename, typename InputNgType::Readable& io)
 	{
-		SizeType hilbertSpace = (1 << bits_);
-		for (SizeType threadNum = 0; threadNum < cacheVector_.size(); ++threadNum)
-			cacheVector_[threadNum].resize(hilbertSpace);
-
 		std::ifstream fin(filename);
 		if (!fin || !fin.good())
 			err("Could not open file " + filename + "\n");
@@ -193,12 +204,28 @@ private:
 
 		SizeType cols =0;
 		fin>>cols;
+		if (rows != cols)
+			err("Hamiltonian must have rows==cols\n");
+
 		PsimagLite::Matrix<ComplexType> mat(rows, cols);
 		for (SizeType i = 0; i < rows; ++i)
 			for (SizeType j = 0; j < cols; ++j)
 				fin >> mat(i, j);
-		fullMatrixToCrsMatrix(matrix_, mat);
-		VectorRealType eigs(hilbertSpace);
+
+		try {
+			io.read(basis_, "Basis=");
+			needsTransformAndTruncate_ = true;
+			transformAndTruncate(mat);
+		} catch (std::exception&) {
+			fullMatrixToCrsMatrix(matrix_, mat);
+			printGs(mat);
+		}
+	}
+
+	static void printGs(PsimagLite::Matrix<ComplexType>& mat)
+	{
+		assert(mat.rows() == mat.cols());
+		VectorRealType eigs(mat.rows());
 		diag(mat, eigs, 'V');
 		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
 		std::cout<<mat;
@@ -210,11 +237,36 @@ private:
 			cacheVector_[thread].resize(hilbertSpace);
 	}
 
+	void transformAndTruncate(PsimagLite::Matrix<ComplexType>& mat)
+	{
+		SizeType n = mat.rows();
+		assert(n == mat.cols());
+		PsimagLite::Matrix<ComplexType> dense(n, n);
+
+		for (SizeType i = 0; i < n; ++i) {
+			int ii = basis_[i];
+			if (ii < 0)
+				continue;
+			for (SizeType j = 0; j < n; ++j) {
+				int jj = basis_[j];
+				if (j < 0)
+					continue;
+
+				dense(i, j) = mat(ii, jj);
+			}
+		}
+
+		fullMatrixToCrsMatrix(matrix_, dense);
+		printGs(dense);
+	}
+
 	TypeEnum hamTipo;
 	SizeType bits_;
 	bool periodic_;
 	IsingGraphType* isingGraph_;
 	SparseMatrixType matrix_;
+	VectorIntType basis_;
+	bool needsTransformAndTruncate_;
 	mutable VectorVectorType cacheVector_;
 };
 }
