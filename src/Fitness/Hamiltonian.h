@@ -213,9 +213,10 @@ private:
 				fin >> mat(i, j);
 
 		try {
-			io.read(basis_, "Basis=");
+			io.read(basis_, "Basis");
 			needsTransformAndTruncate_ = true;
 			transformAndTruncate(mat);
+			std::cerr<<"Has basis of size "<<basis_.size()<<"\n";
 		} catch (std::exception&) {
 			fullMatrixToCrsMatrix(matrix_, mat);
 			printGs(mat);
@@ -241,15 +242,17 @@ private:
 	{
 		SizeType n = mat.rows();
 		assert(n == mat.cols());
-		PsimagLite::Matrix<ComplexType> dense(n, n);
+		SizeType hilbert = (1 << bits_);
+		PsimagLite::Matrix<ComplexType> dense(hilbert, hilbert);
+		assert(basis_.size() == hilbert);
 
-		for (SizeType i = 0; i < n; ++i) {
+		for (SizeType i = 0; i < hilbert; ++i) {
 			int ii = basis_[i];
 			if (ii < 0)
 				continue;
-			for (SizeType j = 0; j < n; ++j) {
+			for (SizeType j = 0; j < hilbert; ++j) {
 				int jj = basis_[j];
-				if (j < 0)
+				if (jj < 0)
 					continue;
 
 				dense(i, j) = mat(ii, jj);
