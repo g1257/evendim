@@ -18,11 +18,11 @@ my @basis2 = stringToBasis($basis);
 
 print STDERR "$0: Basis2 has ".scalar(@basis2)." elements.\n";
 
-my @basis3 = basisToConversion(\@basis2);
+#my @basis3 = basisToConversion(\@basis2);
 
-print STDERR "$0: Basis3 has ".scalar(@basis3)." elements.\n";
+#print STDERR "$0: Basis3 has ".scalar(@basis3)." elements.\n";
 
-printBasis(\@basis3);
+printBasis(\@basis2);
 
 sub basisToConversion
 {

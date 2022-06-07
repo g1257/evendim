@@ -51,17 +51,6 @@ public:
 		return e*coupling_;
 	}
 
-	PsimagLite::String info(const VectorType& v) const
-	{
-		const SizeType n = v.size();
-		PsimagLite::String buffer;
-		for (SizeType i = 0; i < n; ++i) {
-			if (std::norm(v[i]) > 1e-4) buffer += ttos(i) + " ";
-		}
-
-		return "[" + buffer + "]";
-	}
-
 private:
 
 	SizeType bits_;

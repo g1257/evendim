@@ -34,6 +34,7 @@ public:
 		str += "string GraphFile;\n";
 		str += "integer Threads;\n";
 		str += "string EngineOptions;\n";
+		str += "vector Basis;\n";
 		return str;
 	}
 

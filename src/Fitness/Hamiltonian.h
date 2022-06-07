@@ -20,7 +20,7 @@ public:
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 	typedef typename PsimagLite::Vector<VectorType>::Type VectorVectorType;
-	typedef typename PsimagLite::Vector<int>::Type VectorIntType;
+	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef typename PsimagLite::Vector<bool>::Type VectorBoolType;
@@ -125,13 +125,23 @@ public:
 
 		}
 	}
+ 
+	// should be private
+	static PsimagLite::String info(const VectorType& v, double epsilon)
+    {
+        const SizeType n = v.size();
+        PsimagLite::String buffer;
+        for (SizeType i = 0; i < n; ++i) {
+            if (std::norm(v[i]) > epsilon) buffer += ttos(i) + " ";
+        }
+
+		return buffer;
+	}
 
 	template<typename SomeChromosomeType>
 	PsimagLite::String info(const SomeChromosomeType& chromosome) const
 	{
-		if (hamTipo != TypeEnum::ISING_GRAPH) return "";
-		assert(isingGraph_);
-		return isingGraph_->info(chromosome.exec(0));
+		return info(chromosome.exec(0), 1e-4);
 	}
 
 private:
@@ -244,20 +254,17 @@ private:
 		assert(n == mat.cols());
 		SizeType hilbert = (1 << bits_);
 		PsimagLite::Matrix<ComplexType> dense(hilbert, hilbert);
-		assert(basis_.size() == hilbert);
+		assert(basis_.size() == n);
 
-		for (SizeType i = 0; i < hilbert; ++i) {
-			int ii = basis_[i];
-			if (ii < 0)
-				continue;
-			for (SizeType j = 0; j < hilbert; ++j) {
-				int jj = basis_[j];
-				if (jj < 0)
-					continue;
+		for (SizeType i = 0; i < n; ++i) {
+			SizeType ii = basis_[i];
+			for (SizeType j = 0; j < n; ++j) {
+				SizeType jj = basis_[j];
 
-				dense(i, j) = mat(ii, jj);
+				dense(ii, jj) = mat(i, j);
 			}
 		}
+        // dense(8+4+2+1=15,) = mat(0, 0);
 
 		fullMatrixToCrsMatrix(matrix_, dense);
 		printGs(dense);
@@ -268,7 +275,7 @@ private:
 	bool periodic_;
 	IsingGraphType* isingGraph_;
 	SparseMatrixType matrix_;
-	VectorIntType basis_;
+	VectorSizeType basis_;
 	bool needsTransformAndTruncate_;
 	mutable VectorVectorType cacheVector_;
 };
