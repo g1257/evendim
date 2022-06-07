@@ -222,6 +222,15 @@ private:
 			for (SizeType j = 0; j < cols; ++j)
 				fin >> mat(i, j);
 
+		bool hasScale = false;
+		VectorType scale;
+		try {
+			io.read(scale, "ScaleHamiltonian");
+			hasScale = true;
+		} catch (std::exception&) {}
+
+		scaleHamiltonian(mat, scale, hasScale);
+
 		try {
 			io.read(basis_, "Basis");
 			needsTransformAndTruncate_ = true;
@@ -233,13 +242,40 @@ private:
 		}
 	}
 
+	static void scaleHamiltonian(PsimagLite::Matrix<ComplexType>& mat, const VectorType& scale, bool hasScale)
+	{
+		if (!hasScale) return;
+
+		if (scale.size() != 2)
+			err("Expecting ScaleHamiltonian a vector of two entries\n");
+
+		for (SizeType i = 0; i < mat.rows(); ++i) {
+			for (SizeType j = 0; j < mat.cols(); ++j) {
+				ComplexType val = scale[0]*mat(i, j);
+			    if (i == j) val += scale[1];
+				mat(i, j) = val;
+			}
+		}
+	}
+
 	static void printGs(PsimagLite::Matrix<ComplexType>& mat)
 	{
 		assert(mat.rows() == mat.cols());
 		VectorRealType eigs(mat.rows());
 		diag(mat, eigs, 'V');
 		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
-		std::cout<<mat;
+		std::cout<<"Eigenvector------------\n";
+		ComplexType sum = 0;
+		for (SizeType i = 0; i < mat.rows(); ++i) {
+			ComplexType val = mat(i, 0);
+			sum += val*PsimagLite::conj(val);
+			if (std::norm(val) < 1e-8)
+				continue;
+
+			std::cout<<i<<" "<<mat(i, 0)<<"\n";
+		}
+
+		std::cout<<"-------- End eigenvector="<<sum<<"\n\n";
 	}
 
 	void allocateCacheVector(SizeType hilbertSpace)
