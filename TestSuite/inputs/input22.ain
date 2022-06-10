@@ -1,24 +1,26 @@
 ##Ainur1.0
 
-HeadSize=10;
+#Yields the HF circuit for the NaH molecule
+#
+HeadSize=4;
 #Seed=12345;
 Population=100; #Pop
 Generations=200;
 NumberOfBits=4;
 MinimizerTolerance=0.01;
-Primitives="Ry,Rz,Sx,Sz,H,C";
-MinimizerDelta=0.03;
-MinimizerDelta2=0.01;
+Primitives="Ry,P";
+MinimizerDelta=0.05;
+MinimizerDelta2=0.1;
 MinimizerVerbose=0;
 ProgressBar=1;
-MinimizerAlgorithm="Simplex";
+MinimizerAlgorithm="ConjugateGradient";
 RunType="GroundState";
-Hamiltonian="file:../TestSuite/inputs/matrix23.txt";
+Hamiltonian="file:../TestSuite/inputs/matrix22.txt";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
 EngineOptions="printcompact";
-
+#vector ScaleHamiltonian=[10, 1600];
 #CHeadSize=0;
 #AdfsSize=0;
 #StopEarly=false;
