@@ -1,5 +1,7 @@
 ##Ainur1.0
 
+#Ground state input example for the XX model on 4 sites
+#
 HeadSize=4;
 #Seed=12345;
 Population=50;
@@ -16,7 +18,3 @@ HamiltonianIsPeriodic=0;
 InVectorFile="../TestSuite/inputs/vector10.txt";
 MinimizerAlgorithm="Simplex";
 EngineOptions="printcompact";
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
-#

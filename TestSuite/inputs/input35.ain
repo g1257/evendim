@@ -1,5 +1,6 @@
 ##Ainur1.0
 
+# Tests an 8 node graph, called graph35 in the paper
 HeadSize=8;
 #Seed=12345;
 Population=90;
@@ -19,8 +20,3 @@ HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector34.txt";
 EngineOptions="printcompact";
-
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
-#

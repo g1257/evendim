@@ -1,5 +1,8 @@
 ##Ainur1.0
 
+# Tests the Hamiltonian given by the Hamiltonian= line
+# below, showing a case where the Hamitonian can be
+# entered by expression.
 HeadSize=10;
 #Seed=12345;
 Population=100;

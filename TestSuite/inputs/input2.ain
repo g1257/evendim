@@ -1,5 +1,6 @@
 ##Ainur1.0
 
+#FunctionFit
 HeadSize=10;
 #Seed=12345;
 Population=100;

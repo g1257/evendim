@@ -1,7 +1,7 @@
 ##Ainur1.0
 
-#This tests a trivial IsingGraph:
-#an open chain
+# Tests a trivial IsingGraph:
+# an open chain
 HeadSize=4;
 #Seed=12345;
 Population=80;
@@ -18,11 +18,5 @@ RunType="GroundState";
 Hamiltonian="IsingGraph";
 GraphFile="../TestSuite/inputs/graph30.txt";
 HamiltonianCoupling=1;
-#HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector24.txt";
 EngineOptions="printcompact";
-
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
-#

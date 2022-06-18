@@ -3,7 +3,7 @@
 #This tests GroundState for the XX model on a chain
 HeadSize=4;
 #Seed=12345;
-Population=60; #Pop
+Population=60;
 Generations=20;
 NumberOfBits=4;
 MinimizerTolerance=0.1;
@@ -18,8 +18,4 @@ Hamiltonian="xx";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
-#Threads=4;
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
 #

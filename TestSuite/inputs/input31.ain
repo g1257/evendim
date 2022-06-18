@@ -21,8 +21,3 @@ HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector24.txt";
 EngineOptions="printcompact";
-
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
-#

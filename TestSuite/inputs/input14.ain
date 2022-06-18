@@ -19,7 +19,3 @@ HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
 
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
-#

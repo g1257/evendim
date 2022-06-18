@@ -1,10 +1,10 @@
 ##Ainur1.0
 
-#Yields the HF circuit for the NaH molecule
+#Yields the HartreeFock generating circuit for the NaH molecule
 #
 HeadSize=4;
 #Seed=12345;
-Population=100; #Pop
+Population=100;
 Generations=200;
 NumberOfBits=4;
 MinimizerTolerance=0.01;
@@ -21,7 +21,3 @@ HamiltonianCoupling=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
 EngineOptions="printcompact";
 #vector ScaleHamiltonian=[10, 1600];
-#CHeadSize=0;
-#AdfsSize=0;
-#StopEarly=false;
-#
