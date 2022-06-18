@@ -1,6 +1,7 @@
 ##Ainur1.0
 
 # This tests the NaH molecule Hamiltonian of 8 bits.
+# Note that Basis= is given below.
 # QuantumGEP only yields the Hartree Fock solution,
 # and not the exact solution.
 HeadSize=20;

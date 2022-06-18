@@ -1,6 +1,7 @@
 ##Ainur1.0
 
 # Tests the benzene molecule Hamiltonian on 8 bits.
+# Note that Basis is given below.
 # It yields the Hartree Fock state and may yield
 # other contributing basis states to the exact
 # ground state.

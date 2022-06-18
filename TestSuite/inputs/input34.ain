@@ -1,0 +1,22 @@
+##Ainur1.0
+
+# Tests a non-trivial graph of 8 nodes:
+# the graph labeled 34 in the paper
+HeadSize=8;
+#Seed=12345;
+Population=80;
+Generations=100;
+NumberOfBits=8;
+MinimizerTolerance=0.1;
+Primitives="Ry,P";
+MinimizerDelta=0.01;
+MinimizerDelta2=0.01;
+MinimizerVerbose=0;
+ProgressBar=1;
+MinimizerAlgorithm="Simplex";
+RunType="GroundState";
+Hamiltonian="IsingGraph";
+GraphFile="../TestSuite/inputs/graph34.txt";
+HamiltonianCoupling=1;
+InVectorFile="../TestSuite/inputs/vector34.txt";
+EngineOptions="printcompact";
