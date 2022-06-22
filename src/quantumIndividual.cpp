@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	gepOptions.head = tokens.size() - 1;
 
 	ParametersEngineType params(gepOptions);
-	PrimitivesType primitives(numberOfBits, gates);
+	PrimitivesType primitives(numberOfBits, gates, io);
 	EvolutionType evolution(primitives, seed, verbose);
 
 	constexpr SizeType threadNum = 0;

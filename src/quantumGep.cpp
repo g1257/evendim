@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 	                                          0); // threadsStackSize;
 	PsimagLite::Concurrency::setOptions(codeSection);
 
-	PrimitivesType primitives(numberOfBits, gates);
+	PrimitivesType primitives(numberOfBits, gates, io);
 	EvolutionType evolution(primitives, seed, verbose);
 
 	if (runType == "FunctionFit") {

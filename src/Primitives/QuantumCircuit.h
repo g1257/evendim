@@ -26,6 +26,8 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include <numeric>
 #include "CanonicalFormQuantum.h"
 #include "InputGatesUtil.h"
+#include "InputNg.h"
+#include "InputCheck.h"
 
 namespace Gep {
 
@@ -57,10 +59,12 @@ public:
 	typedef CanonicalFormQuantum<ValueType_, RealType> CanonicalFormType;
 	typedef InputGatesUtil<ThisType> InputGatesUtilType;
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
+	typedef PsimagLite::InputNg<InputCheck>::Readable InputNgReadableType;
 
 	QuantumCircuit(SizeType numberOfBits,
-	               PsimagLite::String gates)
-	    : numberOfBits_(numberOfBits)
+	               PsimagLite::String gates,
+	               InputNgReadableType& io)
+	    : numberOfBits_(numberOfBits), io_(io)
 	{
 		PsimagLite::split(gates_, gates, ",");
 
@@ -190,6 +194,8 @@ private:
 			}
 		}
 
+		customGates(nodes, tmpGates);
+
 		if (tmpGates.size() > 0) {
 			PsimagLite::String tmp = std::accumulate(tmpGates.begin(),
 			                                         tmpGates.end(),
@@ -203,9 +209,52 @@ private:
 		}
 	}
 
+	void customGates(VectorNodeType& nodes, VectorStringType& gates)
+	{
+		for (SizeType i = 0; i < gates.size(); ++i) {
+			const std::string& name = gates[i];
+
+			MatrixType matrix;
+			io_.read(matrix, name);
+
+			std::cout<<"Trying to add custom gate named " + name + "\n";
+
+			if (matrix.rows() != matrix.cols())
+				err("Matrix named " + name + " must be square.\n");
+			if (matrix.rows() == 2) {
+				fillCustomOneBitGates(nodes, name, matrix);
+			} else if (matrix.rows() == 4) {
+				fillCustomTwoBitGates(nodes, name, matrix);
+			} else {
+				err("Matrix named " + name + " must have either two or four rows.\n");
+			}
+		}
+
+		gates.clear();
+	}
+
+	void fillCustomTwoBitGates(VectorNodeType& nodes, const PsimagLite::String& name, const MatrixType& matrix)
+	{
+		for (SizeType i = 0; i < numberOfBits_; ++i) {
+			for (SizeType j = i + 1; j < numberOfBits_; ++j) {
+				NodeType* customGate = new QuantumTwoBitGateType(name, i, j, numberOfBits_, matrix);
+				nodes.push_back(customGate);
+			}
+		}
+	}
+
+	void fillCustomOneBitGates(VectorNodeType& nodes, const PsimagLite::String& name, const MatrixType& matrix)
+	{
+		for (SizeType i = 0; i < numberOfBits_; ++i) {
+			NodeType* customGate = new QuantumOneBitGateType(name, i, numberOfBits_, matrix);
+			nodes.push_back(customGate);
+		}
+	}
+
+	const SizeType numberOfBits_;
+	InputNgReadableType& io_;
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
-	const SizeType numberOfBits_;
 	VectorNodeType nodes_;
 	VectorStringType gates_;
 }; // class QuantumCircuit
