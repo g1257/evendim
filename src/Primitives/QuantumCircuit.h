@@ -28,6 +28,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputGatesUtil.h"
 #include "InputNg.h"
 #include "InputCheck.h"
+#include "CustomQuantumGates.hh"
 
 namespace Gep {
 
@@ -60,6 +61,7 @@ public:
 	typedef InputGatesUtil<ThisType> InputGatesUtilType;
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	typedef PsimagLite::InputNg<InputCheck>::Readable InputNgReadableType;
+	typedef CustomQuantumGates<typename ValueType::value_type> CustomQuantumGatesType;
 
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates,
@@ -214,8 +216,24 @@ private:
 		for (SizeType i = 0; i < gates.size(); ++i) {
 			const std::string& name = gates[i];
 
+			SizeType last = name.length();
+			assert(last > 0);
+			--last;
+			if (name[last] >= 48 && name[last] <=57)
+				err("Custom gate name " + name + " must not end in a digit\n");
+
 			MatrixType matrix;
-			io_.read(matrix, name);
+			if (name.substr(0, 2) == "CG") { // non-parametric custom
+				io_.read(matrix, name);
+				customQuantumGates_.push(name, matrix);
+			} else if (name.substr(0, 2) == "PG") {
+				PsimagLite::Matrix<PsimagLite::String> matrixString;
+				io_.read(matrixString, name);
+				customQuantumGates_.push(name, matrixString);
+				customQuantumGates_.evaluate(matrix, name);
+			} else {
+				err("Custom gate name " + name + " must start with CG or PG\n");
+			}
 
 			std::cout<<"Trying to add custom gate named " + name + "\n";
 
@@ -231,6 +249,8 @@ private:
 		}
 
 		gates.clear();
+
+		QuantumOneBitGateType::setCustom(customQuantumGates_);
 	}
 
 	void fillCustomTwoBitGates(VectorNodeType& nodes, const PsimagLite::String& name, const MatrixType& matrix)
@@ -253,6 +273,7 @@ private:
 
 	const SizeType numberOfBits_;
 	InputNgReadableType& io_;
+	CustomQuantumGatesType customQuantumGates_;
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	VectorNodeType nodes_;
