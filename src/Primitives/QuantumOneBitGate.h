@@ -167,6 +167,20 @@ private:
 			return;
 		}
 
+		if (name.length() > 2 && name.substr(0, 2) == "_R") {
+			SizeType ind = directionCharToInteger(name[2]);
+			RealType angle = 0;
+			if (name.length() > 4) {
+				if (name[3] != ':')
+					err("Expected : in rotation gate name " + name + "\n");
+				PsimagLite::String angleStr = name.substr(4, name.length() - 4);
+				angle = PsimagLite::atof(angleStr);
+			}
+
+			diffRotation(gateMatrix, ind, angle);
+			return;
+		}
+
 		err("Gate with name " + name + " not implemented\n");
 	}
 
