@@ -202,7 +202,7 @@ private:
 	static SizeType numberOfAnglesOneGate(PsimagLite::String str)
 	{
 		if (str.length() == 0) return 0;
-		return (str[0] == 'R') ? 1 : 0;
+		return (str[0] == 'R' || str.substr(0, 2) == "PG") ? 1 : 0;
 	}
 
 	static bool isInputGate(PsimagLite::String str)
