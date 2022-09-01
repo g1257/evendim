@@ -22,7 +22,9 @@ public:
 	HamiltonianFromExpression(PsimagLite::String expression,
 	                          SizeType numberOfBits)
 	    : hamString_(expression), bits_(numberOfBits)
-	{}
+	{
+		fillMatrix();
+	}
 
 	const SparseMatrixType& getMatrix() const { return matrix_; }
 

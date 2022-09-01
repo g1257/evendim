@@ -93,30 +93,32 @@ public:
 			hamTipo = TypeEnum::XX;
 			fillHxx(coupling);
 		} else if (ham == "zxz") {
-			PsimagLite::String strZxZ = createNnn("Z", "X", "Z", bits_);
+			PsimagLite::String strZxZ = createNnn("Sz", "Sx", "Sz", bits_);
 			HamiltonianFromExpressionType hamZxZ(strZxZ, bits_);
 			const SparseMatrixType& matrixZxZ = hamZxZ.getMatrix();
 
-			PsimagLite::String strX = createLocal("X", bits_);
+			PsimagLite::String strX = createLocal("Sx", bits_);
 			HamiltonianFromExpressionType hamX(strX, bits_);
 			const SparseMatrixType& matrixX = hamX.getMatrix();
 
-			PsimagLite::String strXx = createNn("X", "X", bits_);
+			PsimagLite::String strXx = createNn("Sx", "Sx", bits_);
 			HamiltonianFromExpressionType hamXx(strXx, bits_);
 			const SparseMatrixType& matrixXx = hamXx.getMatrix();
 
 			RealType hJ = 0;
-			io.readline(hJ, "HamiltoianJ=");
-			addMatrixWithWeight(matrix_, hJ, matrixZxZ);
+			io.readline(hJ, "HamiltonianJ=");
+			matrix_ = hJ*matrixZxZ;
 
 			RealType h1 = 0;
-			io.readline(h1, "Hamiltoianh1=");
+			io.readline(h1, "Hamiltonianh1=");
 			addMatrixWithWeight(matrix_, h1, matrixX);
 
 			RealType h2 = 0;
-			io.readline(h2, "Hamiltoianh2=");
+			io.readline(h2, "Hamiltonianh2=");
 			addMatrixWithWeight(matrix_, h2, matrixXx);
-
+			assert(cacheVector_.size() > 0);
+			allocateCacheVector(matrix_.rows());
+			hamTipo = TypeEnum::EXPRESSION;
 		} else {
 			std::cerr<<"Asumming Hamiltonian Expression\n";
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
