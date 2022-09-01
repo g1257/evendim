@@ -352,6 +352,9 @@ public:
 
 		evolution_.setInput(0, fitParams_.inVector, threadNum);
 
+		RealType norma = PsimagLite::norm(fitParams_.inVector);
+		if (fabs(norma - 1) > 1e-4) err("Input vector not normalized\n");
+
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {
