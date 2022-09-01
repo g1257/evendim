@@ -24,7 +24,11 @@ public:
 	    : hamString_(expression), bits_(numberOfBits)
 	{}
 
-	void fillMatrix(SparseMatrixType& matrix)
+	const SparseMatrixType& getMatrix() const { return matrix_; }
+
+private:
+
+	void fillMatrix()
 	{
 		HamiltonianSpecType hamSpec(bits_);
 		CanonicalExpressionType canonicalExpression(hamSpec);
@@ -33,12 +37,10 @@ public:
 		typename HamiltonianSpecType::ResultType quasiMatrix(bits_);
 		typename HamiltonianSpecType::ResultType emptyMatrix(bits_);
 		canonicalExpression(quasiMatrix, hamString_, emptyMatrix, aux);
-		matrix = quasiMatrix.getCRS();
+		matrix_ = quasiMatrix.getCRS();
 
-		solveIt(matrix); // just for checking
+		solveIt(matrix_); // just for checking
 	}
-
-private:
 
 	static PsimagLite::String killSpaces(PsimagLite::String str)
 	{
@@ -61,6 +63,7 @@ private:
 
 	PsimagLite::String hamString_;
 	SizeType bits_;
+	SparseMatrixType matrix_;
 };
 }
 #endif // HAMILTONIANFROMEXPRESSION_H

@@ -89,18 +89,42 @@ public:
 			return;
 		}
 
-		if (ham != "xx") {
+		if (ham == "xx") {
+			hamTipo = TypeEnum::XX;
+			fillHxx(coupling);
+		} else if (ham == "zxz") {
+			PsimagLite::String strZxZ = createNnn("Z", "X", "Z", bits_);
+			HamiltonianFromExpressionType hamZxZ(strZxZ, bits_);
+			const SparseMatrixType& matrixZxZ = hamZxZ.getMatrix();
+
+			PsimagLite::String strX = createLocal("X", bits_);
+			HamiltonianFromExpressionType hamX(strX, bits_);
+			const SparseMatrixType& matrixX = hamX.getMatrix();
+
+			PsimagLite::String strXx = createNn("X", "X", bits_);
+			HamiltonianFromExpressionType hamXx(strXx, bits_);
+			const SparseMatrixType& matrixXx = hamXx.getMatrix();
+
+			RealType hJ = 0;
+			io.readline(hJ, "HamiltoianJ=");
+			addMatrixWithWeight(matrix_, hJ, matrixZxZ);
+
+			RealType h1 = 0;
+			io.readline(h1, "Hamiltoianh1=");
+			addMatrixWithWeight(matrix_, h1, matrixX);
+
+			RealType h2 = 0;
+			io.readline(h2, "Hamiltoianh2=");
+			addMatrixWithWeight(matrix_, h2, matrixXx);
+
+		} else {
+			std::cerr<<"Asumming Hamiltonian Expression\n";
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
-			hamExpression.fillMatrix(matrix_);
+			matrix_ = hamExpression.getMatrix();
 			assert(cacheVector_.size() > 0);
 			allocateCacheVector(matrix_.rows());
 			hamTipo = TypeEnum::EXPRESSION;
-			return;
 		}
-
-		assert(ham == "xx");
-		hamTipo = TypeEnum::XX;
-		fillHxx(coupling);
 	}
 
 	RealType energy(const VectorType& y, SizeType threadNum) const
@@ -125,15 +149,15 @@ public:
 
 		}
 	}
- 
+
 	// should be private
 	static PsimagLite::String info(const VectorType& v, double epsilon)
-    {
-        const SizeType n = v.size();
-        PsimagLite::String buffer;
-        for (SizeType i = 0; i < n; ++i) {
-            if (std::norm(v[i]) > epsilon) buffer += ttos(i) + " ";
-        }
+	{
+		const SizeType n = v.size();
+		PsimagLite::String buffer;
+		for (SizeType i = 0; i < n; ++i) {
+			if (std::norm(v[i]) > epsilon) buffer += ttos(i) + " ";
+		}
 
 		return buffer;
 	}
@@ -252,7 +276,7 @@ private:
 		for (SizeType i = 0; i < mat.rows(); ++i) {
 			for (SizeType j = 0; j < mat.cols(); ++j) {
 				ComplexType val = scale[0]*mat(i, j);
-			    if (i == j) val += scale[1];
+				if (i == j) val += scale[1];
 				mat(i, j) = val;
 			}
 		}
@@ -300,10 +324,64 @@ private:
 				dense(ii, jj) = mat(i, j);
 			}
 		}
-        // dense(8+4+2+1=15,) = mat(0, 0);
+		// dense(8+4+2+1=15,) = mat(0, 0);
 
 		fullMatrixToCrsMatrix(matrix_, dense);
 		printGs(dense);
+	}
+
+	static PsimagLite::String createNnn(const PsimagLite::String& A,
+	                                    const PsimagLite::String& B,
+	                                    const PsimagLite::String& C,
+	                                    SizeType n)
+	{
+		if (n < 3) err("createNnn needs at least three sites\n");
+		SizeType nMinusTwo = n - 2;
+		assert(nMinusTwo < n);
+		PsimagLite::String buffer;
+		for (SizeType i = 0; i < nMinusTwo; ++i) {
+			SizeType j = i + 1;
+			SizeType k = i + 2;
+			if (i > 0) buffer += "+";
+			buffer += A + ttos(i) + "*" + B + ttos(j) + "*" + C + ttos(k);
+		}
+
+		return buffer;
+	}
+
+	static PsimagLite::String createNn(const PsimagLite::String& A,
+	                                   const PsimagLite::String& B,
+	                                   SizeType n)
+	{
+		if (n < 2) err("createNn needs at least two sites\n");
+		SizeType nMinusOne = n - 1;
+		assert(nMinusOne < n);
+		PsimagLite::String buffer;
+		for (SizeType i = 0; i < nMinusOne; ++i) {
+			SizeType j = i + 1;
+			if (i > 0) buffer += "+";
+			buffer += A + ttos(i) + "*" + B + ttos(j);
+		}
+
+		return buffer;
+	}
+
+	static PsimagLite::String createLocal(const PsimagLite::String& A,
+	                                      SizeType n)
+	{
+		if (n < 1) err("createLocal needs at least one site\n");
+		PsimagLite::String buffer;
+		for (SizeType i = 0; i < n; ++i) {
+			if (i > 0) buffer += "+";
+			buffer += A + ttos(i);
+		}
+
+		return buffer;
+	}
+
+	static void addMatrixWithWeight(SparseMatrixType& m, RealType weight, const SparseMatrixType& a)
+	{
+		m += weight*a;
 	}
 
 	TypeEnum hamTipo;
