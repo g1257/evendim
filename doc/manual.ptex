@@ -86,8 +86,6 @@ Oak Ridge, TN 37831\\
 \fontshape{sc}\selectfont
 %\begin{verbatim}
 \noindent
-DISCLAIMER\\[0.2cm]
-\todo{tbw}
 
 \fontshape{\shapedefault}\selectfont
 %\end{verbatim}
@@ -153,7 +151,7 @@ work. Explain How To Cite This Work. FIXME. TBW.
 \subsection{Hash of the latest commit}
 
 Hash of the latest commit is also posted at
-FIXME
+\nolinkurl{https://g1257.github.io/hashes.html}
 
 \subsection{Building and Running evendim}
 \evendim~is a computational engine for gene expression programming.
@@ -311,7 +309,7 @@ as needed to obtain the population supplied in the input file.
 
 \section{The TestSuite}
 
-%\bibliographystyle{plain}
-%\bibliography{thesis}
+\bibliographystyle{plain}
+\bibliography{thesis}
 \end{document}
 
