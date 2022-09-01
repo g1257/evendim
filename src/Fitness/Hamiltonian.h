@@ -92,7 +92,10 @@ public:
 		if (ham == "xx") {
 			hamTipo = TypeEnum::XX;
 			fillHxx(coupling);
-		} else if (ham == "zxz") {
+			return; // EARLY EXIT HERE
+		}
+
+		if (ham == "zxz") {
 			PsimagLite::String strZxZ = createNnn("Sz", "Sx", "Sz", bits_);
 			HamiltonianFromExpressionType hamZxZ(strZxZ, bits_);
 			const SparseMatrixType& matrixZxZ = hamZxZ.getMatrix();
@@ -116,17 +119,17 @@ public:
 			RealType h2 = 0;
 			io.readline(h2, "Hamiltonianh2=");
 			addMatrixWithWeight(matrix_, h2, matrixXx);
-			assert(cacheVector_.size() > 0);
-			allocateCacheVector(matrix_.rows());
-			hamTipo = TypeEnum::EXPRESSION;
+
 		} else {
 			std::cerr<<"Asumming Hamiltonian Expression\n";
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
 			matrix_ = hamExpression.getMatrix();
-			assert(cacheVector_.size() > 0);
-			allocateCacheVector(matrix_.rows());
-			hamTipo = TypeEnum::EXPRESSION;
 		}
+
+		assert(cacheVector_.size() > 0);
+		allocateCacheVector(matrix_.rows());
+		hamTipo = TypeEnum::EXPRESSION;
+		HamiltonianFromExpressionType::solveIt(matrix_);
 	}
 
 	RealType energy(const VectorType& y, SizeType threadNum) const
