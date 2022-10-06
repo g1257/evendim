@@ -302,7 +302,7 @@ private:
 			addChromosome(newChromosomes[index],-fitness[index]);
 		}
 
-		std::cout<<"----------------\n";
+		std::cout<<"----------------(first horiz.)\n";
 		return false;
 	}
 

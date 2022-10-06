@@ -315,6 +315,7 @@ private:
 	                      SizeType head,
 	                      bool isCell) const
 	{
+		assert(head > 0);
 		VectorStringType ret = str;
 		SizeType index = head;
 		while (index + 1 >= head) {
