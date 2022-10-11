@@ -288,8 +288,8 @@ private:
 
 }; // class Input
 
-template<typename VectorValueType>
-class NodeAdf : public Node<VectorValueType> {
+template<typename VectorValueType, typename AnglesType_ = int>
+class NodeAdf : public Node<VectorValueType, AnglesType_> {
 
 	typedef typename VectorValueType::value_type ValueType;
 

@@ -44,13 +44,7 @@ public:
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef Node<VectorValueType, RealType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
-	typedef NodeDc<VectorValueType> NodeDcType;
-	typedef Plus<VectorValueType> PlusType;
-	typedef Minus<VectorValueType> MinusType;
-	typedef Times<VectorValueType> TimesType;
-	typedef DividedBy<VectorValueType> DividedByType;
-	typedef Input<VectorValueType> InputType;
-	typedef NodeAdf<VectorValueType> NodeAdfType;
+	typedef NodeAdf<VectorValueType, RealType> NodeAdfType;
 	typedef ValueType_ ValueType;
 	typedef QuantumOneBitGate<VectorValueType> QuantumOneBitGateType;
 	typedef QuantumTwoBitGate<VectorValueType> QuantumTwoBitGateType;
@@ -70,7 +64,12 @@ public:
 	{
 		PsimagLite::split(gates_, gates, ",");
 
-		makeNodes(nodes_);
+		SizeType genes = 1;
+		try {
+			io.readline(genes, "Genes=");
+		} catch (std::exception&) {}
+
+		makeNodes(nodes_, genes);
 	}
 
 	~QuantumCircuit()
@@ -94,7 +93,7 @@ public:
 
 private:
 
-	void makeNodes(VectorNodeType& nodes)
+	void makeNodes(VectorNodeType& nodes, SizeType genes)
 	{
 		static const SizeType inputs = 1;
 
@@ -208,6 +207,13 @@ private:
 		for (SizeType i = 0; i < inputs; i++) {
 			NodeType* input = new QuantumInput<VectorValueType>(numberOfBits_);
 			nodes.push_back(input);
+		}
+
+
+		ValueType_ zeroVector;
+		for (SizeType i = 0; i < genes; i++) {
+			NodeType* adf = new NodeAdfType(i, zeroVector);
+			nodes_.push_back(adf);
 		}
 	}
 

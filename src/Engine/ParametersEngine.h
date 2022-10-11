@@ -93,6 +93,25 @@ The EngineOptions are case-insensitive and can be none or more of the following.
 		io.readline(head, "HeadSize=");
 
 		try {
+			io.readline(genes, "Genes=");
+		} catch (std::exception&) {}
+
+		if (genes > 1) {
+			PsimagLite::String str("Automatically Setting ADFS to 1\n");
+			std::cout<<str;
+			std::cerr<<str;
+			adfs = 1;
+		}
+
+		try {
+			io.readline(chead, "Chead=");
+		} catch (std::exception&) {}
+
+		if (genes > 1 && chead == 0) {
+			throw PsimagLite::RuntimeError("genes > 1 but chead == 0\n");
+		}
+
+		try {
 			io.readline(samples, "Samples=");
 		} catch (std::exception&) {}
 

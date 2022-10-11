@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 
 	bool hasAdfs = (gepOptions.chead > 0 && gepOptions.adfs > 0);
 	if (gepOptions.genes > 1 && !hasAdfs)
-		throw PsimagLite::RuntimeError(strUsage);
+		throw PsimagLite::RuntimeError("FATAL: genes > 1 but no ADF\n");
 
 	/* PSIDOC EvolutionInFunction
  Evolution is templated on Primitives, which represents the GEP primitives or ``operators''

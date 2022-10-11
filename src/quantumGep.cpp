@@ -134,8 +134,15 @@ int main(int argc, char* argv[])
 		io.readline(seed, "RngSeed=");
 	} catch (std::exception&) {}
 
-	if (gepOptions.genes > 1 && (gepOptions.chead == 0 || gepOptions.adfs == 0))
-		throw PsimagLite::RuntimeError(strUsage);
+	if (gepOptions.chead > 0 && gepOptions.adfs == 0)
+		throw PsimagLite::RuntimeError("FATAL: You selected ADF head size H > 0 but ADF number a == 0\n");
+
+	if (gepOptions.chead > 0 && gepOptions.adfs == 0)
+		throw PsimagLite::RuntimeError("FATAL: You selected ADF number a > 0 but ADF head size H == 0\n");
+
+	bool hasAdfs = (gepOptions.chead > 0 && gepOptions.adfs > 0);
+	if (gepOptions.genes > 1 && !hasAdfs)
+		throw PsimagLite::RuntimeError("FATAL: genes > 1 but no ADF\n");
 
 	PsimagLite::String runType;
 	io.readline(runType, "RunType=");
