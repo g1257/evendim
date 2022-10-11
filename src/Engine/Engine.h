@@ -320,7 +320,11 @@ private:
 
 		std::cout<<ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
 		const auto fit = (params_.options.isSet("printcompact")) ? " fit " : " fitness ";
-		std::cout<<fit<<f<<" "<<fitness_.info(*chromosome);
+		std::cout<<fit<<f;
+		if (!params_.options.isSet("novectorinfo")) {
+			std::cout<<" "<<fitness_.info(*chromosome);
+		}
+
 		const auto esize = (params_.options.isSet("printcompact")) ? " #= " : " effective size= ";
 		std::cout<<esize<<chromosome->effectiveSize()<<"\n";
 	}
