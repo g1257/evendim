@@ -58,7 +58,7 @@ public:
 	      tail_(evolution.tail(head)),
 	      vecStr_(vecStr)
 	{
-		if (!isCell) evolution.checkStringNonCell(vecStr_, head);
+		evolution.checkStringNonCell(vecStr_, head, isCell);
 
 		SizeType headPlusTail = head_ + tail_;
 

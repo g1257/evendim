@@ -71,8 +71,9 @@ public:
 
 	void df(VectorRealType& dest, const VectorRealType& angles)
 	{
+		const SizeType geneLength = chromosome_.geneLength();
 		VectorStringType vecStr = chromosome_.vecString();
-		encodeAngles(vecStr, angles);
+		encodeAngles(vecStr, angles, geneLength);
 		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(),
 		                                                      evolution_,
 		                                                      vecStr,
@@ -96,12 +97,12 @@ public:
 
 	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
 	{
+		const SizeType geneLength = chromosome_.geneLength();
 		const ChromosomeType* chromosome = nullptr;
-
 		VectorStringType vecStr = chromosome_.vecString();
 
 		if (angles) {
-			encodeAngles(vecStr, *angles);
+			encodeAngles(vecStr, *angles, geneLength);
 			chromosome = new ChromosomeType(chromosome_.params(),
 			                                evolution_,
 			                                vecStr,
@@ -124,14 +125,18 @@ public:
 		return (functionEnum == FunctionEnum::DIFFERENCE) ? e : -e;
 	}
 
-	static void encodeAngles(VectorStringType& vecStr, const VectorRealType& angles)
+	static void encodeAngles(VectorStringType& vecStr, const VectorRealType& angles, SizeType geneLength)
 	{
 		const SizeType n = vecStr.size();
 		SizeType currentIndex = 0;
 		bool flag = true;
 		for (SizeType i = 0; i < n; ++i) {
 
-			if (isInputGate(vecStr[i])) {
+			if (i % geneLength == 0) {
+				flag = true;
+			}
+
+			if (EvolutionType::isAnInteger(vecStr[i])) {
 				flag = false;
 				continue;
 			}
@@ -203,12 +208,6 @@ private:
 	{
 		if (str.length() == 0) return 0;
 		return (str[0] == 'R' || str.substr(0, 2) == "PG") ? 1 : 0;
-	}
-
-	static bool isInputGate(PsimagLite::String str)
-	{
-		if (str.length() == 0) return false;
-		return (str[0] == '0') ? true : false;
 	}
 
 	static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
@@ -387,7 +386,8 @@ public:
 
 		if (status == 0) {
 			VectorStringType vecStr = chromosome.vecString();
-			FunctionToMinimizeType::encodeAngles(vecStr, angles);
+			const SizeType geneLength = chromosome.geneLength();
+			FunctionToMinimizeType::encodeAngles(vecStr, angles, geneLength);
 			const ChromosomeType* chromosome2 = new ChromosomeType(chromosome.params(),
 			                                                       evolution_,
 			                                                       vecStr,

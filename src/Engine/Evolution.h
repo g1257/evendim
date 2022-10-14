@@ -57,6 +57,14 @@ public:
 		setInputsTerminalsAndNonTerminals();
 	}
 
+	SizeType geneLength(SizeType head) const
+	{
+		bool hasDc = (primitives_.dcValues().size() > 0);
+		SizeType dc = (hasDc)? this->tail(head) : 0;
+
+		return head + this->tail(head) + dc;
+	}
+
 	bool verbose() const { return verbose_; }
 
 	SizeType tail(SizeType head) const
@@ -171,7 +179,8 @@ public:
 	}
 
 	void checkStringNonCell(const VectorStringType& vecStr,
-	                        SizeType head) const
+	                        SizeType head,
+	                        bool isCell) const
 	{
 		SizeType tail1 = tail(head);
 		SizeType len = vecStr.size();
@@ -191,6 +200,7 @@ public:
 		for (SizeType i = head; i < len -dc; i++) {
 			if (std::find(terminals.begin(),terminals.end(), vecStr[i]) != terminals.end())
 				continue;
+			if (isCell && isAnInteger(vecStr[i])) continue;
 			PsimagLite::String errorMessage(__FILE__);
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "head= " + ttos(head);
@@ -285,6 +295,16 @@ public:
 		}
 
 		os<<"\n";
+	}
+
+	static bool isAnInteger(PsimagLite::String str)
+	{
+		SizeType len = str.length();
+		for (SizeType i = 0; i < len; ++i) {
+			if (str[i] < '0' || str[i] > '9') return false;
+		}
+
+		return true;
 	}
 
 private:

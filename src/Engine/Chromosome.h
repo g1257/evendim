@@ -49,26 +49,22 @@ public:
 	           const VectorStringType& vecStr,
 	           SizeType threadNum)
 	    : evolution_(evolution),
-	      params_(params)
+	      params_(params),
+	      geneLength_(evolution.geneLength(params.head))
 	{
 		SizeType len = vecStr.size();
-		bool hasDc = (evolution_.primitives().dcValues().size() > 0);
-		SizeType dc = (hasDc)? evolution.tail(params.head) : 0;
-
-		SizeType geneLength = params.head + evolution.tail(params.head) + dc;
-
 		if (len == 0)
 			throw PsimagLite::RuntimeError("Chromosome::ctor()\n");
 
 		SizeType index = 0;
 		VectorStringType buffer;
-		for (SizeType i = 0; i < geneLength; i++)
+		for (SizeType i = 0; i < geneLength_; i++)
 			buffer.push_back(" ");
 
 		for (SizeType i = 0; i < len; i++) {
 			buffer[index] = vecStr[i];
 			index++;
-			if (index == geneLength) {
+			if (index == geneLength_) {
 				index = 0;
 				GeneType* gene = new GeneType(params.head,
 				                              false,
@@ -84,7 +80,7 @@ public:
 
 		index = 0;
 
-		SizeType start = geneLength*genes_.size();
+		SizeType start = geneLength_*genes_.size();
 		SizeType cgeneLength = params.chead + evolution.tail(params.chead);
 
 		buffer.clear();
@@ -157,6 +153,8 @@ public:
 
 		return *this;
 	}
+
+	SizeType geneLength() const { return geneLength_; }
 
 	VectorStringType vecString() const
 	{
@@ -326,7 +324,7 @@ private:
 		ret[index+1] = str[index];
 
 		if (isCell) evolution_.checkStringCell(ret, head, genes_.size());
-		else evolution_.checkStringNonCell(ret,head);
+		else evolution_.checkStringNonCell(ret, head, false);
 		return ret;
 	}
 
@@ -397,6 +395,7 @@ private:
 
 	const EvolutionType& evolution_;
 	const ParametersType& params_;
+	SizeType geneLength_;
 	VectorStringType effectiveVecStr_;
 	VectorStringType adfsVecStr_;
 	VectorGeneType genes_;
