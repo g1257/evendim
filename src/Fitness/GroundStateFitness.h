@@ -73,7 +73,8 @@ public:
 	{
 		const SizeType geneLength = chromosome_.geneLength();
 		VectorStringType vecStr = chromosome_.vecString();
-		encodeAngles(vecStr, angles, geneLength);
+		const SizeType numberOfGenes = chromosome_.size();
+		encodeAngles(vecStr, angles, geneLength, numberOfGenes);
 		const ChromosomeType* chromosome = new ChromosomeType(chromosome_.params(),
 		                                                      evolution_,
 		                                                      vecStr,
@@ -97,12 +98,13 @@ public:
 
 	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
 	{
-		const SizeType geneLength = chromosome_.geneLength();
 		const ChromosomeType* chromosome = nullptr;
 		VectorStringType vecStr = chromosome_.vecString();
 
 		if (angles) {
-			encodeAngles(vecStr, *angles, geneLength);
+			const SizeType geneLength = chromosome_.geneLength();
+			const SizeType numberOfGenes = chromosome_.size();
+			encodeAngles(vecStr, *angles, geneLength, numberOfGenes);
 			chromosome = new ChromosomeType(chromosome_.params(),
 			                                evolution_,
 			                                vecStr,
@@ -125,15 +127,27 @@ public:
 		return (functionEnum == FunctionEnum::DIFFERENCE) ? e : -e;
 	}
 
-	static void encodeAngles(VectorStringType& vecStr, const VectorRealType& angles, SizeType geneLength)
+	static void encodeAngles(VectorStringType& vecStr,
+	                         const VectorRealType& angles,
+	                         SizeType geneLength,
+	                         SizeType numberOfGenes)
 	{
 		const SizeType n = vecStr.size();
 		SizeType currentIndex = 0;
+		SizeType genesSoFar = 0;
 		bool flag = true;
+		bool inCell = false;
+
 		for (SizeType i = 0; i < n; ++i) {
 
-			if (i % geneLength == 0) {
+			if (!inCell && i % geneLength == 0) {
 				flag = true;
+
+				if (genesSoFar == numberOfGenes) {
+					inCell = true;
+				}
+
+				++genesSoFar;
 			}
 
 			if (EvolutionType::isAnInteger(vecStr[i])) {
@@ -386,8 +400,9 @@ public:
 
 		if (status == 0) {
 			VectorStringType vecStr = chromosome.vecString();
+			const SizeType numberOfGenes = chromosome.size();
 			const SizeType geneLength = chromosome.geneLength();
-			FunctionToMinimizeType::encodeAngles(vecStr, angles, geneLength);
+			FunctionToMinimizeType::encodeAngles(vecStr, angles, geneLength, numberOfGenes);
 			const ChromosomeType* chromosome2 = new ChromosomeType(chromosome.params(),
 			                                                       evolution_,
 			                                                       vecStr,
