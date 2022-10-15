@@ -70,6 +70,27 @@ public:
 		deleteAll();
 	}
 
+	const VectorStringType& vecString() const
+	{
+		return vecStr_;
+	}
+
+	const TreeType& getExpression() const
+	{
+		return *vt_[0];
+	}
+
+	const SizeType head() const { return head_; }
+
+	SizeType effectiveSize() const
+	{
+		return vt_.size();
+	}
+
+private:
+
+	Gene& operator=(const Gene& other) = delete;
+
 	static void fromString(VectorTreeType& vt,
 	                       const EvolutionType& evolution,
 	                       const VectorStringType& vecStr,
@@ -127,27 +148,6 @@ public:
 			k += a;
 		}
 	}
-
-	const VectorStringType& vecString() const
-	{
-		return vecStr_;
-	}
-
-	const TreeType& getExpression() const
-	{
-		return *vt_[0];
-	}
-
-	const SizeType head() const { return head_; }
-
-	SizeType effectiveSize() const
-	{
-		return vt_.size();
-	}
-
-private:
-
-	Gene& operator=(const Gene& other) = delete;
 
 	void deleteAll()
 	{
