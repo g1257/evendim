@@ -140,7 +140,7 @@ public:
 
 		for (SizeType i = 0; i < n; ++i) {
 
-			if (!inCell && i % geneLength == 0) {
+			if (!inCell && numberOfGenes > 1 && i % geneLength == 0) {
 				flag = true;
 
 				if (genesSoFar == numberOfGenes) {
