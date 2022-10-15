@@ -36,6 +36,11 @@ public:
 	      newNodes_(nodes.size()*nthreads_)
 	{}
 
+	~NodeFactory()
+	{
+		clearNewNodes();
+	}
+
 	const NodeType& findNodeFromCode(PsimagLite::String codeStr,
 	                                 const typename NodeType::ValueType& value,
 	                                 bool isCell,
