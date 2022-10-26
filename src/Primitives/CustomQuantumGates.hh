@@ -4,9 +4,10 @@
 #include "InputCheck.h"
 #include "InputNg.h"
 #include "Sort.h"
-#include "ExpressionCalculator.h"
 #include "PsimagLite.h"
 #include <unordered_map>
+#include "AST/ExpressionForAST.h"
+#include "AST/PlusMinusMultiplyDivide.h"
 
 namespace Gep {
 
@@ -129,21 +130,22 @@ private:
 
 	static std::complex<double> maybeReplaceParam(const std::string& value, const std::vector<double>& params)
 	{
-		typedef PsimagLite::ExpressionCalculator<std::complex<double> > ExpressionCalculatorType;
-		typedef PsimagLite::PrepassData<double> PrepassDataType;
+		// Make a modifiable copy
+		PsimagLite::String copyOfExpr = value;
 
-		PsimagLite::String paramsString = "p0";
-		for (SizeType i = 1; i < params.size(); ++i) {
-			paramsString += ",p" + ttos(i);
+		// Replace p0 --> params[0],
+		// Replace p1 --> params[1],
+		// etc.
+		for (SizeType i = 0; i < params.size(); ++i) {
+			PsimagLite::replaceAll(copyOfExpr, "p" + ttos(i), ttos(params[i]));
 		}
 
-		VectorStringType expression;
-
-		PsimagLite::split(expression, value, ":");
-		PrepassDataType pd(paramsString, params);
-		PsimagLite::ExpressionPrepass<PrepassDataType>::prepass(expression, pd);
-		ExpressionCalculatorType ec(expression);
-		return ec();
+		VectorStringType ve;
+		PsimagLite::split(ve, copyOfExpr, ":");
+		typedef PsimagLite::PlusMinusMultiplyDivide<std::complex<double> > PrimitivesType;
+		PrimitivesType primitives;
+		PsimagLite::ExpressionForAST<PrimitivesType> expresionForAST(ve, primitives);
+		return expresionForAST.exec();
 	}
 
 	PsimagLite::Vector<PsimagLite::Matrix<PsimagLite::String> >::Type symbolicMatrices_;
