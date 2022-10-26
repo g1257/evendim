@@ -1,6 +1,6 @@
 #ifndef QUANTUM_TWO_BIT_GATE_H
 #define QUANTUM_TWO_BIT_GATE_H
-#include "Node.h"
+#include "AST/Node.h"
 #include "Matrix.h"
 
 namespace Gep {
@@ -21,7 +21,7 @@ public:
 }; // class GateLibrary
 
 template<typename VectorValueType>
-class QuantumTwoBitGate : public Node<VectorValueType,
+class QuantumTwoBitGate : public PsimagLite::Node<VectorValueType,
         typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 public:
@@ -29,7 +29,7 @@ public:
 	typedef typename VectorValueType::value_type ValueType;
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
-	typedef Node<VectorValueType,
+	typedef PsimagLite::Node<VectorValueType,
 	typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> NodeType;
 	typedef typename NodeType::VectorAnglesType VectorAnglesType;
 

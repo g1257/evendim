@@ -1,6 +1,6 @@
 #ifndef QUANTUM_ONE_BIT_GATES_H
 #define QUANTUM_ONE_BIT_GATES_H
-#include "Node.h"
+#include "AST/Node.h"
 #include "Matrix.h"
 #include "CustomQuantumGates.hh"
 
@@ -204,7 +204,7 @@ private:
 }; // class GateLibrary
 
 template<typename VectorValueType>
-class QuantumOneBitGate : public Node<VectorValueType,
+class QuantumOneBitGate : public PsimagLite::Node<VectorValueType,
         typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 public:

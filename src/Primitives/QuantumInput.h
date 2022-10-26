@@ -1,15 +1,15 @@
 #ifndef QUANTUMINPUT_H
 #define QUANTUMINPUT_H
 #include "Vector.h"
-#include "Node.h"
+#include "AST/Node.h"
 
 namespace Gep {
 
 template<typename VectorValueType>
-class QuantumInput : public Node<VectorValueType,
+class QuantumInput : public PsimagLite::Node<VectorValueType,
         typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
-	typedef Node<VectorValueType,
+	typedef PsimagLite::Node<VectorValueType,
 	        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type>
 	NodeType;
 	typedef typename NodeType::VectorAnglesType VectorAnglesType;

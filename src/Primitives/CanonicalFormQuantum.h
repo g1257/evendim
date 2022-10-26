@@ -1,7 +1,7 @@
 #ifndef CANONICALFORMQUANTUM_H
 #define CANONICALFORMQUANTUM_H
 #include "Vector.h"
-#include "Node.h"
+#include "AST/Node.h"
 #include "ProgramGlobals.h"
 #include "Sort.h"
 #include <cassert>
@@ -18,7 +18,7 @@ public:
 
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef typename PsimagLite::Vector<ValueType_>::Type VectorValueType;
-	typedef Node<VectorValueType, AnglesType> NodeType;
+	typedef PsimagLite::Node<VectorValueType, AnglesType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	typedef std::queue<PsimagLite::String> QueueStringType;

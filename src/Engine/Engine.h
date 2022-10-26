@@ -18,7 +18,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include "Tree.h"
+#include "AST/Tree.h"
 #include "Chromosome.h"
 #include "ParametersEngine.h"
 #include "Sort.h"
@@ -34,7 +34,7 @@ public:
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename PrimitivesType::CanonicalFormType CanonicalFormType;
-	typedef Tree<PrimitivesType> TreeType;
+	typedef PsimagLite::Tree<PrimitivesType> TreeType;
 	typedef double RealType;
 	typedef ParametersEngine<RealType> ParametersEngineType_;
 	typedef Chromosome<TreeType,EvolutionType,ParametersEngineType_> ChromosomeType;

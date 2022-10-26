@@ -19,7 +19,9 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #define PLUS_MINUS_MULT_DIV_H
 #include "Vector.h"
 #include <cassert>
-#include "Node.h"
+#include "AST/Node.h"
+#include "NodeAdf.h"
+#include "NodeDc.h"
 #include "MersenneTwister.h"
 #include "CanonicalFormEmpty.h"
 
@@ -31,14 +33,14 @@ class PlusMinusMultiplyDivide {
 public:
 
 	typedef typename PsimagLite::Vector<ValueType_>::Type VectorValueType;
-	typedef Node<VectorValueType> NodeType;
+	typedef PsimagLite::Node<VectorValueType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
 	typedef NodeDc<VectorValueType> NodeDcType;
-	typedef Plus<VectorValueType> PlusType;
-	typedef Minus<VectorValueType> MinusType;
-	typedef Times<VectorValueType> TimesType;
-	typedef DividedBy<VectorValueType> DividedByType;
-	typedef Input<VectorValueType> InputType;
+	typedef PsimagLite::Plus<VectorValueType> PlusType;
+	typedef PsimagLite::Minus<VectorValueType> MinusType;
+	typedef PsimagLite::Times<VectorValueType> TimesType;
+	typedef PsimagLite::DividedBy<VectorValueType> DividedByType;
+	typedef PsimagLite::Input<VectorValueType> InputType;
 	typedef NodeAdf<VectorValueType> NodeAdfType;
 	typedef ValueType_ ValueType;
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
@@ -65,7 +67,7 @@ public:
 //		nodes_.push_back(dividedBy);
 
 		for (SizeType i = 0; i < inputs; i++) {
-			NodeType* input = new InputType(i,0);
+			NodeType* input = new InputType(i);
 			nodes_.push_back(input);
 		}
 

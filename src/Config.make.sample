@@ -1,6 +1,8 @@
 # PsimagLite support is needed by Gep
 LDFLAGS = -L../../PsimagLite/lib -lpsimaglite
 
+CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src
+
 # Compiler to use. If using MPI then say mpicxx here (or mpic++)
 # and also say -DUSE_MPI below
 CXX = g++

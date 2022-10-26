@@ -29,6 +29,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "CustomQuantumGates.hh"
+#include "NodeAdf.h"
 
 namespace Gep {
 
@@ -42,7 +43,7 @@ public:
 	typedef typename ValueType_::value_type ComplexType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
-	typedef Node<VectorValueType, RealType> NodeType;
+	typedef PsimagLite::Node<VectorValueType, RealType> NodeType;
 	typedef typename PsimagLite::Vector<NodeType*>::Type VectorNodeType;
 	typedef NodeAdf<VectorValueType, RealType> NodeAdfType;
 	typedef ValueType_ ValueType;

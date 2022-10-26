@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 	typedef Gep::ParametersEngine<RealType> ParametersEngineType;
-	typedef Gep::Tree<PrimitivesType> TreeType;
+	typedef PsimagLite::Tree<PrimitivesType> TreeType;
 	typedef Gep::Chromosome<TreeType, EvolutionType, ParametersEngineType> ChromosomeType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 
