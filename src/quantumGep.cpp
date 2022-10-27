@@ -39,8 +39,9 @@ void main2(EvolutionType& evolution,
 
 	EngineType engine(params, evolution, &fitParams);
 
-	for (SizeType i = 0; i < params.generations; i++)
-		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
+	for (SizeType i = 0; i < params.generations; i++) {
+		engine.evolve(i);
+	}
 }
 
 /* PSIDOC quantumGepMain

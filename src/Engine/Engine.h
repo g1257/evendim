@@ -90,7 +90,7 @@ and swap algorithms to all parent chromosomes to generate the descendants for th
 It then canonicalizes them and selects the best p chromosomes and discards the ones with lowest
 fitness, where p is the population number set from the input file or the command line.
 	 */
-	bool evolve(SizeType ind)
+	void evolve(SizeType ind)
 	{
 		PairVectorVectorStringType newChromosomes;
 		VectorRealType parentFitness(chromosomes_.size());
@@ -132,7 +132,7 @@ fitness, where p is the population number set from the input file or the command
 		if (ind > 0 && !params_.options.isSet("noncanonical"))
 			canonicalizeAll(newChromosomes.first);
 
-		return selectBest(newChromosomes.first);
+		selectBest(newChromosomes.first);
 	}
 
 private:
@@ -225,7 +225,7 @@ private:
 		}
 	}
 
-	bool selectBest(VectorVectorStringType& newChromosomes)
+	void selectBest(VectorVectorStringType& newChromosomes)
 	{
 		assert(chromosomes_.size() > 0);
 		typename PsimagLite::Vector<RealType>::Type fitness(newChromosomes.size());
@@ -282,28 +282,15 @@ private:
 
 		orderBySize(newChromosomes, fitness);
 
-		SizeType population = chromosomes_.size();
-		RealType fraction = 0.8;
-		SizeType point = static_cast<SizeType>(population*fraction);
-
 		deleteAll();
 
-		RealType maxFitness = params_.samples;
-		for (SizeType i = 0; i < point; i++) {
+		SizeType population = chromosomes_.size();
+		for (SizeType i = 0; i < population; i++) {
 			RealType f = -fitness[i];
 			addChromosome(newChromosomes[i], f);
-			if (i==0 && f == maxFitness) return true;
-		}
-
-		for (SizeType i = point; i < population; i++) {
-			SizeType index = point +
-			        static_cast<SizeType>(fitness_.rng() * population * (1.0-fraction));
-			assert(index >= point);
-			addChromosome(newChromosomes[index],-fitness[index]);
 		}
 
 		std::cout<<"----------------(first horiz.)\n";
-		return false;
 	}
 
 	void addChromosome(const VectorStringType& str, const RealType& f)

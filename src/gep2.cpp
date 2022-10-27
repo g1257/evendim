@@ -45,8 +45,9 @@ void main1(EvolutionType& evolution, const Gep::ParametersInput& gepOptions)
 	typename EngineType::ParametersEngineType params(gepOptions);
 	EngineType engine(params, evolution);
 
-	for (SizeType i = 0; i < gepOptions.generations; ++i)
-		if (engine.evolve(i) && params.options.isSet("stopEarly")) break;
+	for (SizeType i = 0; i < gepOptions.generations; ++i) {
+		engine.evolve(i);
+	}
 }
 
 /* PSIDOC Gep2main
