@@ -59,7 +59,8 @@ The engine constructor creates the initial individuals randomly.
 	       FitnessParamsType* fitnessParams = nullptr)
 	    : params_(params),
 	      evolution_(evolution),
-	      fitness_(params.samples, evolution, fitnessParams)
+	      fitness_(params.samples, evolution, fitnessParams),
+	      fout_("fitness.txt")
 	{
 		constexpr SizeType threadNum = 0;
 		for (SizeType i = 0; i< params_.population; ++i) {
@@ -240,7 +241,7 @@ private:
 		const SizeType totalChromosomes = newChromosomes.size();
 		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
 		codeParams.npthreads = std::min(totalChromosomes,
-		                       PsimagLite::Concurrency::codeSectionParams.npthreads);
+		                                PsimagLite::Concurrency::codeSectionParams.npthreads);
 
 		assert(codeParams.npthreads > 0);
 		bool withProgressBar = (codeParams.npthreads > 1) ? false
@@ -285,11 +286,18 @@ private:
 		deleteAll();
 
 		SizeType population = chromosomes_.size();
+		RealType maxFitThisRound = 0;
 		for (SizeType i = 0; i < population; i++) {
 			RealType f = -fitness[i];
 			addChromosome(newChromosomes[i], f);
+			if (i == 0) {
+				maxFitThisRound = f;
+			} else if (maxFitThisRound < f) {
+				maxFitThisRound = f;
+			}
 		}
 
+		fout_<<maxFitThisRound<<"\n";
 		std::cout<<"----------------(first horiz.)\n";
 	}
 
@@ -401,6 +409,7 @@ private:
 	const ParametersEngineType& params_;
 	EvolutionType& evolution_;
 	FitnessType fitness_;
+	std::ofstream fout_;
 	VectorChromosomeType chromosomes_;
 }; // class Engine
 
