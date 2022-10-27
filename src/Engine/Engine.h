@@ -283,9 +283,11 @@ private:
 
 		orderBySize(newChromosomes, fitness);
 
+		// take population of old chromosomes
+		SizeType population = chromosomes_.size();
+		// delete all chromosomes
 		deleteAll();
 
-		SizeType population = chromosomes_.size();
 		RealType maxFitThisRound = 0;
 		for (SizeType i = 0; i < population; i++) {
 			RealType f = -fitness[i];
