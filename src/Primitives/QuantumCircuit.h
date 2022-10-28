@@ -192,6 +192,8 @@ private:
 				for (SizeType j = i + 1; j < numberOfBits_; ++j) {
 					NodeType* cnot = new QuantumTwoBitGateType("C", i, j, numberOfBits_, cnotGate);
 					nodes.push_back(cnot);
+					NodeType* cnot2 = new QuantumTwoBitGateType("C", j, i, numberOfBits_, cnotGate);
+					nodes.push_back(cnot2);
 				}
 			}
 		}
