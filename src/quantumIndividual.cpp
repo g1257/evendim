@@ -51,8 +51,11 @@ void writeVector(std::ostream& os, const std::vector<SomeType>& outVector)
 {
 	const SizeType n = outVector.size();
 	os<<n<<"\n";
-	for (SizeType i = 0; i < n; ++i)
-		os<<outVector[i]<<" ";
+	for (SizeType i = 0; i < n; ++i) {
+		SomeType val = (PsimagLite::norm(outVector[i]) < 1e-6) ? 0 : outVector[i];
+		os<<val<<" ";
+	}
+
 	os<<"\n";
 }
 
@@ -218,9 +221,11 @@ int main(int argc, char* argv[])
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
 
+	std::cout<<"Norm of input state= "<<PsimagLite::norm(inVector)<<"\n";
 	evolution.setInput(0, inVector, threadNum);
 
 	VectorType outVector = chromosome.exec(0);
+	std::cout<<"Norm of output state= "<<PsimagLite::norm(outVector)<<"\n";
 
 	writeVector(std::cout, outVector);
 
