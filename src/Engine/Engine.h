@@ -300,6 +300,7 @@ private:
 		}
 
 		fout_<<maxFitThisRound<<"\n";
+		fout_.flush();
 		std::cout<<"----------------(first horiz.)\n";
 	}
 

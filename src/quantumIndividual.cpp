@@ -20,6 +20,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Engine.h"
 #include <unistd.h>
 #include "Fitness/QuantumFitness.h"
+#include "Fitness/GroundStateFitness.h"
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "FloatingPoint.h"
@@ -55,16 +56,53 @@ void writeVector(std::ostream& os, const std::vector<SomeType>& outVector)
 	os<<"\n";
 }
 
+typedef double RealType;
+typedef std::complex<RealType> ComplexType;
+typedef PsimagLite::Vector<ComplexType>::Type VectorType;
+typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
+typedef Gep::Evolution<PrimitivesType> EvolutionType;
+typedef Gep::ParametersEngine<RealType> ParametersEngineType;
+typedef PsimagLite::Tree<PrimitivesType> TreeType;
+typedef Gep::Chromosome<TreeType, EvolutionType, ParametersEngineType> ChromosomeType;
+
+template<template<typename> class FitnessTemplate>
+RealType getFitness2(PsimagLite::InputNg<Gep::InputCheck>::Readable& io,
+                     const Gep::ParametersEngine<double>& params,
+                     EvolutionType& evolution,
+                     const ChromosomeType&  chromosome)
+{
+	typedef Gep::Engine<FitnessTemplate, EvolutionType> EngineType;
+	typedef typename EngineType::FitnessType FitnessType;
+	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
+
+	constexpr SizeType samples = 1;
+	constexpr SizeType seed = 1234;
+	constexpr SizeType threadNum = 0;
+	FitnessParamsType fitParams(io, params.threads);
+	FitnessType fitness(samples, evolution, &fitParams);
+
+	return fitness.getFitness(chromosome, seed, threadNum);
+}
+
+RealType getFitness(PsimagLite::InputNg<Gep::InputCheck>::Readable& io,
+                    const Gep::ParametersEngine<double>& params,
+                    EvolutionType& evolution,
+                    const ChromosomeType&  chromosome)
+{
+	PsimagLite::String runType;
+	io.readline(runType, "RunType=");
+
+	if (runType == "FunctionFit") {
+		return getFitness2<Gep::QuantumFitness>(io, params, evolution, chromosome);
+	} else if (runType == "GroundState") {
+		return getFitness2<Gep::GroundStateFitness>(io, params, evolution, chromosome);
+	}
+
+	throw PsimagLite::RuntimeError("RunType=FunctionFit or GroundState, but not " + runType + "\n");
+}
+
 int main(int argc, char* argv[])
 {
-	typedef double RealType;
-	typedef std::complex<RealType> ComplexType;
-	typedef PsimagLite::Vector<ComplexType>::Type VectorType;
-	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
-	typedef Gep::Evolution<PrimitivesType> EvolutionType;
-	typedef Gep::ParametersEngine<RealType> ParametersEngineType;
-	typedef PsimagLite::Tree<PrimitivesType> TreeType;
-	typedef Gep::Chromosome<TreeType, EvolutionType, ParametersEngineType> ChromosomeType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 
 	PsimagLite::String filename;
@@ -178,4 +216,7 @@ int main(int argc, char* argv[])
 	VectorType outVector = chromosome.exec(0);
 
 	writeVector(std::cout, outVector);
+
+	RealType f = getFitness(io, params, evolution, chromosome);
+	std::cout<<"Fitness= "<<f<<"\n";
 }
