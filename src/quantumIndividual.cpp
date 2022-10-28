@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
 	bool verbose = false;
 	PsimagLite::FloatingPoint::enableExcept();
 	SizeType randomSize = 0;
+	PsimagLite::String splitString = " ";
 	int opt = 0;
 
 	PsimagLite::String strUsage(argv[0]);
@@ -120,7 +121,7 @@ int main(int argc, char* argv[])
 	strUsage += "\tindividual is a comma-separated list of gates ending in 0\n";
 	strUsage += "\t-r size will generate a random vector of norm 1\n";
 
-	while ((opt = getopt(argc, argv,"f:i:r:v")) != -1) {
+	while ((opt = getopt(argc, argv,"f:i:r:c:p:v")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
@@ -133,6 +134,12 @@ int main(int argc, char* argv[])
 			break;
 		case 'v':
 			verbose = true;
+			break;
+		case 's':
+			splitString = optarg;
+			break;
+		case 'p':
+			std::cout.precision(PsimagLite::atoi(optarg));
 			break;
 		default:
 			throw PsimagLite::RuntimeError(strUsage);
@@ -184,7 +191,7 @@ int main(int argc, char* argv[])
 	if (argc < 2)
 		throw PsimagLite::RuntimeError(strUsage);
 
-	PsimagLite::split(tokens, argv[argc - 1], ",");
+	PsimagLite::split(tokens, argv[argc - 1], splitString);
 
 	if (tokens.size() == 0)
 		err("No individual specified\n");
