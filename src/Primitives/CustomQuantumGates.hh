@@ -137,7 +137,7 @@ private:
 		// Replace p1 --> params[1],
 		// etc.
 		for (SizeType i = 0; i < params.size(); ++i) {
-			PsimagLite::replaceAll(copyOfExpr, "p" + ttos(i), ttos(params[i]));
+			PsimagLite::replaceAll(copyOfExpr, "%p" + ttos(i), ttos(params[i]));
 		}
 
 		VectorStringType ve;
