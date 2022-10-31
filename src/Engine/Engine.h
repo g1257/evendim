@@ -335,21 +335,6 @@ private:
 		             newStr) == newChromosomes.end());
 	}
 
-	SizeType getWeightedIndex(VectorSizeType& added,
-	                          const VectorRealType& fitness,
-	                          SizeType populationOver2) const
-	{
-		ValueType r = evolution_.rng();
-		ValueType f = (1.0-exp(-r))/(1.0-exp(-1.0));
-		SizeType index = 0;
-		do {
-			index = findIndexWithFitness(f,fitness,populationOver2,added);
-		} while (find(added.begin(),added.end(),index) != added.end());
-
-		added.push_back(index);
-		return index;
-	}
-
 	SizeType findIndexWithFitness(const ValueType& f,
 	                              const VectorRealType& fitness,
 	                              SizeType populationOver2,
