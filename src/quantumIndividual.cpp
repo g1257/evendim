@@ -63,6 +63,7 @@ typedef double RealType;
 typedef std::complex<RealType> ComplexType;
 typedef PsimagLite::Vector<ComplexType>::Type VectorType;
 typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
+typedef typename PrimitivesType::CanonicalFormType CanonicalFormType;
 typedef Gep::Evolution<PrimitivesType> EvolutionType;
 typedef Gep::ParametersEngine<RealType> ParametersEngineType;
 typedef PsimagLite::Tree<PrimitivesType> TreeType;
@@ -231,4 +232,11 @@ int main(int argc, char* argv[])
 
 	RealType f = getFitness(io, params, evolution, chromosome);
 	std::cout<<"Fitness= "<<f<<"\n";
+
+	VectorStringType vecStr = chromosome.effectiveVecString();
+	CanonicalFormType canonicalForm(vecStr, evolution.nodeFactory());
+	canonicalForm.changeIfNeeded(vecStr);
+	for (SizeType i = 0; i < vecStr.size(); ++i)
+		std::cout<<vecStr[i]<<" ";
+	std::cout<<"\n";
 }
