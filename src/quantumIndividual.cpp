@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 	int opt = 0;
 
 	PsimagLite::String strUsage(argv[0]);
-	strUsage += " -f filename -i filenameForVector [-v] individual | -r size\n";
+	strUsage += " -f filename [-i filenameForVector] [-v] individual | -r size\n";
 	strUsage += "\t-f filename similar to the one used by quantumGep driver\n";
 	strUsage += "\t-i filenameForVector is an ASCII file with number of entries first " +
 	        PsimagLite::String("followed by entries separated by C++ whitespace\n");
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	if (filename == "" || vectorFilename == "")
+	if (filename.empty())
 		throw PsimagLite::RuntimeError(strUsage);
 
 	Gep::InputCheck inputCheck;
@@ -167,6 +167,10 @@ int main(int argc, char* argv[])
 	PsimagLite::InputNg<Gep::InputCheck>::Readable io(input);
 
 	Gep::ParametersInput gepOptions(io);
+
+	if (vectorFilename.empty()) {
+		io.readline(vectorFilename, "InVectorFile=");
+	}
 
 	SizeType numberOfBits = 0;
 	io.readline(numberOfBits, "NumberOfBits=");
