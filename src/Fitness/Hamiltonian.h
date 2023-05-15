@@ -86,6 +86,7 @@ public:
 
 			isingGraph_ = new IsingGraphType(bits_, coupling, periodic_, graphFile);
 			hamTipo = TypeEnum::ISING_GRAPH;
+			isingGraph_->solve();
 			return;
 		}
 

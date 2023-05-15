@@ -51,7 +51,49 @@ public:
 		return e*coupling_;
 	}
 
+	// Use only to obtain the exact solution
+	void solve()
+	{
+		SizeType total = (1 << bits_);
+		VectorType v(total);
+		RealType emin = 0;
+		std::vector<SizeType> ind;
+		for (SizeType i = 0; i < total; ++i) {
+			v[i] = 1;
+			RealType e = this->energyZZ(v);
+			if (e < emin || i == 0) {
+				ind.resize(1, i);
+				emin = e;
+			} else if (e == emin) {
+				ind.push_back(i);
+			}
+			v[i] = 0;
+		}
+
+		std::cout<<"IsingGraph::emin="<<emin<<"\n";
+		for (SizeType i = 0; i < ind.size(); ++i) {
+			std::cout<<ind[i]<<" ";
+		}
+
+		std::cout<<"\n";
+	}
+
 private:
+
+	static void fillVector(VectorType& v, SizeType ind)
+	{
+		std::fill(v.begin(), v.end(), 0);
+		SizeType counter = 0;
+		while (ind != 0) {
+			if (ind & 1) {
+				assert(counter < v.size());
+				v[counter] = 1;
+			}
+
+			ind >>= 1;
+			++counter;
+		}
+	}
 
 	SizeType bits_;
 	RealType coupling_;
