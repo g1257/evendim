@@ -1,9 +1,9 @@
 ##Ainur1.0
 
 #FunctionFit
-HeadSize=10;
+HeadSize=4;
 #Seed=12345;
-Population=100;
+Population=80;
 Generations=200;
 NumberOfBits=4;
 MinimizerTolerance=0.1;
@@ -13,7 +13,7 @@ MinimizerDelta2=0.01;
 Samples=50;
 MinimizerVerbose=0;
 ProgressBar=1;
-MinimizerAlgorithm="Simplex";
+MinimizerAlgorithm="ConjugateGradient";
 RunType="FunctionFit";
 
 #CHeadSize=0;

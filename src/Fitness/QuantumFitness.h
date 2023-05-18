@@ -233,7 +233,19 @@ private:
 		return (str[0] == '0') ? true : false;
 	}
 
-	// Flip the first bit
+	// This is the function to fit to
+	static void functionF(VectorType& dest, const VectorType& src)
+	{
+		// flip the first bit
+		VectorType dest2 = src;
+		flipABit(dest2, src, 0);
+
+		// flip the second bit
+		flipABit(dest, dest2, 1);
+	}
+
+	// Flip the m-th bit
+	// Example if m=0
 	// 0.1*|0000> -0.2|1110>
 	// src[0] = 0.1;   src[14] = -0.2 src[..] = 0
 	// 0.1*|0001> - 0.2|1111>
@@ -242,12 +254,13 @@ private:
 	// 1111 <--- 15 --> i
 	// 0001 <--- 1
 	// 1110 <--- 14 --> j
-	static void functionF(VectorType& dest, const VectorType& src)
+	static void flipABit(VectorType& dest, const VectorType& src, SizeType bit)
 	{
 		const SizeType n = dest.size();
 		assert(n == src.size());
+		SizeType mask = (1 << bit);
 		for (SizeType i = 0; i < n; ++i) {
-			SizeType j = i ^ 1;
+			SizeType j = i ^ mask;
 			dest[j] = src[i];
 		}
 	}
@@ -293,7 +306,7 @@ private:
 
 		VectorStringType cString = chromosome_.effectiveVecString();
 
-		SizeType geneLength = chromosome_.length();
+		SizeType geneLength = chromosome_.geneLength();
 
 		VectorStringType tmpString = replaceOneR(cString, angleIndex, geneLength);
 

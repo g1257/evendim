@@ -169,8 +169,6 @@ public:
 		return ret;
 	}
 
-	SizeType length() const { return genes_.size() + adfsVecStr_.size(); }
-
 	VectorStringType vecString(SizeType i) const
 	{
 		if (i < genes_.size())
