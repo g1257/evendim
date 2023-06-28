@@ -75,6 +75,7 @@ public:
 		assert(n == (1 << numberOfBits_));  // 2^N
 
 		ValueType w(n);
+        w.blowUp(n);
 		const SizeType mask2 = (1 << bitNumber2_);
 		for (int i = 0; i < n; ++i) {
 			const SizeType oldContent1 = getBitForIndex(i, bitNumber1_);

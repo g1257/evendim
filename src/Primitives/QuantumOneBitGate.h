@@ -248,6 +248,7 @@ public:
 
 		ValueType w(n);
 
+        w.blowUp(n);
 		for (int i = 0; i < n; ++i) {
 			SizeType j = findBasisState(i);
 			SizeType bitI = getBitForIndex(i);
