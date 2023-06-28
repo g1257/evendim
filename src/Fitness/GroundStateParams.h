@@ -4,6 +4,7 @@
 #include "InputNg.h"
 #include "MinimizerParams.h"
 #include "ProgramGlobals.h"
+#include "../Primitives/QuasiVector.hh"
 
 namespace Gep {
 
@@ -14,14 +15,14 @@ struct GroundStateParams {
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
 	typedef MinimizerParams<RealType> MinimizerParamsType;
-	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef QuasiVector<ComplexType> QuasiVectorType;
 
 	GroundStateParams(typename InputNgType::Readable& io, SizeType numberOfThreads)
 	    : minParams(io, numberOfThreads), hamiltonian(io, numberOfThreads)
 	{
 		PsimagLite::String vectorFilename;
 		io.readline(vectorFilename, "InVectorFile=");
-		Gep::ProgramGlobals::readVector(inVector, vectorFilename);
+        inVector.fromFile(vectorFilename);
 		SizeType bits = 0;
 		io.readline(bits, "NumberOfBits=");
 		const SizeType hilbert = (1<<bits);
@@ -33,7 +34,7 @@ struct GroundStateParams {
 
 	MinimizerParamsType minParams;
 	HamiltonianType hamiltonian;
-	VectorType inVector;
+	QuasiVectorType inVector;
 };
 
 }

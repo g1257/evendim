@@ -213,7 +213,7 @@ private:
 		}
 
 
-		ValueType_ zeroVector;
+        ValueType_ zeroVector(0);
 		for (SizeType i = 0; i < genes; i++) {
 			NodeType* adf = new NodeAdfType(i, zeroVector);
 			nodes_.push_back(adf);

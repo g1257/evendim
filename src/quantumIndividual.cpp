@@ -25,44 +25,12 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputCheck.h"
 #include "FloatingPoint.h"
 #include "ProgramGlobals.h"
-
-template<typename SomeType, typename SomeRngType>
-void randomVector(std::vector<SomeType>& outVector, SomeRngType& rng)
-{
-	typedef typename PsimagLite::Real<SomeType>::Type RealType;
-
-	const SizeType n = outVector.size();
-	RealType sum = 0;
-	for (SizeType i = 0; i < n; ++i) {
-		SomeType value = rng();
-		outVector[i] = value;
-		sum += PsimagLite::real(PsimagLite::conj(value)*value);
-	}
-
-	assert(sum > 0);
-	RealType factor = 1/sqrt(sum);
-	for (SizeType i = 0; i < n; ++i)
-		outVector[i] *= factor;
-
-}
-
-template<typename SomeType>
-void writeVector(std::ostream& os, const std::vector<SomeType>& outVector)
-{
-	const SizeType n = outVector.size();
-	os<<n<<"\n";
-	for (SizeType i = 0; i < n; ++i) {
-		SomeType val = (PsimagLite::norm(outVector[i]) < 1e-6) ? 0 : outVector[i];
-		os<<val<<" ";
-	}
-
-	os<<"\n";
-}
+#include "Primitives/QuasiVector.hh"
 
 typedef double RealType;
 typedef std::complex<RealType> ComplexType;
-typedef PsimagLite::Vector<ComplexType>::Type VectorType;
-typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
+typedef Gep::QuasiVector<ComplexType> QuasiVectorType;
+typedef Gep::QuantumCircuit<QuasiVectorType> PrimitivesType;
 typedef typename PrimitivesType::CanonicalFormType CanonicalFormType;
 typedef Gep::Evolution<PrimitivesType> EvolutionType;
 typedef Gep::ParametersEngine<RealType> ParametersEngineType;
@@ -152,10 +120,11 @@ int main(int argc, char* argv[])
 	}
 
 	if (randomSize > 0) {
-		VectorType rVector(randomSize);
+		QuasiVectorType rVector(randomSize);
 		PsimagLite::MersenneTwister rng(12345);
-		randomVector(rVector, rng);
-		writeVector(std::cout, rVector);
+        rVector.blowUp(randomSize);
+        rVector.randomize(rng);
+        rVector.print(std::cout);
 		return 0;
 	}
 
@@ -220,19 +189,19 @@ int main(int argc, char* argv[])
 	                           tokens,
 	                           threadNum);
 
-	VectorType inVector;
-	Gep::ProgramGlobals::readVector(inVector, vectorFilename);
-	const SizeType x = (1 << numberOfBits);
+    QuasiVectorType inVector(vectorFilename);
+
+    const SizeType x = (1 << numberOfBits);
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
 
-	std::cout<<"Norm of input state= "<<PsimagLite::norm(inVector)<<"\n";
+    std::cout<<"Norm of input state= "<<inVector.norm()<<"\n";
 	evolution.setInput(0, inVector, threadNum);
 
-	VectorType outVector = chromosome.exec(0);
-	std::cout<<"Norm of output state= "<<PsimagLite::norm(outVector)<<"\n";
+	QuasiVectorType outVector = chromosome.exec(0);
+    std::cout<<"Norm of output state= "<<outVector.norm()<<"\n";
 
-	writeVector(std::cout, outVector);
+	outVector.print(std::cout);
 
 	RealType f = getFitness(io, params, evolution, chromosome);
 	std::cout<<"Fitness= "<<f<<"\n";

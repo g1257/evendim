@@ -32,7 +32,9 @@ class FunctionToMinimize2 {
 public:
 
 	typedef typename GroundStateParamsType::ComplexType ComplexType;
-	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+    typedef typename EvolutionType::PrimitivesType PrimitivesType;
+    typedef typename PrimitivesType::NodeType NodeType;
+    typedef typename NodeType::ValueType QuasiVectorType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef RealType FieldType;
@@ -83,7 +85,7 @@ public:
 		dest.resize(angles.size());
 		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
 
-		const VectorType& inVector = groundStateParams_.inVector;
+		const QuasiVectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
 			evolution_.setInput(0, inVector, threadNum_);
 
@@ -224,43 +226,10 @@ private:
 		return (str[0] == 'R' || str.substr(0, 2) == "PG") ? 1 : 0;
 	}
 
-	static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
-	{
-		const SizeType n = v1.size();
-		assert(n == v2.size());
-		RealType sum = 0;
-		for (SizeType i = 0; i < n; ++i)
-			sum += std::abs(v2[i] - v1[i]);
-
-		return sum/n;
-	}
-
-	static RealType diffVectorDiff2(const VectorType& v1,
-	                                const VectorType& v2,
-	                                const VectorType& v3)
-	{
-		const SizeType n = v1.size();
-		assert(n == v2.size());
-		assert(n == v3.size());
-		RealType sum = 0;
-		for (SizeType i = 0; i < n; ++i) {
-			RealType denom = std::abs(v2[i] - v1[i]);
-			if (denom == 0) denom = 1;
-			const RealType re1 = PsimagLite::real(v2[i] - v1[i]);
-			const RealType im1 = PsimagLite::imag(v2[i] - v1[i]);
-			sum += (PsimagLite::real(v3[i])*re1 + PsimagLite::imag(v3[i])*im1)/denom;
-		}
-
-		return sum/n;
-	}
-
-	void computeDifferentialVector(VectorType& differential,
+	void computeDifferentialVector(QuasiVectorType& differential,
 	                               const VectorRealType& angles,
 	                               SizeType angleIndex)
 	{
-		differential.resize(angles.size());
-		std::fill(differential.begin(), differential.end(), 0);
-
 		assert(angles.size() == numberOfAngles_);
 
 		VectorStringType cString = chromosome_.effectiveVecString();
@@ -307,8 +276,8 @@ private:
 	const ChromosomeType& chromosome_;
 	const GroundStateParamsType& groundStateParams_;
 	SizeType numberOfAngles_;
-	VectorType outVector_;
-	VectorType differential_;
+	QuasiVectorType outVector_;
+	QuasiVectorType differential_;
 	SizeType threadNum_;
 };
 
@@ -365,7 +334,7 @@ public:
 
 		evolution_.setInput(0, fitParams_.inVector, threadNum);
 
-		RealType norma = PsimagLite::norm(fitParams_.inVector);
+        RealType norma = fitParams_.inVector.norm();
 		if (fabs(norma - 1) > 1e-4) err("Input vector not normalized\n");
 
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);

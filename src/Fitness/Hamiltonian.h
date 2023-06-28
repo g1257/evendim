@@ -6,6 +6,7 @@
 #include "CrsMatrix.h"
 #include "HamiltonianFromExpression.h"
 #include "IsingGraph.hh"
+#include "../Primitives/QuasiVector.hh"
 
 namespace Gep {
 
@@ -18,8 +19,9 @@ public:
 	enum class TypeEnum {FILE, XX, EXPRESSION, ISING_GRAPH};
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
-	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
-	typedef typename PsimagLite::Vector<VectorType>::Type VectorVectorType;
+    typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef QuasiVector<ComplexType> QuasiVectorType;
+	typedef typename PsimagLite::Vector<QuasiVectorType>::Type VectorQuasiVectorType;
 	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
@@ -133,19 +135,19 @@ public:
 		HamiltonianFromExpressionType::solveIt(matrix_);
 	}
 
-	RealType energy(const VectorType& y, SizeType threadNum) const
+	RealType energy(const QuasiVectorType& y, SizeType threadNum) const
 	{
 		switch (hamTipo) {
 		case  TypeEnum::ISING_GRAPH: {
 			assert(isingGraph_);
-			return isingGraph_->energyZZ(y);
+            return isingGraph_->energyZZ(y.toVector());
 			break;
 		}
 
 		default: {
 			assert(cacheVector_.size() > threadNum);
 			assert(cacheVector_[threadNum].size() == matrix_.rows());
-			std::fill(cacheVector_[threadNum].begin(), cacheVector_[threadNum].end(), 0);
+            cacheVector_[threadNum].setTo(0);
 
 			matrix_.matrixVectorProduct(cacheVector_[threadNum], y);
 
@@ -157,7 +159,7 @@ public:
 	}
 
 	// should be private
-	static PsimagLite::String info(const VectorType& v, double epsilon)
+	static PsimagLite::String info(const QuasiVectorType& v, double epsilon)
 	{
 		const SizeType n = v.size();
 		PsimagLite::String buffer;
@@ -272,7 +274,8 @@ private:
 		}
 	}
 
-	static void scaleHamiltonian(PsimagLite::Matrix<ComplexType>& mat, const VectorType& scale, bool hasScale)
+	static void scaleHamiltonian(PsimagLite::Matrix<ComplexType>& mat,
+                                 const VectorType& scale, bool hasScale)
 	{
 		if (!hasScale) return;
 
@@ -311,7 +314,7 @@ private:
 	void allocateCacheVector(SizeType hilbertSpace)
 	{
 		for (SizeType thread = 0; thread < cacheVector_.size(); ++thread)
-			cacheVector_[thread].resize(hilbertSpace);
+			cacheVector_[thread].blowUp(hilbertSpace);
 	}
 
 	void transformAndTruncate(PsimagLite::Matrix<ComplexType>& mat)
@@ -397,7 +400,7 @@ private:
 	SparseMatrixType matrix_;
 	VectorSizeType basis_;
 	bool needsTransformAndTruncate_;
-	mutable VectorVectorType cacheVector_;
+	mutable VectorQuasiVectorType cacheVector_;
 };
 }
 #endif // EVENDIM_HAMILTONIAN_H

@@ -5,6 +5,38 @@
 namespace Gep {
 
 namespace ProgramGlobals {
+template<typename SomeType, typename SomeRngType>
+void randomVector(std::vector<SomeType>& outVector, SomeRngType& rng)
+{
+    typedef typename PsimagLite::Real<SomeType>::Type RealType;
+
+    const SizeType n = outVector.size();
+    RealType sum = 0;
+    for (SizeType i = 0; i < n; ++i) {
+        SomeType value = rng();
+        outVector[i] = value;
+        sum += PsimagLite::real(PsimagLite::conj(value)*value);
+    }
+
+    assert(sum > 0);
+    RealType factor = 1/sqrt(sum);
+    for (SizeType i = 0; i < n; ++i)
+        outVector[i] *= factor;
+
+}
+
+template<typename SomeType>
+void writeVector(std::ostream& os, const std::vector<SomeType>& outVector)
+{
+    const SizeType n = outVector.size();
+    os<<n<<"\n";
+    for (SizeType i = 0; i < n; ++i) {
+        SomeType val = (PsimagLite::norm(outVector[i]) < 1e-6) ? 0 : outVector[i];
+        os<<val<<" ";
+    }
+
+    os<<"\n";
+}
 
 static void pushVector(PsimagLite::Vector<PsimagLite::String>::Type& dest,
                        const PsimagLite::Vector<PsimagLite::String>::Type& src,

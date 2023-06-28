@@ -25,6 +25,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "FloatingPoint.h"
+#include "Primitives/QuasiVector.hh"
 
 template<template<typename> class FitnessTemplate, typename EvolutionType>
 void main2(EvolutionType& evolution,
@@ -151,8 +152,8 @@ int main(int argc, char* argv[])
 	if (runType == "GroundState") gepOptions.samples = 1;
 
 	typedef std::complex<double> ComplexType;
-	typedef PsimagLite::Vector<ComplexType>::Type VectorType;
-	typedef Gep::QuantumCircuit<VectorType> PrimitivesType;
+    typedef Gep::QuasiVector<ComplexType> QuasiVectorType;
+	typedef Gep::QuantumCircuit<QuasiVectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 	Gep::ParametersEngine<double> params(gepOptions);
 	if (threads > 0) params.threads = threads;
