@@ -32,17 +32,14 @@ public:
     }
 
     template<typename SomeRngType>
-    void randomize(SomeRngType& rng, const ComplexOrRealType& a, const ComplexOrRealType& b)
+    void randomize(SizeType size,
+                   SomeRngType& rng,
+                   const ComplexOrRealType& a,
+                   const ComplexOrRealType& b)
     {
+        blowUp(size);
         needsExp("randomize");
         ProgramGlobals::randomVector(data_, rng, a, b);
-    }
-
-    void blowUp(SizeType size)
-    {
-        data_.resize(size);
-        isExp_ = true;
-        size_ = size;
     }
 
     void setTo(const ComplexOrRealType& val)
@@ -63,6 +60,7 @@ public:
 
     // PUBLIC CONST FUNCTIONS BELOW
 
+    // Use toVector() only for IsingGraph
     const VectorType& toVector() const
     {
         // cop out for now; remove later
@@ -90,11 +88,6 @@ public:
         ProgramGlobals::writeVector(os, data_);
     }
 
-    friend ComplexOrRealType operator*(const QuasiVector& a, const QuasiVector& b)
-    {
-        return a.toVector()*b.toVector();
-    }
-
     friend std::ostream& operator<<(std::ostream& os, const QuasiVector& qv)
     {
         qv.needsExp("operator<<");
@@ -118,8 +111,8 @@ public:
     }
 
     friend QuasiVector oneBitGate(const QuasiVector& src,
-                                     SizeType bit,
-                                     const PsimagLite::Matrix<ComplexOrRealType>& gate)
+                                  SizeType bit,
+                                  const PsimagLite::Matrix<ComplexOrRealType>& gate)
     {
         SizeType n = src.size();
         QuasiVector w(n);
@@ -163,18 +156,25 @@ public:
     // caching has been disabled here!
     template<typename SomeMatrixType>
     friend RealType tensorEnergy(const QuasiVector& v1,
-                           const SomeMatrixType& H,
-                           const QuasiVector& v2)
+                                 const SomeMatrixType& H,
+                                 const QuasiVector& v2)
     {
         assert(v1.size() == v2.size());
         assert(H.cols() == v2.size());
         assert(H.rows() == v1.size());
         VectorType tmpVector(v1.size());
         H.matrixVectorProduct(tmpVector, v2.toVector());
-         return PsimagLite::real(v1.toVector()*tmpVector);
+        return PsimagLite::real(v1.toVector()*tmpVector);
     }
 
 private:
+
+    void blowUp(SizeType size)
+    {
+        data_.resize(size);
+        isExp_ = true;
+        size_ = size;
+    }
 
     void needsExp(const std::string& info) const
     {
@@ -194,8 +194,8 @@ private:
     }
 
     static RealType diffVectorDiff2_(const VectorType& v1,
-                                    const VectorType& v2,
-                                    const VectorType& v3)
+                                     const VectorType& v2,
+                                     const VectorType& v3)
     {
         const SizeType n = v1.size();
         assert(n == v2.size());

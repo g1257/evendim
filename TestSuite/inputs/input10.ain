@@ -4,7 +4,7 @@
 HeadSize=4;
 #Seed=12345;
 Population=60;
-Generations=20;
+Generations=40;
 NumberOfBits=4;
 MinimizerTolerance=0.1;
 Primitives="Ry,P";

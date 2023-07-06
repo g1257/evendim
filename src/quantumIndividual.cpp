@@ -120,10 +120,9 @@ int main(int argc, char* argv[])
 	}
 
 	if (randomSize > 0) {
-		QuasiVectorType rVector(randomSize);
+		QuasiVectorType rVector;
 		PsimagLite::MersenneTwister rng(12345);
-        rVector.blowUp(randomSize);
-        rVector.randomize(rng, 1., 0.);
+        rVector.randomize(randomSize, rng, 1., 0.);
         rVector.print(std::cout);
 		return 0;
 	}

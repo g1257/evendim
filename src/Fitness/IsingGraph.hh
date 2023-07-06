@@ -80,21 +80,6 @@ public:
 
 private:
 
-	static void fillVector(VectorType& v, SizeType ind)
-	{
-		std::fill(v.begin(), v.end(), 0);
-		SizeType counter = 0;
-		while (ind != 0) {
-			if (ind & 1) {
-				assert(counter < v.size());
-				v[counter] = 1;
-			}
-
-			ind >>= 1;
-			++counter;
-		}
-	}
-
 	SizeType bits_;
 	RealType coupling_;
 	GraphType graph_;

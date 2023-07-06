@@ -56,8 +56,7 @@ public:
         numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
        PsimagLite::MersenneTwister rng(static_cast<int>(evolution_.rng()*1000));
         for (SizeType i = 0; i < samples; ++i) {
-            vecVec_[i].blowUp(inVector_.size());
-            vecVec_[i].randomize(rng, 2., -1.);
+            vecVec_[i].randomize(inVector_.size(), rng, 2., -1.);
         }
     }
 
