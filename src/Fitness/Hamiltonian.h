@@ -36,9 +36,8 @@ public:
 	      bits_(0),
 	      periodic_(false),
 	      isingGraph_(nullptr),
-	      needsTransformAndTruncate_(false),
-	      cacheVector_(numberOfThreads)
-	{
+	      needsTransformAndTruncate_(false)
+    {
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 
 		PsimagLite::String ham;
@@ -56,8 +55,6 @@ public:
 				    ttos(hilbert) + " expected or a Basis= line needed\n");
 
 			assert(isHermitian(matrix_, true));
-
-			allocateCacheVector(hilbert);
 
 			return;
 		}
@@ -129,8 +126,6 @@ public:
 			matrix_ = hamExpression.getMatrix();
 		}
 
-		assert(cacheVector_.size() > 0);
-		allocateCacheVector(matrix_.rows());
 		hamTipo = TypeEnum::EXPRESSION;
 		HamiltonianFromExpressionType::solveIt(matrix_);
 	}
@@ -144,14 +139,8 @@ public:
 			break;
 		}
 
-		default: {
-			assert(cacheVector_.size() > threadNum);
-			assert(cacheVector_[threadNum].size() == matrix_.rows());
-            cacheVector_[threadNum].setTo(0);
-
-			matrix_.matrixVectorProduct(cacheVector_[threadNum], y);
-
-			return PsimagLite::real(y*cacheVector_[threadNum]); // does conjugation of first vector
+        default: {
+            return tensorEnergy(y, matrix_, y);
 			break;
 		}
 
@@ -164,7 +153,7 @@ public:
 		const SizeType n = v.size();
 		PsimagLite::String buffer;
 		for (SizeType i = 0; i < n; ++i) {
-			if (std::norm(v[i]) > epsilon) buffer += ttos(i) + " ";
+            if (v.hasWeight(i, epsilon)) buffer += ttos(i) + " ";
 		}
 
 		return buffer;
@@ -182,7 +171,6 @@ private:
 	{
 		SizeType hilbertSpace = (1 << bits_);
 		matrix_.resize(hilbertSpace, hilbertSpace);
-		allocateCacheVector(hilbertSpace);
 
 		VectorRealType v(hilbertSpace);
 		VectorBoolType bcol(hilbertSpace);
@@ -311,12 +299,6 @@ private:
 		std::cout<<"-------- End eigenvector="<<sum<<"\n\n";
 	}
 
-	void allocateCacheVector(SizeType hilbertSpace)
-	{
-		for (SizeType thread = 0; thread < cacheVector_.size(); ++thread)
-			cacheVector_[thread].blowUp(hilbertSpace);
-	}
-
 	void transformAndTruncate(PsimagLite::Matrix<ComplexType>& mat)
 	{
 		SizeType n = mat.rows();
@@ -400,7 +382,6 @@ private:
 	SparseMatrixType matrix_;
 	VectorSizeType basis_;
 	bool needsTransformAndTruncate_;
-	mutable VectorQuasiVectorType cacheVector_;
 };
 }
 #endif // EVENDIM_HAMILTONIAN_H

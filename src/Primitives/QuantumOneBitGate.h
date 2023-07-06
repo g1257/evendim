@@ -3,6 +3,7 @@
 #include "AST/Node.h"
 #include "Matrix.h"
 #include "CustomQuantumGates.hh"
+#include "QuasiVector.hh"
 
 namespace Gep {
 
@@ -246,18 +247,7 @@ public:
 		const int n = vv.size();
 		assert(n == (1 << numberOfBits_));  // 2^N
 
-		ValueType w(n);
-
-        w.blowUp(n);
-		for (int i = 0; i < n; ++i) {
-			SizeType j = findBasisState(i);
-			SizeType bitI = getBitForIndex(i);
-			SizeType bitJ = getBitForIndex(j);
-			w[i] += gateMatrix_(bitI, bitI)*vv[i];
-			w[j] += gateMatrix_(bitI, bitJ)*vv[i];
-		}
-
-		return w;
+        return oneBitGate(vv, bitNumber_, gateMatrix_);
 	}
 
 	void setAngle(PsimagLite::String str) const
@@ -304,19 +294,6 @@ private:
 		SizeType ll = l - counter;
 		assert(ll > 0);
 		return str.substr(0, ll);
-	}
-
-	SizeType findBasisState(SizeType ind) const
-	{
-		const SizeType mask = (1 << bitNumber_);
-		return ind ^ mask;
-	}
-
-	SizeType getBitForIndex(SizeType ind) const
-	{
-		const SizeType mask = (1 << bitNumber_);
-		const SizeType result = ind & mask;
-		return (result > 0) ? 1 : 0;
 	}
 
 	bool hasAngles() const

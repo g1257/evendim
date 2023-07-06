@@ -41,7 +41,7 @@ public:
 	    : code_(cr),
 	      bitNumber1_(bitNumber1),
 	      bitNumber2_(bitNumber2),
-	      gateMatrix_(gateMatrix)
+	      gateMatrix_(gateMatrix)  // CNOT gate only has been implemented here
 	{
 		code_ += ttos(bitNumber1);
 		code_ += "_";
@@ -66,6 +66,7 @@ public:
 		return exec(v);
 	}
 
+    // CNOT gate only has been implemented here
 	virtual ValueType exec(const VectorValueType& v) const
 	{
 		assert(v.size() == 1);
@@ -73,40 +74,16 @@ public:
 		const ValueType& vv = v[0];
 		const int n = vv.size();
 		assert(n == (1 << numberOfBits_));  // 2^N
-
-		ValueType w(n);
-        w.blowUp(n);
-		const SizeType mask2 = (1 << bitNumber2_);
-		for (int i = 0; i < n; ++i) {
-			const SizeType oldContent1 = getBitForIndex(i, bitNumber1_);
-			assert(oldContent1 < 2);
-			const SizeType oldContent2 = getBitForIndex(i, bitNumber2_);
-			assert(oldContent2 < 2);
-			const SizeType content2 = (oldContent1 + oldContent2) % 2;
-			assert(content2 < 2);
-
-			const SizeType j = (content2 == oldContent2) ? i : (i ^ mask2);
-
-			w[j] += vv[i];
-		}
-
-		return w;
+        return CNOT(vv, bitNumber1_, bitNumber2_);
 	}
 
 private:
-
-	static SizeType getBitForIndex(SizeType ind, SizeType bitNumber)
-	{
-		const SizeType mask = (1 << bitNumber);
-		const SizeType result = ind & mask;
-		return (result > 0) ? 1 : 0;
-	}
 
 	static SizeType numberOfBits_;
 	PsimagLite::String code_;
 	SizeType bitNumber1_;
 	SizeType bitNumber2_;
-	MatrixType gateMatrix_;
+	MatrixType gateMatrix_;  // CNOT gate only has been implemented here
 }; // class QuantumTwoBitGate
 
 template<typename T>

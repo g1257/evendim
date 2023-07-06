@@ -32,10 +32,10 @@ public:
     }
 
     template<typename SomeRngType>
-    void randomize(SomeRngType& rng)
+    void randomize(SomeRngType& rng, const ComplexOrRealType& a, const ComplexOrRealType& b)
     {
         needsExp("randomize");
-        ProgramGlobals::randomVector(data_, rng);
+        ProgramGlobals::randomVector(data_, rng, a, b);
     }
 
     void blowUp(SizeType size)
@@ -51,27 +51,29 @@ public:
         std::fill(data_.begin(), data_.end(), val);
     }
 
-    ComplexOrRealType& operator[](SizeType ind)
+    void flipABit(const QuasiVector& src, SizeType bit)
     {
-        // needsExp obviously, but disabled for performance here
-        assert(ind < data_.size());
-        return data_[ind];
+        assert(size_ == src.size());
+        SizeType mask = (1 << bit);
+        for (SizeType i = 0; i < size_; ++i) {
+            SizeType j = i ^ mask;
+            data_[j] = src.data_[i];
+        }
     }
 
     // PUBLIC CONST FUNCTIONS BELOW
-
-    const ComplexOrRealType& operator[](SizeType ind) const
-    {
-        // needsExp obviously, but disabled for performance here
-        assert(ind < data_.size());
-        return data_[ind];
-    }
 
     const VectorType& toVector() const
     {
         // cop out for now; remove later
         needsExp("toVector");
         return data_;
+    }
+
+    bool hasWeight(SizeType ind, const RealType& epsilon) const
+    {
+        assert(ind < data_.size());
+        return (std::norm(data_[ind]) > epsilon);
     }
 
     SizeType size() const { return size_; }
@@ -103,11 +105,73 @@ public:
         return os;
     }
 
+    friend RealType vectorDiff2(const QuasiVector& v1, const QuasiVector& v2)
+    {
+        return vectorDiff2_(v1.toVector(), v2.toVector());
+    }
+
     friend RealType diffVectorDiff2(const QuasiVector& v1,
                                     const QuasiVector& v2,
                                     const QuasiVector& v3)
     {
         return diffVectorDiff2_(v1.toVector(), v2.toVector(), v3.toVector());
+    }
+
+    friend QuasiVector oneBitGate(const QuasiVector& src,
+                                     SizeType bit,
+                                     const PsimagLite::Matrix<ComplexOrRealType>& gate)
+    {
+        SizeType n = src.size();
+        QuasiVector w(n);
+
+        w.blowUp(n);
+        for (SizeType i = 0; i < n; ++i) {
+            SizeType j = findBasisState(i, bit);
+            SizeType bitI = getBitForIndex(i, bit);
+            SizeType bitJ = getBitForIndex(j, bit);
+            w.data_[i] += gate(bitI, bitI)*src.data_[i];
+            w.data_[j] += gate(bitI, bitJ)*src.data_[i];
+        }
+
+        return w;
+    }
+
+    friend QuasiVector CNOT(const QuasiVector& src, SizeType bit1, SizeType bit2)
+    {
+        const int n = src.size(); // 2^Nbits
+
+        QuasiVector w(n);
+        w.blowUp(n);
+        const SizeType mask2 = (1 << bit2);
+        for (int i = 0; i < n; ++i) {
+            const SizeType oldContent1 = getBitForIndex(i, bit1);
+            assert(oldContent1 < 2);
+            const SizeType oldContent2 = getBitForIndex(i, bit2);
+            assert(oldContent2 < 2);
+            const SizeType content2 = (oldContent1 + oldContent2) % 2;
+            assert(content2 < 2);
+
+            const SizeType j = (content2 == oldContent2) ? i : (i ^ mask2);
+
+            w.data_[j] += src.data_[i];
+        }
+
+        return w;
+    }
+
+    // <v1|H|v2>
+    // caching has been disabled here!
+    template<typename SomeMatrixType>
+    friend RealType tensorEnergy(const QuasiVector& v1,
+                           const SomeMatrixType& H,
+                           const QuasiVector& v2)
+    {
+        assert(v1.size() == v2.size());
+        assert(H.cols() == v2.size());
+        assert(H.rows() == v1.size());
+        VectorType tmpVector(v1.size());
+        H.matrixVectorProduct(tmpVector, v2.toVector());
+         return PsimagLite::real(v1.toVector()*tmpVector);
     }
 
 private:
@@ -118,7 +182,7 @@ private:
         err(info + " unimplemented or non-working unless exponential representation\n");
     }
 
-    static RealType vectorDiff2(const VectorType& v1, const VectorType& v2)
+    static RealType vectorDiff2_(const VectorType& v1, const VectorType& v2)
     {
         const SizeType n = v1.size();
         assert(n == v2.size());
@@ -146,6 +210,19 @@ private:
         }
 
         return sum/n;
+    }
+
+    static SizeType findBasisState(SizeType ind, SizeType bit)
+    {
+        const SizeType mask = (1 << bit);
+        return ind ^ mask;
+    }
+
+    static SizeType getBitForIndex(SizeType ind, SizeType bitNumber)
+    {
+        const SizeType mask = (1 << bitNumber);
+        const SizeType result = ind & mask;
+        return (result > 0) ? 1 : 0;
     }
 
     SizeType size_;

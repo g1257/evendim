@@ -51,9 +51,14 @@ public:
         inVector_((1 << evolution.primitives().numberOfBits())),
         outVector_(inVector_.size())
     {
+       // constexpr ComplexType two = 2;
+       // constexpr ComplexType minusOne = -1;
         numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
-        for (SizeType i = 0; i < samples; ++i)
-            fillRandomVector(i, inVector_.size());
+       PsimagLite::MersenneTwister rng(static_cast<int>(evolution_.rng()*1000));
+        for (SizeType i = 0; i < samples; ++i) {
+            vecVec_[i].blowUp(inVector_.size());
+            vecVec_[i].randomize(rng, 2., -1.);
+        }
     }
 
     SizeType size() const { return numberOfAngles_; }
@@ -195,20 +200,6 @@ public:
 
 private:
 
-    void fillRandomVector(SizeType jnd, SizeType n)
-    {
-        ComplexType sum = 0;
-        for (SizeType i = 0; i < n; ++i) {
-            ComplexType val = 2.0*evolution_.rng() - 1.0;
-            vecVec_[jnd][i] = val;
-            sum += val*PsimagLite::conj(val);
-        }
-
-        RealType factor = 1/sqrt(PsimagLite::real(sum));
-        for (SizeType i = 0; i < n; ++i)
-            vecVec_[jnd][i] *= factor;
-    }
-
     static SizeType findNumberOfAngles(const VectorStringType& vstr)
     {
         SizeType n = vstr.size();
@@ -256,43 +247,7 @@ private:
     // 1110 <--- 14 --> j
     static void flipABit(QuasiVectorType& dest, const QuasiVectorType& src, SizeType bit)
     {
-        const SizeType n = dest.size();
-        assert(n == src.size());
-        SizeType mask = (1 << bit);
-        for (SizeType i = 0; i < n; ++i) {
-            SizeType j = i ^ mask;
-            dest[j] = src[i];
-        }
-    }
-
-    static RealType vectorDiff2(const QuasiVectorType& v1, const QuasiVectorType& v2)
-    {
-        const SizeType n = v1.size();
-        assert(n == v2.size());
-        RealType sum = 0;
-        for (SizeType i = 0; i < n; ++i)
-            sum += std::abs(v2[i] - v1[i]);
-
-        return sum/n;
-    }
-
-    static RealType diffVectorDiff2(const QuasiVectorType& v1,
-                                    const QuasiVectorType& v2,
-                                    const QuasiVectorType& v3)
-    {
-        const SizeType n = v1.size();
-        assert(n == v2.size());
-        assert(n == v3.size());
-        RealType sum = 0;
-        for (SizeType i = 0; i < n; ++i) {
-            RealType denom = std::abs(v2[i] - v1[i]);
-            if (denom == 0) denom = 1;
-            const RealType re1 = PsimagLite::real(v2[i] - v1[i]);
-            const RealType im1 = PsimagLite::imag(v2[i] - v1[i]);
-            sum += (PsimagLite::real(v3[i])*re1 + PsimagLite::imag(v3[i])*im1)/denom;
-        }
-
-        return sum/n;
+        dest.flipABit(src, bit);
     }
 
     void computeDifferentialVector(QuasiVectorType& differential,

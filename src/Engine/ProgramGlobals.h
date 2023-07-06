@@ -6,16 +6,19 @@ namespace Gep {
 
 namespace ProgramGlobals {
 template<typename SomeType, typename SomeRngType>
-void randomVector(std::vector<SomeType>& outVector, SomeRngType& rng)
+void randomVector(std::vector<SomeType>& outVector,
+                  SomeRngType& rng,
+                  const SomeType& a,
+                  const SomeType& b)
 {
     typedef typename PsimagLite::Real<SomeType>::Type RealType;
 
     const SizeType n = outVector.size();
     RealType sum = 0;
     for (SizeType i = 0; i < n; ++i) {
-        SomeType value = rng();
-        outVector[i] = value;
-        sum += PsimagLite::real(PsimagLite::conj(value)*value);
+        SomeType val = a*rng() + b;
+        outVector[i] = val;
+        sum += PsimagLite::real(val*PsimagLite::conj(val));
     }
 
     assert(sum > 0);
