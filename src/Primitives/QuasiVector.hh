@@ -41,9 +41,7 @@ public:
 	}
 
 	template <typename SomeRngType>
-	void randomize(SizeType size, SomeRngType& rng,
-	    const ComplexOrRealType& a,
-	    const ComplexOrRealType& b)
+	void randomize(SizeType size, SomeRngType& rng, const ComplexOrRealType& a, const ComplexOrRealType& b)
 	{
 		blowUp(size);
 		needsExp("randomize");
@@ -117,13 +115,11 @@ public:
 	    const QuasiVector& v2,
 	    const QuasiVector& v3)
 	{
-		return diffVectorDiff2_(v1.toVector(), v2.toVector(),
-		    v3.toVector());
+		return diffVectorDiff2_(v1.toVector(), v2.toVector(), v3.toVector());
 	}
 
 	friend QuasiVector
-	oneBitGate(const QuasiVector& src, SizeType bit,
-	    const PsimagLite::Matrix<ComplexOrRealType>& gate)
+	oneBitGate(const QuasiVector& src, SizeType bit, const PsimagLite::Matrix<ComplexOrRealType>& gate)
 	{
 		SizeType n = src.size();
 		QuasiVector w(n);
@@ -140,8 +136,7 @@ public:
 		return w;
 	}
 
-	friend QuasiVector CNOT(const QuasiVector& src, SizeType bit1,
-	    SizeType bit2)
+	friend QuasiVector CNOT(const QuasiVector& src, SizeType bit1, SizeType bit2)
 	{
 		const int n = src.size(); // 2^Nbits
 

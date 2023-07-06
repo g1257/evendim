@@ -65,8 +65,7 @@ public:
 		SizeType index = indices_.at(name);
 		assert(index < symbolicMatrices_.size());
 		const PsimagLite::Matrix<PsimagLite::String>& symbolicMatrix = symbolicMatrices_[index];
-		evaluateSymbolicMatrix(matrix, symbolicMatrix, name,
-		    angle);
+		evaluateSymbolicMatrix(matrix, symbolicMatrix, name, angle);
 	}
 
 private:
@@ -74,7 +73,8 @@ private:
 	static void evaluateSymbolicMatrix(
 	    MatrixType& matrix,
 	    const PsimagLite::Matrix<PsimagLite::String>& symbolicMatrix,
-	    const std::string& name, double angle)
+	    const std::string& name,
+	    double angle)
 	{
 		SizeType nparams = getNumberOfParams(symbolicMatrix, name);
 		if (nparams != 1)
@@ -141,8 +141,7 @@ private:
 									"followed "
 									"by a digit.\n");
 				SizeType x = c - 48;
-				if (std::find(seen.begin(), seen.end(),
-					x)
+				if (std::find(seen.begin(), seen.end(), x)
 				    == seen.end())
 					seen.push_back(x);
 			}

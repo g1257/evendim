@@ -20,8 +20,7 @@ public:
 	    VectorStringType;
 	using LongUintType = long unsigned int;
 
-	Graph(PsimagLite::String graphFile, SizeType vertices = 0,
-	    bool periodic = false)
+	Graph(PsimagLite::String graphFile, SizeType vertices = 0, bool periodic = false)
 	    : graphFile_(graphFile)
 	    , vertices_(vertices)
 	    , isConnected_(false)
@@ -67,7 +66,8 @@ public:
 			VectorBoolType tmpVector(vertices - site1 - 1,
 			    false);
 			for (SizeType site2 = site1 + 1;
-			     site2 < vertices; ++site2) {
+			     site2 < vertices;
+			     ++site2) {
 				const SizeType j = site2 - site1 - 1;
 				const SizeType offset12 = offset1 + j;
 				const LongUintType mask = (1 << offset12);
@@ -137,8 +137,7 @@ private:
 		}
 	}
 
-	void neighborsToQaoa(LongUintType& state, SizeType& location,
-	    const VectorBoolType& v) const
+	void neighborsToQaoa(LongUintType& state, SizeType& location, const VectorBoolType& v) const
 	{
 		const SizeType n = v.size();
 		for (SizeType i = 0; i < n; ++i) {
@@ -237,8 +236,7 @@ private:
 		triangular_[site] = tmpVector;
 	}
 
-	void loadFromGraphQaoa(PsimagLite::String data, SizeType ind,
-	    PsimagLite::String str)
+	void loadFromGraphQaoa(PsimagLite::String data, SizeType ind, PsimagLite::String str)
 	{
 		vertices_ = readOrderGraphQaoa(str);
 		if (vertices_ < 2)
@@ -303,8 +301,7 @@ private:
 		SizeType location = 0;
 		for (SizeType vertex = 0; vertex < vertices_ - 1;
 		     ++vertex) {
-			neighborsToQaoa(state, location,
-			    triangular_[vertex]);
+			neighborsToQaoa(state, location, triangular_[vertex]);
 		}
 
 		return state;
@@ -340,7 +337,8 @@ private:
 	}
 
 	static SizeType readUntil(PsimagLite::String& buffer,
-	    SizeType ind, PsimagLite::String data,
+	    SizeType ind,
+	    PsimagLite::String data,
 	    unsigned char c)
 	{
 		buffer = "";

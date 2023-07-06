@@ -29,4 +29,8 @@ BraceWrapping:
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
 
+BinPackArguments: false
+BinPackParameters: false
+ExperimentalAutoDetectBinPacking: false
+AllowAllParametersOfDeclarationOnNextLine: false
 ---

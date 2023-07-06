@@ -20,8 +20,7 @@ public:
 	typedef
 	    typename PsimagLite::Vector<ComplexType>::Type VectorType;
 
-	IsingGraph(SizeType bits, RealType coupling, bool periodic,
-	    PsimagLite::String graphFile)
+	IsingGraph(SizeType bits, RealType coupling, bool periodic, PsimagLite::String graphFile)
 	    : bits_(bits)
 	    , coupling_(coupling)
 	    , graph_(graphFile, bits, periodic)
@@ -41,7 +40,8 @@ public:
 				SizeType maskSite = (1 << site);
 				SizeType j = i & maskSite;
 				for (SizeType site2 = site + 1;
-				     site2 < bits_; ++site2) {
+				     site2 < bits_;
+				     ++site2) {
 					if (!graph_.connected(site,
 						site2))
 						continue;
