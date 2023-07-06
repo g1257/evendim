@@ -48,12 +48,6 @@ public:
 		ProgramGlobals::randomVector(data_, rng, a, b);
 	}
 
-	void setTo(const ComplexOrRealType& val)
-	{
-		needsExp("setTo");
-		std::fill(data_.begin(), data_.end(), val);
-	}
-
 	void flipABit(const QuasiVector& src, SizeType bit)
 	{
 		assert(size_ == src.size());
