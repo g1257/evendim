@@ -1,24 +1,30 @@
 #ifndef GRAPH_HH
 #define GRAPH_HH
-#include "PsimagLite.h"
+#include "BitManip.h"
 #include "InputCheck.h"
 #include "InputNg.h"
-#include "BitManip.h"
+#include "PsimagLite.h"
 
-namespace Gep {
+namespace Gep
+{
 
-class Graph {
+class Graph
+{
 
 public:
 
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 	using VectorBoolType = PsimagLite::Vector<bool>::Type;
-	using VectorVectorBoolType =  PsimagLite::Vector<VectorBoolType>::Type;
-	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
+	using VectorVectorBoolType = PsimagLite::Vector<VectorBoolType>::Type;
+	typedef PsimagLite::Vector<PsimagLite::String>::Type
+	    VectorStringType;
 	using LongUintType = long unsigned int;
 
-	Graph(PsimagLite::String graphFile, SizeType vertices = 0, bool periodic = false)
-	    : graphFile_(graphFile), vertices_(vertices), isConnected_(false)
+	Graph(PsimagLite::String graphFile, SizeType vertices = 0,
+	    bool periodic = false)
+	    : graphFile_(graphFile)
+	    , vertices_(vertices)
+	    , isConnected_(false)
 	{
 		if (graphFile_ == "zz") {
 			createChain(periodic);
@@ -29,10 +35,12 @@ public:
 		if (!fromFile)
 			err("Unknown named graph " + graphFile + "\n");
 
-		graphFile_ = graphFile_.substr(5, graphFile_.length() - filePrefix().length());
+		graphFile_ = graphFile_.substr(
+		    5, graphFile_.length() - filePrefix().length());
 
 		PsimagLite::String data;
-		PsimagLite::InputNg<InputCheck>::Writeable::readFile(data, graphFile_);
+		PsimagLite::InputNg<InputCheck>::Writeable::readFile(
+		    data, graphFile_);
 
 		data = discardComments(data, '#');
 		stripLeadingChars(data);
@@ -43,20 +51,26 @@ public:
 	}
 
 	Graph(LongUintType state, SizeType vertices)
-	    : vertices_(vertices), isConnected_(false)
+	    : vertices_(vertices)
+	    , isConnected_(false)
 	{
 		if (vertices < 2)
-			err("Graph::ctor(): cannot construct Graph with less than two vertices\n");
+			err("Graph::ctor(): cannot construct Graph "
+			    "with less "
+			    "than two vertices\n");
 
 		triangular_.resize(vertices_ - 1);
-		const SizeType pyramid = ((vertices_ - 1)*vertices_)/2;
-		for (SizeType site1 = 0; site1 < vertices - 1; ++site1) {
+		const SizeType pyramid = ((vertices_ - 1) * vertices_) / 2;
+		for (SizeType site1 = 0; site1 < vertices - 1;
+		     ++site1) {
 			SizeType offset1 = findOffset(site1, pyramid);
-			VectorBoolType tmpVector(vertices - site1 - 1, false);
-			for (SizeType site2 = site1 + 1 ; site2 < vertices; ++site2) {
+			VectorBoolType tmpVector(vertices - site1 - 1,
+			    false);
+			for (SizeType site2 = site1 + 1;
+			     site2 < vertices; ++site2) {
 				const SizeType j = site2 - site1 - 1;
 				const SizeType offset12 = offset1 + j;
-				const LongUintType mask = (1<<offset12);
+				const LongUintType mask = (1 << offset12);
 				tmpVector[j] = (state & mask) ? 1 : 0;
 			}
 
@@ -66,22 +80,17 @@ public:
 		isConnected_ = isConnectedRunOnce(state);
 	}
 
-	static PsimagLite::String filePrefix()
-	{
-		return "file:";
-	}
+	static PsimagLite::String filePrefix() { return "file:"; }
 
-	SizeType vertices() const
-	{
-		return vertices_;
-	}
+	SizeType vertices() const { return vertices_; }
 
 	bool isConnected() const { return isConnected_; }
 
 	bool connected(SizeType site1, SizeType site2) const
 	{
 		assert(site1 < vertices_ && site2 < vertices_);
-		if (site1 == site2) return false;
+		if (site1 == site2)
+			return false;
 
 		const SizeType minSite = (site1 < site2) ? site1 : site2;
 		const SizeType maxSite = (site1 < site2) ? site2 : site1;
@@ -93,15 +102,18 @@ public:
 		return triangular_[minSite][diff - 1];
 	}
 
-	friend std::ostream& operator<<(std::ostream& os, const Graph& graph)
+	friend std::ostream& operator<<(std::ostream& os,
+	    const Graph& graph)
 	{
 		const SizeType n = graph.vertices();
-		if (n < 2) err("Cannot print a graph with less than two vertices\n");
+		if (n < 2)
+			err("Cannot print a graph with less than two "
+			    "vertices\n");
 
 		for (SizeType i = 0; i < n - 1; ++i) {
 			PsimagLite::String str;
 			graph.qaoaForVertex(str, i);
-			os<<str<<"\n";
+			os << str << "\n";
 		}
 
 		return os;
@@ -109,14 +121,15 @@ public:
 
 private:
 
-	void qaoaForVertex(PsimagLite::String& str, SizeType vertex) const
+	void qaoaForVertex(PsimagLite::String& str,
+	    SizeType vertex) const
 	{
 		assert(vertex < triangular_.size());
 		neighborsToQaoa(str, triangular_[vertex]);
 	}
 
 	void neighborsToQaoa(PsimagLite::String& str,
-	                     const VectorBoolType& v) const
+	    const VectorBoolType& v) const
 	{
 		for (SizeType i = 0; i < v.size(); ++i) {
 			const unsigned char c = (v[i]) ? '1' : '0';
@@ -124,9 +137,8 @@ private:
 		}
 	}
 
-	void neighborsToQaoa(LongUintType& state,
-	                     SizeType& location,
-	                     const VectorBoolType& v) const
+	void neighborsToQaoa(LongUintType& state, SizeType& location,
+	    const VectorBoolType& v) const
 	{
 		const SizeType n = v.size();
 		for (SizeType i = 0; i < n; ++i) {
@@ -135,7 +147,7 @@ private:
 				continue;
 			}
 
-			const LongUintType mask = (1<<location);
+			const LongUintType mask = (1 << location);
 			state |= mask;
 			checkLocation(location);
 			++location;
@@ -145,7 +157,8 @@ private:
 	void createChain(bool periodic)
 	{
 		assert(vertices_ > 1);
-		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
+		for (SizeType vertex = 0; vertex < vertices_ - 1;
+		     ++vertex) {
 			VectorBoolType v(vertices_ - vertex - 1, false);
 			v[0] = true;
 			if (periodic && vertex == 0 && v.size() >= 2) {
@@ -180,8 +193,7 @@ private:
 
 		SizeType vertices = PsimagLite::atoi(str);
 		if (vertices_ > 0 && vertices_ != vertices)
-			err("Expected " + ttos(vertices_) + " in " + graphFile_ +
-			    ", but got " + str + " instead.\n");
+			err("Expected " + ttos(vertices_) + " in " + graphFile_ + ", but got " + str + " instead.\n");
 
 		vertices_ = vertices;
 
@@ -192,8 +204,7 @@ private:
 
 			assert(count > 0);
 			if (str.size() != count)
-				err("Expected " + ttos(count) + " numbers for site " +
-				    ttos(site) + ", not " + ttos(str.size()) + "\n");
+				err("Expected " + ttos(count) + " numbers for site " + ttos(site) + ", not " + ttos(str.size()) + "\n");
 
 			addToNeighbors(site, str);
 			--count;
@@ -201,7 +212,8 @@ private:
 		}
 	}
 
-	void addToNeighbors(const SizeType site, PsimagLite::String neighs)
+	void addToNeighbors(const SizeType site,
+	    PsimagLite::String neighs)
 	{
 		assert(site + 1 < vertices_);
 		assert(neighs.size() == vertices_ - site - 1);
@@ -210,7 +222,9 @@ private:
 			const SizeType j = i - site - 1;
 			const unsigned char c = neighs[j];
 			if (c != '0' && c != '1')
-				err("addToNeighbors: adjancency matrix found " + neighs + " not 0 or 1\n");
+				err("addToNeighbors: adjancency matrix "
+				    "found "
+				    + neighs + " not 0 or 1\n");
 
 			assert(j < tmpVector.size());
 			tmpVector[j] = (c == '0') ? false : true;
@@ -223,10 +237,13 @@ private:
 		triangular_[site] = tmpVector;
 	}
 
-	void loadFromGraphQaoa(PsimagLite::String data, SizeType ind, PsimagLite::String str)
+	void loadFromGraphQaoa(PsimagLite::String data, SizeType ind,
+	    PsimagLite::String str)
 	{
 		vertices_ = readOrderGraphQaoa(str);
-		if (vertices_ < 2) err("loadFromGraphQaoa: Only one vertex found!?\n");
+		if (vertices_ < 2)
+			err("loadFromGraphQaoa: Only one vertex "
+			    "found!?\n");
 
 		for (SizeType i = 0; i < vertices_ - 1; ++i) {
 			ind = readUntil(str, ind, data, '\n');
@@ -237,15 +254,16 @@ private:
 	SizeType findOffset(SizeType site1, SizeType pyramid)
 	{
 		const SizeType tmp1 = vertices_ - site1 - 1;
-		const SizeType tmp2 = tmp1*(tmp1 + 1);
-		const SizeType tmp3 = tmp2/2;
+		const SizeType tmp2 = tmp1 * (tmp1 + 1);
+		const SizeType tmp3 = tmp2 / 2;
 		assert(pyramid >= tmp3);
 		return pyramid - tmp3;
 	}
 
 	bool isConnectedRunOnce(LongUintType state) const
 	{
-		if (PsimagLite::BitManip::countKernighan(state) + 1 < vertices_) return false;
+		if (PsimagLite::BitManip::countKernighan(state) + 1 < vertices_)
+			return false;
 		VectorBoolType visited(vertices_, false);
 		visitVertex(visited, 0);
 
@@ -255,12 +273,16 @@ private:
 	void visitVertex(VectorBoolType& visited, SizeType vertex) const
 	{
 		assert(vertex < visited.size());
-		if (visited[vertex]) return;
+		if (visited[vertex])
+			return;
 		visited[vertex] = true;
-		if (vertex + 1 == vertices_) return;
+		if (vertex + 1 == vertices_)
+			return;
 		assert(vertex < triangular_.size());
-		for (SizeType i = 0; i < triangular_[vertex].size(); ++i) {
-			if (!triangular_[vertex][i]) continue;
+		for (SizeType i = 0; i < triangular_[vertex].size();
+		     ++i) {
+			if (!triangular_[vertex][i])
+				continue;
 			const SizeType vertex2 = vertex + i + 1;
 			visitVertex(visited, vertex2);
 		}
@@ -269,7 +291,8 @@ private:
 	static bool allAreTrue(const VectorBoolType& v)
 	{
 		for (SizeType i = 0; i < v.size(); ++i)
-			if (!v[i]) return false;
+			if (!v[i])
+				return false;
 
 		return true;
 	}
@@ -278,8 +301,10 @@ private:
 	{
 		LongUintType state = 0;
 		SizeType location = 0;
-		for (SizeType vertex = 0; vertex < vertices_ - 1; ++vertex) {
-			neighborsToQaoa(state, location, triangular_[vertex]);
+		for (SizeType vertex = 0; vertex < vertices_ - 1;
+		     ++vertex) {
+			neighborsToQaoa(state, location,
+			    triangular_[vertex]);
 		}
 
 		return state;
@@ -287,7 +312,7 @@ private:
 
 	void checkLocation(SizeType location) const
 	{
-		assert(location < ((vertices_ - 1)*vertices_)/2);
+		assert(location < ((vertices_ - 1) * vertices_) / 2);
 	}
 
 	static SizeType readOrderGraphQaoa(PsimagLite::String str)
@@ -297,8 +322,10 @@ private:
 		SizeType ind = total;
 		for (SizeType pos = 0; pos < total; ++pos) {
 			ind = total - pos - 1;
-			if (str[ind] == '.') continue;
-			if (!std::isdigit(str[ind])) break;
+			if (str[ind] == '.')
+				continue;
+			if (!std::isdigit(str[ind]))
+				break;
 			buffer += str[ind];
 		}
 
@@ -312,11 +339,9 @@ private:
 		return PsimagLite::atoi(str);
 	}
 
-
 	static SizeType readUntil(PsimagLite::String& buffer,
-	                          SizeType ind,
-	                          PsimagLite::String data,
-	                          unsigned char c)
+	    SizeType ind, PsimagLite::String data,
+	    unsigned char c)
 	{
 		buffer = "";
 
@@ -324,23 +349,28 @@ private:
 		SizeType pos = ind;
 		for (; pos < total; ++pos) {
 			unsigned char c2 = data[pos];
-			if (c2 == c) break;
-			if (c2 == '\n') c2 = ' ';
+			if (c2 == c)
+				break;
+			if (c2 == '\n')
+				c2 = ' ';
 			buffer += c2;
 		}
 
-		while (data[++pos] == c) {}
+		while (data[++pos] == c) {
+		}
 		return pos;
 	}
 
-	static PsimagLite::String discardComments(PsimagLite::String data, unsigned char c)
+	static PsimagLite::String
+	discardComments(PsimagLite::String data, unsigned char c)
 	{
 		PsimagLite::String newData;
 		SizeType ind = 0;
 		while (ind < data.size()) {
 			PsimagLite::String buffer;
 			ind = readUntil(buffer, ind, data, '\n');
-			if (buffer.size() > 0 && buffer[0] == c) continue;
+			if (buffer.size() > 0 && buffer[0] == c)
+				continue;
 			newData += buffer + "\n";
 		}
 
@@ -352,7 +382,8 @@ private:
 		const SizeType total = data.size();
 		SizeType pos = 0;
 		for (; pos < total; ++pos) {
-			if (!isBlankChar(data[pos])) break;
+			if (!isBlankChar(data[pos]))
+				break;
 		}
 
 		data = data.substr(pos, total - pos);
@@ -364,7 +395,8 @@ private:
 		SizeType ind = total;
 		for (SizeType pos = 0; pos < total; ++pos) {
 			ind = total - pos - 1;
-			if (!isBlankChar(data[ind])) break;
+			if (!isBlankChar(data[ind]))
+				break;
 		}
 
 		data = data.substr(0, ind + 2);
@@ -373,7 +405,8 @@ private:
 
 	static bool isTheEnd(SizeType ind, PsimagLite::String data)
 	{
-		if (ind >= data.size()) return true;
+		if (ind >= data.size())
+			return true;
 		return (ind + 1 == data.size() && data[ind] == '\n');
 	}
 
@@ -382,7 +415,8 @@ private:
 		const SizeType total = str.size();
 		PsimagLite::String buffer;
 		for (SizeType pos = 0; pos < total; ++pos) {
-			if (isBlankChar(str[pos])) continue;
+			if (isBlankChar(str[pos]))
+				continue;
 			buffer += str[pos];
 		}
 
@@ -399,5 +433,5 @@ private:
 	bool isConnected_;
 	VectorVectorBoolType triangular_;
 };
-}
+} // namespace Gep
 #endif // GRAPH_HH

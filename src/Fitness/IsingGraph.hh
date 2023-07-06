@@ -1,26 +1,30 @@
 #ifndef ISINGGRAPH_HH
 #define ISINGGRAPH_HH
-#include "Vector.h"
-#include "Graph.hh"
-#include "CrsMatrix.h"
 #include "../Engine/ProgramGlobals.h"
+#include "CrsMatrix.h"
+#include "Graph.hh"
+#include "Vector.h"
 
-namespace Gep {
+namespace Gep
+{
 
-template<typename ComplexType>
-class IsingGraph {
+template <typename ComplexType>
+class IsingGraph
+{
 
 public:
 
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef Graph GraphType;
 	typedef PsimagLite::CrsMatrix<ComplexType> SparseMatrixType;
-	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef
+	    typename PsimagLite::Vector<ComplexType>::Type VectorType;
 
-	IsingGraph(SizeType bits, RealType coupling, bool periodic, PsimagLite::String graphFile)
-	    : bits_(bits),
-	      coupling_(coupling),
-	      graph_(graphFile, bits, periodic)
+	IsingGraph(SizeType bits, RealType coupling, bool periodic,
+	    PsimagLite::String graphFile)
+	    : bits_(bits)
+	    , coupling_(coupling)
+	    , graph_(graphFile, bits, periodic)
 	{
 		if (graph_.vertices() != bits)
 			err("Graph vertices != bits\n");
@@ -32,23 +36,28 @@ public:
 		RealType e = 0;
 		assert(bits_ > 1);
 		for (SizeType i = 0; i < hilbertSpace; ++i) {
-			for (SizeType site = 0; site < bits_ - 1; ++site) {
+			for (SizeType site = 0; site < bits_ - 1;
+			     ++site) {
 				SizeType maskSite = (1 << site);
 				SizeType j = i & maskSite;
-				for (SizeType site2 = site + 1; site2 < bits_; ++site2) {
-					if (!graph_.connected(site, site2)) continue;
+				for (SizeType site2 = site + 1;
+				     site2 < bits_; ++site2) {
+					if (!graph_.connected(site,
+						site2))
+						continue;
 					SizeType maskSite2 = (1 << site2);
 					SizeType k = i & maskSite2;
 					SizeType jj = (j > 0);
 					SizeType kk = (k > 0);
-					RealType tmp = PsimagLite::real(PsimagLite::conj(v[i])*v[i]);
+					RealType tmp = PsimagLite::real(
+					    PsimagLite::conj(v[i]) * v[i]);
 					RealType value = (jj == kk) ? tmp : -tmp;
 					e += value;
 				}
 			}
 		}
 
-		return e*coupling_;
+		return e * coupling_;
 	}
 
 	// Use only to obtain the exact solution
@@ -70,12 +79,12 @@ public:
 			v[i] = 0;
 		}
 
-		std::cout<<"IsingGraph::emin="<<emin<<"\n";
+		std::cout << "IsingGraph::emin=" << emin << "\n";
 		for (SizeType i = 0; i < ind.size(); ++i) {
-			std::cout<<ind[i]<<" ";
+			std::cout << ind[i] << " ";
 		}
 
-		std::cout<<"\n";
+		std::cout << "\n";
 	}
 
 private:
@@ -84,5 +93,5 @@ private:
 	RealType coupling_;
 	GraphType graph_;
 };
-}
+} // namespace Gep
 #endif // ISINGGRAPH_HH
