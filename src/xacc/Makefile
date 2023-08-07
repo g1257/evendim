@@ -10,3 +10,11 @@ QuantumGEPXacc.o: QuantumGEPXacc.cpp
 
 QuantumGEPXacc: QuantumGEPXacc.o
 	$(CXX) $(LDFLAGS) -o QuantumGEPXacc QuantumGEPXacc.o
+
+QuantumGEP_Plugin.o: QuantumGEP_Plugin.cpp
+	$(CXX) $(CPPFLAGS) -fPIC -o QuantumGEP_Plugin.o QuantumGEP_Plugin.cpp
+
+libQuantumGEP.so: QuantumGEP_Plugin.o
+	$(CXX) -shared -o libQuantumGEP.so QuantumGEP_Plugin.o
+clean:
+	rm -f *.o QuantumGEPXacc *so
