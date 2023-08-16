@@ -1,0 +1,71 @@
+# Reinforcement Learning
+
+## Concepts
+
+### State
+Each circuit represents the RL state. Circuit is equivalent to string in our representation.
+
+### Action
+Each action makes a change to a circuit.
+Each action belong to a action space.
+A : Circuit ---> Circuit
+
+We need to define an action space. 
+Action Space = {as we have it now in GEP except for crossovers}
+
+Next state is the result of applying an action to a circuit.
+
+### Observe
+TBW
+
+### Reward
+
+C' = Action(C) <--- C' next state
+
+Reward = Fitness(C') - Fitness(C)
+
+```
+-<v_0 | C H C |v_0> == Fitness(C)
+```
+
+### The Agent Neural Network
+
+Define a neural network initialized with random weights.
+
+### Episode
+Fixed length of actions.
+
+
+## Main Algorithm
+
+```code
+for (i = 0; i < number_of_episodes; ++i) {
+	for (j = 0l < j < length_of_one_episod; ++j) {
+		choose an action = functionOf(agent, C); <--- HERE DETAIL
+		    (the action chosen here sometimes could be random,
+		     in particular in the beginning)
+		C' = action(C); # Do not consider crossover
+		C = C';
+		reward = Fitness(C') - Fitness(C);
+		update the "agent" neural network by using the reward <--- HERE DETAIL
+	}
+
+	see how agent is doing based on the final state episodes i; <---- HERE DETAIL
+	print C and Fitness(C);
+}
+```
+
+## Links
+
+[1] https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+
+[2] https://www.nature.com/articles/nature14236
+DQN : Deep Q-Learning Network
+
+
+## TO-DO
+
+### Find a C++ library that implements the agent and its changes
+
+### Implement a Proof of Concept for a simple problem
+
