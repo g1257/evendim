@@ -1,0 +1,249 @@
+\documentclass{article}
+\usepackage{gonza}
+
+\begin{document}
+
+\title{Implementing RL in EVENDIM}
+\author{G.A. et al.}
+\maketitle
+
+\section{Introduction}
+AIToolbox will be used as a backend for Evendim's implementation of MDP RL.
+AIToolbox is  a library that offers tools for AI problem solving; see \nolinkurl{https://github.com/Svalorzen/AI-Toolbox}
+	
+\section{Markov Decision Process}
+
+\subsection{States}
+A Markov Decision Process, or MDP in short, is a way to model a decision making process. Here we will focus on single agent decision making processes.
+All starts from the environment. The environment is the setting of our decision making process. The environment changes over iterations (timesteps); 
+at each timestep the environment is in one, single, unique state. At each timestep the environment transitions from one state $s$ to another $s'$.
+
+States need to be Markovian: a state must encode all the information necessary for the decision making process, 
+without leaving anything aside. 
+More precisely, the decision process must not need to look at the past. 
+All information contained in the past history of the environment must be readily available from the current state. 
+For example, time-dependent contingencies are not allowed. 
+If a problem contains them, then timer-like counters must be embedded in the state for the modeling to work, 
+so that a state always contain all the information needed and the past is not relevant for decisions.
+
+\subsection{Transitions}
+The way the environment transitions from a state to another is not necessarily deterministic. 
+From a particular state, the environment can transition to any other state following a certain probability distribution (which \emph{can} be deterministic).
+Our goal within the decision making process is to influence the way the environment transitions between states. In some sense, we prefer some states more than others, and thus we would like the environment to be in some state rather than another. We will encode that preference using rewards.
+
+\subsection{Actions}
+The agent is the entity that is taking the decisions. It is not necessarily corporeal, nor does it actually have to be inside the environment; most times it can be useful to visualize it in such terms though (a unit moving through an environment, for example).
+The agent interacts with the environment through actions. An action modifies the way in which the environment transitions from a state to another. Thus, at each timestep, the agent needs to select the action which will maximize its obtained reward.
+
+\subsection{Reward and Discount}
+An agent interacts with the environment using a policy. The policy is what tells the agent what actions to take in each state. A policy can be deterministic or stochastic.
+The agent is able to interact with the environment during a certain amount of timesteps. This is called the horizon. The horizon can be either finite, meaning that the agent will stop receiving rewards after a certain number of timesteps, and thus should think only for those, or infinite. In this last case the agent will keep interacting with the environment forever, and should thus plan accordingly.
+
+The last thing we need to define is the discount. The agent tries to maximize the sum of all rewards obtained over time. The discount is a number between 0 and 1, which determines how much rewards obtained in future timesteps affect the agent's decisions, in a geometric progression, so that we try to maximize $\sum_{t=0}^{T} \gamma^t r_t.$ A discount of 0 will make the agent greedy as all terms but for the first one become zero. 
+The agent will then take actions that maximize the reward obtained in the next timestep, and nothing else. 
+A discount of 1 will make the agent lazy, as a reward obtained new will be ``worth'' the same as a reward obtained in the future,
+so it will delay reward-obtaining actions possibly indefinitely.
+
+Armed with our new vocabulary, we can now define an MDP more formally. An MDP is a tuple $\langle S, A, T, R, d\rangle,$ where:
+$S$ is a set of states. This is basically a list of all possible states the environment can ever be in.
+$A$ is a set of actions. This is a list of all the actions that an agent can take. Normally, in an MDP setting, we assume that the agent can select any actions all the time; as in, there are no states where some action is blocked.
+$T$ is a transition function. This describes the way that the environment is allowed to evolve; in other words, the dynamics of the environment. 
+It specifies for any triplet $\langle s, a, s'\rangle$ the probability that the environment will transition from $s$ to $s',$ if the agent selects action $a.$
+
+$R$ is a reward function. Its shape is the same as $T$, and it contains the arbitrary rewards (positive or negative) 
+that the agent will obtain depending on how the environment transitions. 
+The reward function specifies for any triple $\langle s, a, s'\rangle$ the reward that the agent will obtain.
+$d$ is the discount factor, which we discussed above.
+
+\subsection{Example from AIToolbox}
+See \verb!examples/tiger_antelope.cpp!
+
+\subsection{Application to QuantumGEP}
+
+\subsubsection{State}
+Each circuit represents the RL state. Circuit is equivalent to string in our representation.
+
+\subsubsection{Action}
+Each action makes a change to a circuit.
+Each action belong to a action space.
+
+\verb!A : Circuit ---> Circuit!
+
+We need to define an action space. 
+\[
+\mathbf{A} = \{\textrm{as we have it now in GEP except for crossovers}\}
+\]
+
+Next state is the result of applying an action to a circuit.
+
+\subsubsection{Reward}
+
+\begin{small}
+\begin{verbatim}
+C' = Action(C) <--- C' next state
+
+Reward = Fitness(C') - Fitness(C)
+
+-<v_0 | C H C |v_0> == Fitness(C)
+\end{verbatim}
+\end{small}
+
+
+\section{Reinforcement Learning}
+RL needs the knowledge from MDP, which is given above.
+
+While exact definitions vary depending on who is asked, here we consider reinforcement learning to be the process of learning a policy by interaction with an environment, without having previous information about its dynamics.
+
+In particular, the policy we want to learn is the one that maximizes the reward the agent obtains from the environment.
+An additional constraint that we want to impose is that we learn while trying to maximize the reward we obtain during the learning process. 
+Thus, the exploration done by the agent is indirectly encouraged to quickly figure out promising actions to perform,
+rather than trying to understand the problem fully, which would require much more time.
+
+While there are many possible approaches to RL,  we focus 
+a model-free learning algorithm, Q-Learning, where the agent directly learns a value function to direct its actions.
+(There is another approach that is also discussed by AIToolbox: model-based learning algorithm, Prioritized Sweeping, where the agent tries to learn a model 
+of the environment and use it to plan its next steps.)
+
+In Q-Learning, we don't try to learn the dynamics of the environment, and we only focus on what the agent is doing.
+Some methods use the data to directly modify the policy; in this tutorial instead we use the data to update a value-function, 
+which is then used to inform the agent's policy.
+
+We do not discuss Prioritized Sweeping in this document.
+
+\subsection{Q-Learning}
+
+\subsection{Q-Learning}
+For our model-free method, we are going to use \verb!AIToolbox::MDP::QLearning!, which is a staple of modern RL,
+ for its flexibility, simplicity and power.
+
+QLearning uses the data we obtain from interacting with the environment in order to update a \verb!QFunction:! 
+a mapping between a state-action pair and a numerical value.
+These values represent how good we think taking a given action in a given state is: higher values are better.
+
+From this \verb!QFunction! we can then create a policy: in particular, we are going to use a MDP::QGreedyPolicy. 
+This policy selects the action with the highest value in a certain state: it acts greedily with respect to the QFunction.
+To be revised.
+
+While always selecting the best action seems like a good idea, we need to remember that here we are learning: at first,
+the agent has no idea of what actions actually do!
+
+So we combine this greedy policy with an AIToolbox::MDP::EpsilonPolicy, which sometimes selects random actions to help the agent
+try out new things to see if they work.
+\begin{small}
+	\begin{verbatim}
+// We create the QLearning method. It only needs to know the size of the
+// state and action space, and the discount of the problem 
+// (to correctly update values).
+QLearning qlLearner(problem.getS(), problem.getA(), problem.getDiscount());
+
+// We get a reference to the QFunction that QLearning is updating, and use
+// it to construct a greedy policy.
+QGreedyPolicy gPolicy(qlLearner.getQFunction());
+
+// The greedy policy is then augmented with some randomness, to help the
+// agent explore. In this case, we are going to take random actions with
+// probability 0.1 (10%). In the other cases, we will ask the greedy policy
+// what to do, and return that.
+EpsilonPolicy ePolicy(gPolicy, 0.1);
+\end{verbatim}
+\end{small}
+Now, we need to write some code which will actually make the agent go around the world and try out things. 
+Differently from the planning tutorial, where the problem would be solved in a single line of code, here we actually
+ have to write a loop to simulate the agents going around and observing the results of its actions.
+
+These observations will be passed to QLearning, which will automatically update its QFunction, and by extension the policies 
+(since the policies keep a reference to the original QFunction, they don't have separate copies).
+
+\begin{tiny}
+\begin{verbatim}
+// Initial starting point, the bottom left corner.
+size_t start = problem.getS() - 2;
+
+size_t s, a;
+// We perform 10000 episodes, which should be enough to learn this problem.
+// At the start of each episode, we reset the position of the agent. Note
+// that this reset is for the episode; if during the episode the agent falls
+// into the cliff it will also be reset.
+for ( int episode = 0; episode < 10000; ++episode ) {
+	s = start;
+	// We limit the length of the episode to 10000 timesteps, to prevent the
+	// agent roaming around indefinitely.
+	for ( int i = 0; i < 10000; ++i ) {
+		// Obtain an action for this state (10% random, 90% what we think is
+		// best to do given the current QFunction).
+		a = ePolicy.sampleAction( s );
+		
+		// Sample a new state and reward from the problem
+		const auto [s1, rew] = problem.sampleSR( s, a );
+		
+		// Pass the newly collected data to QLearning, to update the
+		// QFunction and improve the agent's policies.
+		qlLearner.stepUpdateQ( s, a, s1, rew );
+		
+		// If we reach the goal, the episode ends
+		if ( s1 == problem.getS() - 1 ) break;
+		
+		s = s1;
+	}
+}
+\end{verbatim}
+\end{tiny}
+Once we are done, the agent is ready to act optimally. 
+The only difference is that now we would draw the actions directly from the greedy policy, rather than from the epsilon policy, to avoid taking random actions:
+
+\begin{verbatim}
+// Take greedy actions directly, skipping ePolicy
+a = gPolicy.sampleAction( s );
+\end{verbatim}
+
+\subsection{Example from AIToolbox}
+An example can be found in the \verb!examples/MDP/cliff.cpp! file, including comments and additional nodes.
+
+\subsection{Application to QuantumGEP}
+
+Define the environment.
+
+See states, actions, and reward in MDP section.
+
+
+\subsubsection{The Agent Neural Network}
+
+Define a neural network initialized with random weights.
+
+\subsubsection{Episode}
+Fixed length of actions.
+
+\subsubsection{Main Algorithm}
+
+\begin{small}
+\begin{verbatim}
+for (i = 0; i < number_of_episodes; ++i) {
+	for (j = 0l < j < length_of_one_episod; ++j) {
+		choose an action = functionOf(agent, C); <--- HERE DETAIL
+		(the action chosen here sometimes could be random,
+		in particular in the beginning)
+		C' = action(C); # Do not consider crossover
+		C = C';
+		reward = Fitness(C') - Fitness(C);
+		update the "agent" neural network by using the reward <--- HERE DETAIL
+	}
+	
+	see how agent is doing based on the final state episodes i; <---- HERE DETAIL
+	print C and Fitness(C);
+}
+\end{verbatim}\end{small}
+
+\section{References}
+
+\begin{enumerate}
+
+\item \nolinkurl{https://github.com/Svalorzen/AI-Toolbox}
+\item I do not use pytorch, but I keep the reference \nolinkurl{https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html}
+
+\item DQN : Deep Q-Learning Network \nolinkurl{https://www.nature.com/articles/nature14236}
+\end{enumerate}
+\end{document}
+
+
+￼￼
+￼
