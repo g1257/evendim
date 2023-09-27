@@ -10,7 +10,8 @@
 \section{Introduction}
 AIToolbox will be used as a backend for Evendim's implementation of MDP RL.
 AIToolbox is  a library that offers tools for AI problem solving; see \nolinkurl{https://github.com/Svalorzen/AI-Toolbox}
-	
+There is a plan to have optionally and as an alternative pytorch as backend.
+
 \section{Markov Decision Process}
 
 \subsection{States}
@@ -26,14 +27,16 @@ For example, time-dependent contingencies are not allowed.
 If a problem contains them, then timer-like counters must be embedded in the state for the modeling to work, 
 so that a state always contain all the information needed and the past is not relevant for decisions.
 
-\subsection{Transitions}
+\subsection{Transitions, Agent, Actions}
 The way the environment transitions from a state to another is not necessarily deterministic. 
 From a particular state, the environment can transition to any other state following a certain probability distribution (which \emph{can} be deterministic).
-Our goal within the decision making process is to influence the way the environment transitions between states. In some sense, we prefer some states more than others, and thus we would like the environment to be in some state rather than another. We will encode that preference using rewards.
 
-\subsection{Actions}
 The agent is the entity that is taking the decisions. It is not necessarily corporeal, nor does it actually have to be inside the environment; most times it can be useful to visualize it in such terms though (a unit moving through an environment, for example).
-The agent interacts with the environment through actions. An action modifies the way in which the environment transitions from a state to another. Thus, at each timestep, the agent needs to select the action which will maximize its obtained reward.
+The agent interacts with the environment through actions. 
+
+An action modifies the way in which the environment transitions from a state to another. 
+Our goal within the decision making process is to influence the way the environment transitions between states. In some sense, we prefer some states more than others, and thus we would like the environment to be in some state rather than another. We will encode that preference using rewards.
+Thus, at each timestep, the agent needs to select the action which will maximize its obtained reward.
 
 \subsection{Reward and Discount}
 An agent interacts with the environment using a policy. The policy is what tells the agent what actions to take in each state. A policy can be deterministic or stochastic.
@@ -44,6 +47,7 @@ The agent will then take actions that maximize the reward obtained in the next t
 A discount of 1 will make the agent lazy, as a reward obtained new will be ``worth'' the same as a reward obtained in the future,
 so it will delay reward-obtaining actions possibly indefinitely.
 
+\subsection{Recap}
 Armed with our new vocabulary, we can now define an MDP more formally. An MDP is a tuple $\langle S, A, T, R, d\rangle,$ where:
 $S$ is a set of states. This is basically a list of all possible states the environment can ever be in.
 $A$ is a set of actions. This is a list of all the actions that an agent can take. Normally, in an MDP setting, we assume that the agent can select any actions all the time; as in, there are no states where some action is blocked.
@@ -99,10 +103,11 @@ An additional constraint that we want to impose is that we learn while trying to
 Thus, the exploration done by the agent is indirectly encouraged to quickly figure out promising actions to perform,
 rather than trying to understand the problem fully, which would require much more time.
 
-While there are many possible approaches to RL,  we focus 
+While there are many possible approaches to RL,  we focus on
 a model-free learning algorithm, Q-Learning, where the agent directly learns a value function to direct its actions.
 (There is another approach that is also discussed by AIToolbox: model-based learning algorithm, Prioritized Sweeping, where the agent tries to learn a model 
-of the environment and use it to plan its next steps.)
+of the environment and use it to plan its next steps. This is not discussed in the present document, but we could implement it in the future
+as an alternative to Q-Learning.)
 
 In Q-Learning, we don't try to learn the dynamics of the environment, and we only focus on what the agent is doing.
 Some methods use the data to directly modify the policy; in this tutorial instead we use the data to update a value-function, 
@@ -111,10 +116,8 @@ which is then used to inform the agent's policy.
 We do not discuss Prioritized Sweeping in this document.
 
 \subsection{Q-Learning}
-
-\subsection{Q-Learning}
-For our model-free method, we are going to use \verb!AIToolbox::MDP::QLearning!, which is a staple of modern RL,
- for its flexibility, simplicity and power.
+For our model-free method, we are going to use \verb!AIToolbox::MDP::QLearning!, which is ``a staple of modern RL,
+ for its flexibility, simplicity and power.''
 
 QLearning uses the data we obtain from interacting with the environment in order to update a \verb!QFunction:! 
 a mapping between a state-action pair and a numerical value.
@@ -238,7 +241,7 @@ for (i = 0; i < number_of_episodes; ++i) {
 \begin{enumerate}
 
 \item \nolinkurl{https://github.com/Svalorzen/AI-Toolbox}
-\item I do not use pytorch, but I keep the reference \nolinkurl{https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html}
+\item We may use pytorch as an alternative backend. \nolinkurl{https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html}
 
 \item DQN : Deep Q-Learning Network \nolinkurl{https://www.nature.com/articles/nature14236}
 \end{enumerate}
