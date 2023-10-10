@@ -7,6 +7,14 @@
 \author{G.A. et al.}
 \maketitle
 
+\section*{Issues}
+
+2023-10-09. Documented Date. Issue may have been found earlier.
+The number of states $N_S$ is the number of possible circuits which seems to be exponentially large.
+The number of actions $N_A$ to take is also combinatoric.
+QLearnings.cpp implements Q-Functions as a matrix of $N_S$ rows times $N_A$ cols which is not possible in QuantumGEP.
+Possible actions: libertate QFunction; or abandon AI-Toolbox.
+
 \section{Introduction}
 AIToolbox will be used as a backend for Evendim's implementation of MDP RL.
 AIToolbox is  a library that offers tools for AI problem solving; see \nolinkurl{https://github.com/Svalorzen/AI-Toolbox}
