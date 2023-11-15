@@ -3,14 +3,7 @@ include xacc.make
 CXX = g++ 
 CPPFLAGS += -Wall  -pedantic #-std=c++11
 
-all: testXacc 
-#QuantumGEPXacc libQuantumGEP.so
-
-testXacc.o: testXacc.cpp
-	$(CXX) $(CPPFLAGS) -c testXacc.cpp
-
-testXacc: testXacc.o
-	$(CXX) $(LDFLAGS) testXacc.o -o testXacc
+all: QuantumGEPXacc libQuantumGEP.so
 
 QuantumGEPXacc.o: QuantumGEPXacc.cpp
 	$(CXX) $(CPPFLAGS) -c QuantumGEPXacc.cpp
