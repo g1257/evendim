@@ -191,7 +191,7 @@ public:
 
 		VectorValueType values(genes_.size());
 		for (SizeType i = 0; i < values.size(); i++) {
-			values[i] = genes_[i]->getExpression().exec();
+			values[i] = genes_[i]->exec();
 		}
 
 		if (adfs_.size() == 0) return values[outputIndex];
@@ -201,13 +201,13 @@ public:
 			throw PsimagLite::RuntimeError(msg + "outputIndex>0 only with adfs==0\n");
 		// reinterpret inputs
 		for (SizeType i = 0; i < adfs_.size(); i++) {
-			adfs_[i]->getExpression().set(values);
+			adfs_[i]->set(values);
 		}
 
 		if (adfs_.size() != 1)
 			throw PsimagLite::RuntimeError(msg + "adfs must be 1\n");
 
-		ValueType tmp = adfs_[0]->getExpression().exec();
+		ValueType tmp = adfs_[0]->exec();
 
 		return tmp;
 	}

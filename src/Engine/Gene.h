@@ -35,7 +35,7 @@ public:
 	typedef typename NodeType::ValueType ValueType;
 	typedef typename PsimagLite::Vector<TreeType*>::Type VectorTreeType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
-	typedef Gene<TreeType,EvolutionType> GeneType;
+	typedef Gene<TreeType, EvolutionType> GeneType;
 
 	Gene(const Gene& other)
 	    : head_ (other.head_),
@@ -75,9 +75,14 @@ public:
 		return vecStr_;
 	}
 
-	const TreeType& getExpression() const
+	ValueType exec() const
 	{
-		return *vt_[0];
+		return vt_[0]->exec();
+	}
+
+	void set(const VectorValueType& values) const
+	{
+		vt_[0]->set(values);
 	}
 
 	const SizeType head() const { return head_; }
