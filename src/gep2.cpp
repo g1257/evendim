@@ -15,13 +15,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Evolution.h"
-#include "Primitives/PlusMinusMultiplyDivide.h"
 #include "Engine.h"
-#include <unistd.h>
+#include "Evolution.h"
 #include "Fitness/Example1Fitness.h"
 #include "Fitness/Example2Fitness.h"
 #include "Fitness/Example3Fitness.h"
+#include "Primitives/PlusMinusMultiplyDivide.h"
+#include <unistd.h>
 
 /* PSIDOC EngineOverviewFunction
  The main loop in gep2 is
@@ -36,8 +36,8 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
  It is also templated on the Evolution type.
  The \verb!Engine! constructor takes an input parameters object, and an evolution object.
  */
-template<template<typename> class FitnessTemplate,
-         typename EvolutionType>
+template <template <typename> class FitnessTemplate,
+          typename EvolutionType>
 void main1(EvolutionType& evolution, const Gep::ParametersInput& gepOptions)
 {
 	typedef Gep::Engine<FitnessTemplate, EvolutionType> EngineType;
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 	int opt = 0;
 	PsimagLite::String strUsage(argv[0]);
 	strUsage += " -i inputs -h head [-p population -t total -g genes -H chead]\n";
-	while ((opt = getopt(argc, argv,"i:h:g:s:p:t:c:H:a:e:n:Sv")) != -1) {
+	while ((opt = getopt(argc, argv, "i:h:g:s:p:t:c:H:a:e:n:Sv")) != -1) {
 		switch (opt) {
 		case 'i':
 			inputs = atoi(optarg);
@@ -141,9 +141,9 @@ int main(int argc, char* argv[])
 
 	// sanity checks here
 	if (inputs == 0
-	        || gepOptions.head == 0
-	        || gepOptions.population == 0
-	        || gepOptions.generations == 0) {
+	    || gepOptions.head == 0
+	    || gepOptions.population == 0
+	    || gepOptions.generations == 0) {
 		throw PsimagLite::RuntimeError(strUsage);
 		return 1;
 	}
@@ -167,13 +167,14 @@ int main(int argc, char* argv[])
 	typedef Gep::PlusMinusMultiplyDivide<double> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 
-	PrimitivesType primitives(inputs,gepOptions.genes,constants);
-	EvolutionType evolution(primitives,seed,verbose);
+	PrimitivesType primitives(inputs, gepOptions.genes, constants);
+	EvolutionType evolution(primitives, seed, verbose);
 
 	if (example < 2) {
 		main1<Gep::Example1Fitness, EvolutionType>(evolution, gepOptions);
 		return 0;
-	} else if (example == 2) {
+	}
+	else if (example == 2) {
 		main1<Gep::Example2Fitness, EvolutionType>(evolution, gepOptions);
 		return 0;
 	}

@@ -1,8 +1,8 @@
 #ifndef NODEFACTORY_H
 #define NODEFACTORY_H
-#include "Vector.h"
 #include "Concurrency.h"
 #include "Matrix.h"
+#include "Vector.h"
 
 namespace Gep {
 
@@ -21,7 +21,7 @@ namespace Gep {
  *
  * Too many copies?
  */
-template<typename NodeType>
+template <typename NodeType>
 class NodeFactory {
 
 public:
@@ -31,10 +31,11 @@ public:
 	typedef PsimagLite::Vector<PsimagLite::Concurrency::PthreadtType>::Type VectorThreadIdType;
 
 	NodeFactory(const VectorNodeType& nodes)
-	    : nodes_(nodes),
-	      nthreads_(PsimagLite::Concurrency::codeSectionParams.npthreads),
-	      newNodes_(nodes.size()*nthreads_)
-	{}
+	    : nodes_(nodes)
+	    , nthreads_(PsimagLite::Concurrency::codeSectionParams.npthreads)
+	    , newNodes_(nodes.size() * nthreads_)
+	{
+	}
 
 	~NodeFactory()
 	{
@@ -49,11 +50,13 @@ public:
 		PsimagLite::String codeStripped = stripPreviousAngleIfAny(codeStr);
 
 		for (SizeType i = 0; i < nodes_.size(); ++i) {
-			if (isCell && nodes_[i]->isInput()) continue;
+			if (isCell && nodes_[i]->isInput())
+				continue;
 			PsimagLite::String ncode = stripPreviousAngleIfAny(nodes_[i]->code());
 			if (ncode == codeStripped) {
 				NodeType* newNode = findOrCreateCombo(i, threadNum);
-				if (codeStr == "?") newNode->setDcValue(value);
+				if (codeStr == "?")
+					newNode->setDcValue(value);
 				newNode->setAngle(codeStr);
 				return *newNode;
 			}
@@ -64,9 +67,9 @@ public:
 
 	void sync()
 	{
-		std::cerr<<"FINAL-->"<<nodes_.size()<<" vs. "<<newNodes_.size()<<"\n";
+		std::cerr << "FINAL-->" << nodes_.size() << " vs. " << newNodes_.size() << "\n";
 		clearNewNodes();
-		//throw PsimagLite::RuntimeError("testing sync\n");
+		// throw PsimagLite::RuntimeError("testing sync\n");
 	}
 
 	static PsimagLite::String stripPreviousAngleIfAny(PsimagLite::String str)
@@ -74,7 +77,8 @@ public:
 		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
 		                                                           str.end(),
 		                                                           ':');
-		if (it == str.end()) return str; // no angle found
+		if (it == str.end())
+			return str; // no angle found
 
 		return str.substr(0, it - str.begin());
 	}
@@ -97,7 +101,7 @@ private:
 
 	NodeType* findOrCreateCombo(SizeType ind, SizeType threadNum) const
 	{
-		int tId = threadNum + ind*nthreads_;
+		int tId = threadNum + ind * nthreads_;
 		assert(static_cast<SizeType>(tId) < newNodes_.size());
 		if (!newNodes_[tId]) {
 			newNodes_[tId] = nodes_[ind]->clone();

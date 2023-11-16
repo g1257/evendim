@@ -31,7 +31,7 @@ namespace Gep {
  And so on until all arguments to f are evaluated. If none of them are digits,
  then the function returns -1.
  */
-template<typename ChromosomeType>
+template <typename ChromosomeType>
 class Example3Fitness : public BaseFitness<ChromosomeType> {
 
 	static const SizeType stringLength_ = 6;
@@ -47,11 +47,11 @@ public:
 	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
 	Example3Fitness(SizeType samples, const EvolutionType& evolution, FitnessParamsType*)
-	    : samples_(samples),evolution_(evolution)
+	    : samples_(samples)
+	    , evolution_(evolution)
 	{
 		if (evolution.numberOfInputs() != stringLength_) {
-			throw PsimagLite::RuntimeError("Example3Fitness::ctor(): " +
-			                               ttos(stringLength_) + " inputs expected\n");
+			throw PsimagLite::RuntimeError("Example3Fitness::ctor(): " + ttos(stringLength_) + " inputs expected\n");
 		}
 	}
 
@@ -68,13 +68,14 @@ public:
 		VectorRealType r(stringLength_);
 		for (SizeType i = 0; i < samples_; i++) {
 			for (SizeType j = 0; j < stringLength_; ++j)
-				r[j] = static_cast<SizeType>(128*evolution_.rng());
+				r[j] = static_cast<SizeType>(128 * evolution_.rng());
 
 			evolution_.setInput(r);
 
-			if (verbose) evolution_.printInputs(std::cout);
+			if (verbose)
+				evolution_.printInputs(std::cout);
 			RealType fOfX = f(r);
-			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
+			RealType tmp = fabs((chromosome.exec(0) - fOfX) / fOfX);
 
 			sum += (1.0 - fabs(tmp));
 		}

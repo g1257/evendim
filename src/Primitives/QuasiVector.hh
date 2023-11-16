@@ -4,12 +4,10 @@
 #include "Vector.h"
 #include <string>
 
-namespace Gep
-{
+namespace Gep {
 
 template <typename ComplexOrRealType>
-class QuasiVector
-{
+class QuasiVector {
 
 public:
 
@@ -89,7 +87,7 @@ public:
 	}
 
 	friend std::ostream& operator<<(std::ostream& os,
-	    const QuasiVector& qv)
+	                                const QuasiVector& qv)
 	{
 		qv.needsExp("operator<<");
 		for (SizeType i = 0; i < qv.data_.size(); ++i) {
@@ -100,14 +98,14 @@ public:
 	}
 
 	friend RealType vectorDiff2(const QuasiVector& v1,
-	    const QuasiVector& v2)
+	                            const QuasiVector& v2)
 	{
 		return vectorDiff2_(v1.toVector(), v2.toVector());
 	}
 
 	friend RealType diffVectorDiff2(const QuasiVector& v1,
-	    const QuasiVector& v2,
-	    const QuasiVector& v3)
+	                                const QuasiVector& v2,
+	                                const QuasiVector& v3)
 	{
 		return diffVectorDiff2_(v1.toVector(), v2.toVector(), v3.toVector());
 	}
@@ -157,8 +155,8 @@ public:
 	// caching has been disabled here!
 	template <typename SomeMatrixType>
 	friend RealType tensorEnergy(const QuasiVector& v1,
-	    const SomeMatrixType& H,
-	    const QuasiVector& v2)
+	                             const SomeMatrixType& H,
+	                             const QuasiVector& v2)
 	{
 		assert(v1.size() == v2.size());
 		assert(H.cols() == v2.size());
@@ -182,11 +180,11 @@ private:
 		if (isExp_)
 			return;
 		err(info + " unimplemented or non-working unless exponential "
-			   "representation\n");
+		           "representation\n");
 	}
 
 	static RealType vectorDiff2_(const VectorType& v1,
-	    const VectorType& v2)
+	                             const VectorType& v2)
 	{
 		const SizeType n = v1.size();
 		assert(n == v2.size());
@@ -198,8 +196,8 @@ private:
 	}
 
 	static RealType diffVectorDiff2_(const VectorType& v1,
-	    const VectorType& v2,
-	    const VectorType& v3)
+	                                 const VectorType& v2,
+	                                 const VectorType& v3)
 	{
 		const SizeType n = v1.size();
 		assert(n == v2.size());

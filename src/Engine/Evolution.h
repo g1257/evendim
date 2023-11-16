@@ -18,18 +18,18 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #ifndef EVOLUTION_H
 #define EVOLUTION_H
 
+#include "MersenneTwister.h"
+#include "NodeFactory.h"
+#include "ProgramGlobals.h"
+#include "PsimagLite.h"
+#include "TypeToString.h"
 #include "Vector.h"
 #include <cassert>
 #include <iostream>
-#include "TypeToString.h"
-#include "PsimagLite.h"
-#include "ProgramGlobals.h"
-#include "NodeFactory.h"
-#include "MersenneTwister.h"
 
 namespace Gep {
 
-template<typename PrimitivesType_>
+template <typename PrimitivesType_>
 class Evolution {
 
 public:
@@ -46,11 +46,11 @@ public:
 	Evolution(PrimitivesType& primitives,
 	          SizeType r,
 	          bool verbose)
-	    : primitives_(primitives),
-	      verbose_(verbose),
-	      maxArity_(0),
-	      nodeFactory_(primitives.nodesSerial()),
-	      rng_(r)
+	    : primitives_(primitives)
+	    , verbose_(verbose)
+	    , maxArity_(0)
+	    , nodeFactory_(primitives.nodesSerial())
+	    , rng_(r)
 	{
 		maxArity_ = maxArity();
 
@@ -60,7 +60,7 @@ public:
 	SizeType geneLength(SizeType head) const
 	{
 		bool hasDc = (primitives_.dcValues().size() > 0);
-		SizeType dc = (hasDc)? this->tail(head) : 0;
+		SizeType dc = (hasDc) ? this->tail(head) : 0;
 
 		return head + this->tail(head) + dc;
 	}
@@ -69,7 +69,7 @@ public:
 
 	SizeType tail(SizeType head) const
 	{
-		return head*(maxArity_ - 1) + 1;
+		return head * (maxArity_ - 1) + 1;
 	}
 
 	VectorStringType randomGene(SizeType head) const
@@ -77,7 +77,7 @@ public:
 		const SizeType tail1 = tail(head);
 		VectorStringType str = nonTerminals_;
 		ProgramGlobals::pushVector(str, terminals_);
-		VectorStringType str1 = selectRandomFrom(head,str);
+		VectorStringType str1 = selectRandomFrom(head, str);
 		const VectorStringType str2 = selectRandomFrom(tail1, terminals_);
 		bool hasDc = (primitives_.dcValues().size() > 0);
 		const SizeType dc = (hasDc) ? tail1 : 0;
@@ -87,7 +87,7 @@ public:
 		return str1;
 	}
 
-	VectorStringType randomAdf(SizeType chead,SizeType genes) const
+	VectorStringType randomAdf(SizeType chead, SizeType genes) const
 	{
 		VectorStringType terminals(genes);
 		for (SizeType i = 0; i < genes; i++)
@@ -133,9 +133,9 @@ public:
 	                                    bool isCell) const
 	{
 		if (isCell)
-			return getStringForRegionCell(index,head,genes);
+			return getStringForRegionCell(index, head, genes);
 		else
-			return getStringForRegionNonCell(index,head);
+			return getStringForRegionNonCell(index, head);
 	}
 
 	VectorStringType getStringForRegionNonCell(SizeType index,
@@ -169,7 +169,7 @@ public:
 		return terminals;
 	}
 
-	VectorStringType invert(const VectorStringType& str,SizeType head) const
+	VectorStringType invert(const VectorStringType& str, SizeType head) const
 	{
 		VectorStringType ret = str;
 		for (SizeType i = 0; i < head; ++i)
@@ -185,7 +185,7 @@ public:
 		SizeType tail1 = tail(head);
 		SizeType len = vecStr.size();
 		bool hasDc = (primitives_.dcValues().size() > 0);
-		SizeType dc = (hasDc)? tail(head) : 0;
+		SizeType dc = (hasDc) ? tail(head) : 0;
 
 		if (len != head + tail1 + dc) {
 			PsimagLite::String errorMessage(__FILE__);
@@ -197,10 +197,11 @@ public:
 
 		VectorStringType terminals = terminals_;
 
-		for (SizeType i = head; i < len -dc; i++) {
-			if (std::find(terminals.begin(),terminals.end(), vecStr[i]) != terminals.end())
+		for (SizeType i = head; i < len - dc; i++) {
+			if (std::find(terminals.begin(), terminals.end(), vecStr[i]) != terminals.end())
 				continue;
-			if (isCell && isAnInteger(vecStr[i])) continue;
+			if (isCell && isAnInteger(vecStr[i]))
+				continue;
 			PsimagLite::String errorMessage(__FILE__);
 			errorMessage += " " + ttos(__LINE__) + "\n";
 			errorMessage += "head= " + ttos(head);
@@ -256,9 +257,9 @@ public:
 		}
 	}
 
-	NodeFactoryType& nodeFactory() { return nodeFactory_;}
+	NodeFactoryType& nodeFactory() { return nodeFactory_; }
 
-	const NodeFactoryType& nodeFactory() const { return nodeFactory_;}
+	const NodeFactoryType& nodeFactory() const { return nodeFactory_; }
 
 	double rng() const { return rng_(); }
 
@@ -288,20 +289,21 @@ public:
 		assert(nodeFactory_.numberOfNodes() > 0);
 
 		const SizeType threadNum = 0;
-		os<<"inputs= ";
+		os << "inputs= ";
 		for (SizeType i = 0; i < inputs_.size(); i++) {
 			SizeType j = inputs_[i];
 			nodeFactory_.node(j, threadNum).print(os);
 		}
 
-		os<<"\n";
+		os << "\n";
 	}
 
 	static bool isAnInteger(PsimagLite::String str)
 	{
 		SizeType len = str.length();
 		for (SizeType i = 0; i < len; ++i) {
-			if (str[i] < '0' || str[i] > '9') return false;
+			if (str[i] < '0' || str[i] > '9')
+				return false;
 		}
 
 		return true;
@@ -314,7 +316,7 @@ private:
 		VectorStringType ret(head);
 
 		for (SizeType i = 0; i < head; i++) {
-			SizeType index = static_cast<SizeType>(rng_()*str.size());
+			SizeType index = static_cast<SizeType>(rng_() * str.size());
 			ret[i] = str[index];
 		}
 
@@ -340,8 +342,8 @@ private:
 			if (nodeFactory_.node(i, threadNum).isInput()) {
 				inputs_.push_back(i);
 				terminals_.push_back(nodeFactory_.node(i, threadNum).code());
-			} else if (nodeFactory_.node(i, threadNum).arity()>0 &&
-			           nodeFactory_.node(i, threadNum).code()[0] != '_') {
+			}
+			else if (nodeFactory_.node(i, threadNum).arity() > 0 && nodeFactory_.node(i, threadNum).code()[0] != '_') {
 				nonTerminals_.push_back(nodeFactory_.node(i, threadNum).code());
 			}
 		}
@@ -354,7 +356,7 @@ private:
 	VectorSizeType inputs_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
-	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
+	mutable PsimagLite::MersenneTwister rng_; // RandomForTests<double> rng_;
 }; // class Evolution
 
 } // namespace Gep

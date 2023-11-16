@@ -21,7 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename VectorValueType>
+template <typename VectorValueType>
 class NodeDc : public PsimagLite::Node<VectorValueType> {
 
 	typedef typename VectorValueType::value_type ValueType;

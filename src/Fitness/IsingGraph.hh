@@ -5,12 +5,10 @@
 #include "Graph.hh"
 #include "Vector.h"
 
-namespace Gep
-{
+namespace Gep {
 
 template <typename ComplexType>
-class IsingGraph
-{
+class IsingGraph {
 
 public:
 
@@ -43,7 +41,7 @@ public:
 				     site2 < bits_;
 				     ++site2) {
 					if (!graph_.connected(site,
-						site2))
+					                      site2))
 						continue;
 					SizeType maskSite2 = (1 << site2);
 					SizeType k = i & maskSite2;
@@ -73,7 +71,8 @@ public:
 			if (e < emin || i == 0) {
 				ind.resize(1, i);
 				emin = e;
-			} else if (e == emin) {
+			}
+			else if (e == emin) {
 				ind.push_back(i);
 			}
 			v[i] = 0;

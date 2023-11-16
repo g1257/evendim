@@ -17,23 +17,23 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef EVENDIM_QUANTUM_CIRCUIT_H
 #define EVENDIM_QUANTUM_CIRCUIT_H
-#include "PsimagLite.h"
-#include <cassert>
-#include "QuantumOneBitGate.h"
-#include "QuantumTwoBitGate.h"
-#include "MersenneTwister.h"
-#include "QuantumInput.h"
-#include <numeric>
 #include "CanonicalFormQuantum.h"
+#include "CustomQuantumGates.hh"
+#include "InputCheck.h"
 #include "InputGatesUtil.h"
 #include "InputNg.h"
-#include "InputCheck.h"
-#include "CustomQuantumGates.hh"
+#include "MersenneTwister.h"
 #include "NodeAdf.h"
+#include "PsimagLite.h"
+#include "QuantumInput.h"
+#include "QuantumOneBitGate.h"
+#include "QuantumTwoBitGate.h"
+#include <cassert>
+#include <numeric>
 
 namespace Gep {
 
-template<typename ValueType_>
+template <typename ValueType_>
 class QuantumCircuit {
 
 public:
@@ -61,14 +61,17 @@ public:
 	QuantumCircuit(SizeType numberOfBits,
 	               PsimagLite::String gates,
 	               InputNgReadableType& io)
-	    : numberOfBits_(numberOfBits), io_(io)
+	    : numberOfBits_(numberOfBits)
+	    , io_(io)
 	{
 		PsimagLite::split(gates_, gates, ",");
 
 		SizeType genes = 1;
 		try {
 			io.readline(genes, "Genes=");
-		} catch (std::exception&) {}
+		}
+		catch (std::exception&) {
+		}
 
 		makeNodes(nodes_, genes);
 	}
@@ -212,8 +215,7 @@ private:
 			nodes.push_back(input);
 		}
 
-
-        ValueType_ zeroVector(0);
+		ValueType_ zeroVector(0);
 		for (SizeType i = 0; i < genes; i++) {
 			NodeType* adf = new NodeAdfType(i, zeroVector);
 			nodes_.push_back(adf);
@@ -228,31 +230,35 @@ private:
 			SizeType last = name.length();
 			assert(last > 0);
 			--last;
-			if (name[last] >= 48 && name[last] <=57)
+			if (name[last] >= 48 && name[last] <= 57)
 				err("Custom gate name " + name + " must not end in a digit\n");
 
 			MatrixType matrix;
 			if (name.substr(0, 2) == "CG") { // non-parametric custom
 				io_.read(matrix, name);
 				customQuantumGates_.push(name, matrix);
-			} else if (name.substr(0, 2) == "PG") {
+			}
+			else if (name.substr(0, 2) == "PG") {
 				PsimagLite::Matrix<PsimagLite::String> matrixString;
 				io_.read(matrixString, name);
 				customQuantumGates_.push(name, matrixString);
 				customQuantumGates_.evaluate(matrix, name);
-			} else {
+			}
+			else {
 				err("Custom gate name " + name + " must start with CG or PG\n");
 			}
 
-			std::cout<<"Trying to add custom gate named " + name + "\n";
+			std::cout << "Trying to add custom gate named " + name + "\n";
 
 			if (matrix.rows() != matrix.cols())
 				err("Matrix named " + name + " must be square.\n");
 			if (matrix.rows() == 2) {
 				fillCustomOneBitGates(nodes, name, matrix);
-			} else if (matrix.rows() == 4) {
+			}
+			else if (matrix.rows() == 4) {
 				fillCustomTwoBitGates(nodes, name, matrix);
-			} else {
+			}
+			else {
 				err("Matrix named " + name + " must have either two or four rows.\n");
 			}
 		}

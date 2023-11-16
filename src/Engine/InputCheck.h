@@ -51,7 +51,8 @@ public:
 	void check(const PsimagLite::String& label,
 	           const PsimagLite::String& val,
 	           SizeType)
-	{}
+	{
+	}
 
 	bool check(const PsimagLite::String& label,
 	           const PsimagLite::Vector<PsimagLite::String>::Type& vec,
@@ -59,8 +60,6 @@ public:
 	{
 		return true;
 	}
-
-
 };
 }
 #endif // INPUTCHECK_H

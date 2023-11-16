@@ -24,15 +24,15 @@ int main(int argc, char* argv[])
 	auto n_chromophores = 4;
 	auto quantumGEP = xacc::getAlgorithm("QuantumGEP");
 	quantumGEP->initialize({ { "accelerator", accelerator },
-	    { "optimizer", optimizer },
-	    { "interference", true },
-	    { "n-states", n_states },
-	    { "data-path", data_path },
-	    { "cyclic", true },
-	    { "tnqvm-log", true },
-	    { "angstrom-to-au", true },
-	    { "debye-to-au", true },
-	    { "nChromophores", n_chromophores } });
+	                         { "optimizer", optimizer },
+	                         { "interference", true },
+	                         { "n-states", n_states },
+	                         { "data-path", data_path },
+	                         { "cyclic", true },
+	                         { "tnqvm-log", true },
+	                         { "angstrom-to-au", true },
+	                         { "debye-to-au", true },
+	                         { "nChromophores", n_chromophores } });
 
 	// allocate buffer and execute
 	auto buffer = xacc::qalloc(n_chromophores);

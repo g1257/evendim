@@ -1,17 +1,17 @@
 #ifndef CANONICALFORMQUANTUM_H
 #define CANONICALFORMQUANTUM_H
-#include "Vector.h"
 #include "AST/Node.h"
-#include "ProgramGlobals.h"
-#include "Sort.h"
-#include <cassert>
-#include "PsimagLite.h"
-#include <queue>
 #include "NodeFactory.h"
+#include "ProgramGlobals.h"
+#include "PsimagLite.h"
+#include "Sort.h"
+#include "Vector.h"
+#include <cassert>
+#include <queue>
 
 namespace Gep {
 
-template<typename ValueType_, typename AnglesType>
+template <typename ValueType_, typename AnglesType>
 class CanonicalFormQuantum {
 
 public:
@@ -26,11 +26,16 @@ public:
 	typedef PsimagLite::Vector<bool>::Type VectorBoolType;
 	typedef NodeFactory<NodeType> NodeFactorType;
 
-	enum class RotationEnum {INVALID, X, Y, Z};
+	enum class RotationEnum { INVALID,
+		                  X,
+		                  Y,
+		                  Z };
 
 	CanonicalFormQuantum(const VectorStringType& data,
 	                     const NodeFactorType& nodeFactory)
-	    : data_(data), nodeFactory_(nodeFactory), needsChange_(false)
+	    : data_(data)
+	    , nodeFactory_(nodeFactory)
+	    , needsChange_(false)
 	{
 		getEffectiveAndJunk();
 		needsChange_ |= orderGatesByBitNg(effective_);
@@ -39,7 +44,8 @@ public:
 
 	void changeIfNeeded(VectorStringType& vstr) const
 	{
-		if (!needsChange_) return;
+		if (!needsChange_)
+			return;
 		vstr.resize(effective_.size() + junkDna_.size());
 		for (SizeType i = 0; i < effective_.size(); ++i)
 			vstr[i] = effective_[i];
@@ -59,7 +65,8 @@ private:
 			else
 				junkDna_.push_back(*it);
 
-			if (*it == "0") flag = false;
+			if (*it == "0")
+				flag = false;
 		}
 	}
 
@@ -77,7 +84,7 @@ private:
 	{
 		bool flag = false;
 		const SizeType n = effective.size();
-		for (SizeType i = 1; i< n; ++i) {
+		for (SizeType i = 1; i < n; ++i) {
 			bool gateMoved = moveThisGateIfPossible(effective, i);
 			flag |= gateMoved;
 		}
@@ -87,7 +94,8 @@ private:
 
 	bool moveThisGateIfPossible(VectorStringType& effective, SizeType ind) const
 	{
-		if (ind == 0) return false;
+		if (ind == 0)
+			return false;
 
 		static const ValueType_ value;
 		constexpr bool isCell = false;
@@ -97,7 +105,8 @@ private:
 		                                                     value,
 		                                                     isCell,
 		                                                     threadNum);
-		if (node.isInput()) return false;
+		if (node.isInput())
+			return false;
 		VectorSizeType bits;
 		getBits(bits, node.code());
 
@@ -114,11 +123,13 @@ private:
 
 			getBits(bitsPrev, nodePrev.code());
 
-			if (!isBefore(bitsPrev, bits)) break;
+			if (!isBefore(bitsPrev, bits))
+				break;
 			location = jnd;
 		}
 
-		if (location < 0) return false;
+		if (location < 0)
+			return false;
 
 		std::swap(effective[ind], effective[location]);
 		return true;
@@ -130,7 +141,8 @@ private:
 		const SizeType n2 = bits2.size();
 		for (SizeType i = 0; i < n2; ++i)
 			for (SizeType j = 0; j < n1; ++j)
-				if (bits1[j] <= bits2[i]) return false;
+				if (bits1[j] <= bits2[i])
+					return false;
 
 		return true;
 	}
@@ -142,20 +154,23 @@ private:
 		if (tokens.size() > 2)
 			err("getBit: code " + code + " with two or more colons\n");
 
-		if (tokens.size() == 2) code = tokens[0]; // ignore angles
+		if (tokens.size() == 2)
+			code = tokens[0]; // ignore angles
 
 		bits.clear();
 
 		while (true) {
 			const SizeType n = code.size();
 			const SizeType bp = getBreakpoint(code);
-			if (bp == n) break;
-			if (n  == bp + 1)
+			if (bp == n)
+				break;
+			if (n == bp + 1)
 				err("getBits: Internal error\n");
 			const PsimagLite::String buffer = code.substr(bp + 1, n - bp - 1);
 			const SizeType bit = PsimagLite::atoi(buffer);
 			bits.push_back(bit);
-			if (code[bp] != '_') break;
+			if (code[bp] != '_')
+				break;
 			code = code.substr(0, bp);
 		}
 	}
@@ -167,7 +182,8 @@ private:
 		for (; ind < n; ++ind) {
 			const SizeType j = n - ind - 1;
 			unsigned char c = code[j];
-			if (!std::isdigit(c)) break;
+			if (!std::isdigit(c))
+				break;
 		}
 
 		return n - ind - 1;
@@ -177,19 +193,22 @@ private:
 
 	public:
 
-		enum class StateEnum { COPY, IGNORE, NEW};
+		enum class StateEnum { COPY,
+			               IGNORE,
+			               NEW };
 
 		typedef typename PsimagLite::Vector<RotationEnum>::Type VectorRotationEnumType;
 		typedef typename PsimagLite::Vector<AnglesType>::Type VectorAnglesType;
 		typedef typename PsimagLite::Vector<StateEnum>::Type VectorStateEnumType;
 
 		Track(SizeType n)
-		    : data_(n, StateEnum::COPY),
-		      locations_(0),
-		      dirs_(n, RotationEnum::INVALID),
-		      angles_(n),
-		      bits_(n)
-		{}
+		    : data_(n, StateEnum::COPY)
+		    , locations_(0)
+		    , dirs_(n, RotationEnum::INVALID)
+		    , angles_(n)
+		    , bits_(n)
+		{
+		}
 
 		StateEnum state(SizeType i) const
 		{
@@ -207,7 +226,8 @@ private:
 		                AnglesType prevAngle,
 		                SizeType ind)
 		{
-			if (locations_ == 0) return;
+			if (locations_ == 0)
+				return;
 
 			const SizeType start = ind - locations_ - 1;
 			assert(start >= 0 && ind > start);
@@ -309,7 +329,8 @@ private:
 			}
 
 			getBits(bits, node.code());
-			if (bits.size() != 1) err("Rotation gate must have one bit!?\n");
+			if (bits.size() != 1)
+				err("Rotation gate must have one bit!?\n");
 
 			assert(bits.size() == 1);
 			const SizeType bit = bits[0];
@@ -323,7 +344,8 @@ private:
 				continue;
 			}
 
-			if (!mayCompactify) continue; // dir doesn't match previous
+			if (!mayCompactify)
+				continue; // dir doesn't match previous
 
 			track.increaseLocations();
 			prevAngle += angle;
@@ -349,7 +371,8 @@ private:
 			}
 		}
 
-		if (!needsChange) return false;
+		if (!needsChange)
+			return false;
 
 		// keep total size constant
 		for (SizeType i = 0; i < ignored; ++i)
@@ -363,7 +386,8 @@ private:
 	{
 		if (code.length() < 2)
 			err("getRotationDirection: code " + code + "\n");
-		if (code[0] != 'R') return RotationEnum::INVALID;
+		if (code[0] != 'R')
+			return RotationEnum::INVALID;
 
 		switch (code[1]) {
 		case 'x':
@@ -385,16 +409,19 @@ private:
 			err("getBit: code " + code + " with two or more colons\n");
 
 		PsimagLite::String angle = "0";
-		if (tokens.size() == 2) angle = tokens[1]; // ignore gate name and bit
+		if (tokens.size() == 2)
+			angle = tokens[1]; // ignore gate name and bit
 		return PsimagLite::atof(angle);
 	}
 
 	static bool isEqual(const VectorStringType& v1, const VectorStringType& v2)
 	{
 		const SizeType n = v1.size();
-		if (n != v2.size()) return false;
+		if (n != v2.size())
+			return false;
 		for (SizeType i = 0; i < n; ++i)
-			if (v1[i] != v2[i]) return false;
+			if (v1[i] != v2[i])
+				return false;
 		return true;
 	}
 

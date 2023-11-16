@@ -1,11 +1,12 @@
 #ifndef BASEFITNESS_H
 #define BASEFITNESS_H
-#include "PsimagLite.h"
 #include "MersenneTwister.h"
+#include "PsimagLite.h"
 
 namespace Gep {
 
-class NullClass {};
+class NullClass {
+};
 
 /* PSIDOC BaseFitness
 The BaseFitness class provides an interface that fitness classes must follow.
@@ -13,7 +14,7 @@ It does also provide some basic non-virtual functionality.
 PSIDOCCOPY getFitness
 PSIDOCCOPY maxFitness
 */
-template<typename ChromosomeType>
+template <typename ChromosomeType>
 class BaseFitness {
 public:
 
@@ -22,9 +23,15 @@ public:
 	typedef PsimagLite::Vector<long unsigned int>::Type VectorLongUnsignedIntType;
 	typedef double RealType;
 
-	BaseFitness(long unsigned int seed) : rng_(seed) {}
+	BaseFitness(long unsigned int seed)
+	    : rng_(seed)
+	{
+	}
 
-	BaseFitness() : rng_(12344) {}
+	BaseFitness()
+	    : rng_(12344)
+	{
+	}
 
 	/* PSIDOC getFitness
 PSIDOCCOPY $FirstProtoBelow
@@ -34,7 +41,8 @@ thread in case fitness is computed in parallel.
 */
 	virtual RealType getFitness(const ChromosomeType& chromosome,
 	                            long unsigned int seed,
-			                    SizeType threadNum) = 0;
+	                            SizeType threadNum)
+	    = 0;
 
 	/* PSIDOC maxFitness
 PSIDOCCOPY $FirstProtoBelow

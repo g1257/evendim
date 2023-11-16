@@ -10,10 +10,8 @@
 using namespace xacc;
 using namespace xacc::quantum;
 
-namespace xacc
-{
-namespace algorithm
-{
+namespace xacc {
+namespace algorithm {
 	bool QuantumGEP::initialize(const HeterogeneousMap& parameters)
 	{
 		/** Checks for the required parameters and other optional keywords

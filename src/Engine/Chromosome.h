@@ -18,19 +18,19 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHROMOSOME_H
 #define CHROMOSOME_H
 
-#include "Vector.h"
 #include "Gene.h"
 #include "ProgramGlobals.h"
+#include "Vector.h"
 
 namespace Gep {
 
-template<typename TreeType, typename EvolutionType_, typename ParametersType>
+template <typename TreeType, typename EvolutionType_, typename ParametersType>
 class Chromosome {
 
 public:
 
 	typedef EvolutionType_ EvolutionType;
-	typedef Gene<TreeType,EvolutionType> GeneType;
+	typedef Gene<TreeType, EvolutionType> GeneType;
 	typedef typename EvolutionType::PrimitivesType PrimitivesType;
 	typedef typename PrimitivesType::ValueType ValueType;
 	typedef typename TreeType::NodeType NodeType;
@@ -39,7 +39,7 @@ public:
 	typedef typename PsimagLite::Vector<ValueType>::Type VectorValueType;
 	typedef typename PsimagLite::Vector<GeneType*>::Type VectorGeneType;
 	typedef typename GeneType::VectorStringType VectorStringType;
-	typedef Chromosome<TreeType,EvolutionType,ParametersType> ChromosomeType;
+	typedef Chromosome<TreeType, EvolutionType, ParametersType> ChromosomeType;
 	typedef std::pair<VectorStringType, VectorStringType> PairVectorStringType;
 	typedef typename PsimagLite::Vector<VectorStringType>::Type VectorVectorStringType;
 	typedef std::pair<VectorVectorStringType, VectorVectorStringType> PairVectorVectorStringType;
@@ -48,10 +48,10 @@ public:
 	           const EvolutionType& evolution,
 	           const VectorStringType& vecStr,
 	           SizeType threadNum)
-	    : evolution_(evolution),
-	      params_(params),
-	      geneLength_(evolution.geneLength(params.head)),
-	    isLinearTree_(true)
+	    : evolution_(evolution)
+	    , params_(params)
+	    , geneLength_(evolution.geneLength(params.head))
+	    , isLinearTree_(true)
 	{
 		SizeType len = vecStr.size();
 		if (len == 0)
@@ -74,11 +74,13 @@ public:
 				                              threadNum);
 
 				// All genes must be linear for the chromosome to be linear
-				if (isLinearTree_ && !gene->isLinearTree()) isLinearTree_ = false;
+				if (isLinearTree_ && !gene->isLinearTree())
+					isLinearTree_ = false;
 
 				genes_.push_back(gene);
 
-				if (genes_.size() == params.genes) break;
+				if (genes_.size() == params.genes)
+					break;
 			}
 		}
 
@@ -86,7 +88,7 @@ public:
 
 		index = 0;
 
-		SizeType start = geneLength_*genes_.size();
+		SizeType start = geneLength_ * genes_.size();
 		SizeType cgeneLength = params.chead + evolution.tail(params.chead);
 
 		buffer.clear();
@@ -104,7 +106,8 @@ public:
 				                              buffer,
 				                              threadNum);
 				adfs_.push_back(gene);
-				if (adfs_.size() == params.adfs) break;
+				if (adfs_.size() == params.adfs)
+					break;
 			}
 		}
 
@@ -114,7 +117,8 @@ public:
 		}
 
 		assert(adfs_.size() == params.adfs);
-		if (adfs_.size() == 0) return;
+		if (adfs_.size() == 0)
+			return;
 
 		isLinearTree_ = false; // disable linear tree when there are ADFs
 		assert(adfs_.size() == 1);
@@ -206,7 +210,8 @@ public:
 			values[i] = genes_[i]->exec();
 		}
 
-		if (adfs_.size() == 0) return values[outputIndex];
+		if (adfs_.size() == 0)
+			return values[outputIndex];
 
 		PsimagLite::String msg("Chromosome::exec(): ");
 		if (outputIndex > 0)
@@ -232,8 +237,8 @@ public:
 	                               SizeType points) const
 	{
 		SizeType genes = genes_.size();
-		SizeType index = static_cast<SizeType>(evolution_.rng() * (genes+adfs_.size()));
-		GeneType *gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
+		SizeType index = static_cast<SizeType>(evolution_.rng() * (genes + adfs_.size()));
+		GeneType* gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
 
 		bool isCell = (index >= genes);
 		SizeType indexCorrected = (isCell) ? genes_.size() : index;
@@ -245,16 +250,14 @@ public:
 
 		VectorStringType lastVec;
 		if (!isCell) {
-			for (SizeType i = index+1; i < genes_.size(); i++) {
+			for (SizeType i = index + 1; i < genes_.size(); i++) {
 				ProgramGlobals::pushVector(lastVec, genes_[i]->vecString());
 			}
 
 			ProgramGlobals::pushVector(lastVec, adfsVecStr_);
 		}
 
-		PairVectorStringType p = (points == 1) ?
-		            recombine1(gene->vecString(), other.vecString(index)) :
-		            recombine2(gene->vecString(), other.vecString(index));
+		PairVectorStringType p = (points == 1) ? recombine1(gene->vecString(), other.vecString(index)) : recombine2(gene->vecString(), other.vecString(index));
 
 		VectorStringType vecStr1 = firstVec;
 		ProgramGlobals::pushVector(vecStr1, p.first);
@@ -270,9 +273,9 @@ public:
 	VectorStringType evolve(const PsimagLite::String& action) const
 	{
 		SizeType genes = genes_.size();
-		SizeType index = static_cast<SizeType>(evolution_.rng() * (genes+adfs_.size()));
+		SizeType index = static_cast<SizeType>(evolution_.rng() * (genes + adfs_.size()));
 
-		GeneType *gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
+		GeneType* gene = (index >= genes) ? adfs_[index - genes] : genes_[index];
 		bool isCell = (index >= genes);
 
 		VectorStringType firstVec;
@@ -292,20 +295,17 @@ public:
 
 		VectorStringType ret = firstVec;
 		if (action == "mutate") {
-			ProgramGlobals::pushVector(ret, evolution_.mutate(gene->vecString(),
-			                                                  gene->head(),
-			                                                  genes,
-			                                                  isCell));
+			ProgramGlobals::pushVector(ret, evolution_.mutate(gene->vecString(), gene->head(), genes, isCell));
 			ProgramGlobals::pushVector(ret, lastVec);
 			return ret;
-		} else if (action == "invert") {
-			ProgramGlobals::pushVector(ret, evolution_.invert(gene->vecString(),
-			                                                  gene->head()));
+		}
+		else if (action == "invert") {
+			ProgramGlobals::pushVector(ret, evolution_.invert(gene->vecString(), gene->head()));
 			ProgramGlobals::pushVector(ret, lastVec);
 			return ret;
-		} else if (action == "swap") {
-			ProgramGlobals::pushVector(ret, swap(gene->vecString(),
-			                                     gene->head(),isCell));
+		}
+		else if (action == "swap") {
+			ProgramGlobals::pushVector(ret, swap(gene->vecString(), gene->head(), isCell));
 			ProgramGlobals::pushVector(ret, lastVec);
 			return ret;
 		}
@@ -330,11 +330,13 @@ private:
 			index = static_cast<SizeType>(evolution_.rng() * str.size());
 		}
 
-		ret[index] = str[index+1];
-		ret[index+1] = str[index];
+		ret[index] = str[index + 1];
+		ret[index + 1] = str[index];
 
-		if (isCell) evolution_.checkStringCell(ret, head, genes_.size());
-		else evolution_.checkStringNonCell(ret, head, false);
+		if (isCell)
+			evolution_.checkStringCell(ret, head, genes_.size());
+		else
+			evolution_.checkStringNonCell(ret, head, false);
 		return ret;
 	}
 
@@ -396,9 +398,9 @@ private:
 		SizeType index2 = (i1 < i2) ? i2 : i1;
 
 		PairVectorStringType newVecStrings;
-		newVecStrings.first = recombine(str1,str2,index1,index2);
+		newVecStrings.first = recombine(str1, str2, index1, index2);
 		assert(newVecStrings.first.size() == len);
-		newVecStrings.second = recombine(str2,str1,index1,index2);
+		newVecStrings.second = recombine(str2, str1, index1, index2);
 		assert(newVecStrings.second.size() == len);
 		return newVecStrings;
 	}

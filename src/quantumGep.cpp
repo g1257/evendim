@@ -15,19 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Evolution.h"
-#include "Primitives/QuantumCircuit.h"
 #include "Engine.h"
-#include <unistd.h>
-#include "Fitness/QuantumFitness.h"
+#include "Evolution.h"
 #include "Fitness/GroundStateFitness.h"
 #include "Fitness/Hamiltonian.h"
-#include "InputNg.h"
-#include "InputCheck.h"
+#include "Fitness/QuantumFitness.h"
 #include "FloatingPoint.h"
+#include "InputCheck.h"
+#include "InputNg.h"
+#include "Primitives/QuantumCircuit.h"
 #include "Primitives/QuasiVector.hh"
+#include <unistd.h>
 
-template<template<typename> class FitnessTemplate, typename EvolutionType>
+template <template <typename> class FitnessTemplate, typename EvolutionType>
 void main2(EvolutionType& evolution,
            const Gep::ParametersEngine<double>& params,
            PsimagLite::InputNg<Gep::InputCheck>::Readable& io)
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	int precision = 0;
 	PsimagLite::String strUsage(argv[0]);
 	strUsage += " -f filename [-S threads] [-p precision] [-v]\n";
-	while ((opt = getopt(argc, argv,"f:S:p:v")) != -1) {
+	while ((opt = getopt(argc, argv, "f:S:p:v")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 		gates = gepOptions.primitives;
 
 	if (gepOptions.primitives == "?") {
-		std::cout<<"Default gates are: "<<gates<<"\n";
+		std::cout << "Default gates are: " << gates << "\n";
 		return 0;
 	}
 
@@ -134,7 +134,9 @@ int main(int argc, char* argv[])
 	SizeType seed = 12345;
 	try {
 		io.readline(seed, "RngSeed=");
-	} catch (std::exception&) {}
+	}
+	catch (std::exception&) {
+	}
 
 	if (gepOptions.chead > 0 && gepOptions.adfs == 0)
 		throw PsimagLite::RuntimeError("FATAL: You selected ADF head size H > 0 but ADF number a == 0\n");
@@ -149,14 +151,16 @@ int main(int argc, char* argv[])
 	PsimagLite::String runType;
 	io.readline(runType, "RunType=");
 
-	if (runType == "GroundState") gepOptions.samples = 1;
+	if (runType == "GroundState")
+		gepOptions.samples = 1;
 
 	typedef std::complex<double> ComplexType;
-    typedef Gep::QuasiVector<ComplexType> QuasiVectorType;
+	typedef Gep::QuasiVector<ComplexType> QuasiVectorType;
 	typedef Gep::QuantumCircuit<QuasiVectorType> PrimitivesType;
 	typedef Gep::Evolution<PrimitivesType> EvolutionType;
 	Gep::ParametersEngine<double> params(gepOptions);
-	if (threads > 0) params.threads = threads;
+	if (threads > 0)
+		params.threads = threads;
 	PsimagLite::CodeSectionParams codeSection(params.threads,
 	                                          1, // threads2
 	                                          false, // setAffinities,
@@ -168,9 +172,11 @@ int main(int argc, char* argv[])
 
 	if (runType == "FunctionFit") {
 		main2<Gep::QuantumFitness, EvolutionType>(evolution, params, io);
-	} else if (runType == "GroundState") {
+	}
+	else if (runType == "GroundState") {
 		main2<Gep::GroundStateFitness, EvolutionType>(evolution, params, io);
-	} else {
+	}
+	else {
 		err("RunType=FunctionFit or GroundState, but not " + runType + "\n");
 	}
 }

@@ -20,13 +20,13 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AST/Tree.h"
 #include "Chromosome.h"
+#include "Parallelizer2.h"
 #include "ParametersEngine.h"
 #include "Sort.h"
-#include "Parallelizer2.h"
 
 namespace Gep {
 
-template<template<typename> class FitnessTemplate, typename EvolutionType>
+template <template <typename> class FitnessTemplate, typename EvolutionType>
 class Engine {
 
 public:
@@ -37,7 +37,7 @@ public:
 	typedef PsimagLite::Tree<PrimitivesType> TreeType;
 	typedef double RealType;
 	typedef ParametersEngine<RealType> ParametersEngineType_;
-	typedef Chromosome<TreeType,EvolutionType,ParametersEngineType_> ChromosomeType;
+	typedef Chromosome<TreeType, EvolutionType, ParametersEngineType_> ChromosomeType;
 	typedef FitnessTemplate<ChromosomeType> FitnessType;
 	typedef typename FitnessType::FitnessParamsType FitnessParamsType;
 	typedef typename PsimagLite::Vector<ChromosomeType*>::Type VectorChromosomeType;
@@ -57,19 +57,18 @@ The engine constructor creates the initial individuals randomly.
 	Engine(const ParametersEngineType& params,
 	       EvolutionType& evolution,
 	       FitnessParamsType* fitnessParams = nullptr)
-	    : params_(params),
-	      evolution_(evolution),
-	      fitness_(params.samples, evolution, fitnessParams),
-	      fout_("fitness.txt")
+	    : params_(params)
+	    , evolution_(evolution)
+	    , fitness_(params.samples, evolution, fitnessParams)
+	    , fout_("fitness.txt")
 	{
 		constexpr SizeType threadNum = 0;
-		for (SizeType i = 0; i< params_.population; ++i) {
+		for (SizeType i = 0; i < params_.population; ++i) {
 			VectorStringType vecStr;
 			for (SizeType j = 0; j < params_.genes; ++j)
 				ProgramGlobals::pushVector(vecStr, evolution_.randomGene(params_.head));
 			for (SizeType j = 0; j < params_.adfs; ++j)
-				ProgramGlobals::pushVector(vecStr, evolution_.randomAdf(params_.chead,
-				                                                        params_.genes));
+				ProgramGlobals::pushVector(vecStr, evolution_.randomAdf(params_.chead, params_.genes));
 			ChromosomeType* chromosome = new ChromosomeType(params_,
 			                                                evolution_,
 			                                                vecStr,
@@ -115,8 +114,8 @@ fitness, where p is the population number set from the input file or the command
 		parallelizer2.parallelFor(0,
 		                          totalChromosomes,
 		                          [&parentFitness, &seeds, this](SizeType ind, SizeType threadNum) {
-			parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
-		});
+			                          parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
+		                          });
 
 		evolution_.nodeFactory().sync();
 
@@ -126,9 +125,9 @@ fitness, where p is the population number set from the input file or the command
 
 		evolve(newChromosomes, "mutate");
 
-		evolve(newChromosomes,"invert");
+		evolve(newChromosomes, "invert");
 
-		evolve(newChromosomes,"swap");
+		evolve(newChromosomes, "swap");
 
 		if (ind > 0 && !params_.options.isSet("noncanonical"))
 			canonicalizeAll(newChromosomes.first);
@@ -173,9 +172,8 @@ private:
 		for (SizeType i = 0; i < params_.descendants; i++) {
 			SizeType index1 = selectAccordingToFitness(parentFitness);
 			SizeType index2 = selectAccordingToFitness(parentFitness);
-			PairVectorStringType newStrings = chromosomes_[index1]->
-			        recombine(*chromosomes_[index2],
-			                  points);
+			PairVectorStringType newStrings = chromosomes_[index1]->recombine(*chromosomes_[index2],
+			                                                                  points);
 
 			addWithCare(newChromosomes, newStrings.first);
 
@@ -202,12 +200,13 @@ private:
 		if (totalFitness == 0)
 			return static_cast<SizeType>(evolution_.rng() * parentFitness.size());
 
-		RealType r = evolution_.rng()*totalFitness;
+		RealType r = evolution_.rng() * totalFitness;
 		RealType min = 0;
 		RealType max = 0;
 		for (SizeType i = 0; i < parentFitness.size(); i++) {
 			max += (-parentFitness[i] - minFitness);
-			if (r <= max && r >= min) return i;
+			if (r <= max && r >= min)
+				return i;
 			min = max;
 		}
 
@@ -254,28 +253,30 @@ private:
 		parallelizer2.parallelFor(0,
 		                          totalChromosomes,
 		                          [&newChromosomes,
-		                          &fitness,
-		                          &seeds,
-		                          isVerbose,
-		                          withProgressBar,
-		                          this](SizeType ind, SizeType threadNum) {
-			ChromosomeType chromosome(params_, evolution_, newChromosomes[ind], threadNum);
-			if (isVerbose)
-				std::cout<<"About to exec chromosome= "<<newChromosomes[ind]<<"\n";
-			fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind], threadNum);
-			newChromosomes[ind] = chromosome.vecString();
-			const int status = fitness_.status();
-			const PsimagLite::String symbol = (status == 0) ? "." : "*";
-			if (withProgressBar) std::cerr<<symbol;
-		});
+		                           &fitness,
+		                           &seeds,
+		                           isVerbose,
+		                           withProgressBar,
+		                           this](SizeType ind, SizeType threadNum) {
+			                          ChromosomeType chromosome(params_, evolution_, newChromosomes[ind], threadNum);
+			                          if (isVerbose)
+				                          std::cout << "About to exec chromosome= " << newChromosomes[ind] << "\n";
+			                          fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind], threadNum);
+			                          newChromosomes[ind] = chromosome.vecString();
+			                          const int status = fitness_.status();
+			                          const PsimagLite::String symbol = (status == 0) ? "." : "*";
+			                          if (withProgressBar)
+				                          std::cerr << symbol;
+		                          });
 
 		evolution_.nodeFactory().sync();
 
-		if (withProgressBar) std::cerr<<"\n";
+		if (withProgressBar)
+			std::cerr << "\n";
 
 		PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
 		PsimagLite::Vector<SizeType>::Type iperm(fitness.size());
-		sort.sort(fitness,iperm);
+		sort.sort(fitness, iperm);
 
 		VectorVectorStringType newChromosomes2 = newChromosomes;
 		for (SizeType i = 0; i < newChromosomes.size(); i++)
@@ -294,14 +295,15 @@ private:
 			addChromosome(newChromosomes[i], f);
 			if (i == 0) {
 				maxFitThisRound = f;
-			} else if (maxFitThisRound < f) {
+			}
+			else if (maxFitThisRound < f) {
 				maxFitThisRound = f;
 			}
 		}
 
-		fout_<<maxFitThisRound<<"\n";
+		fout_ << maxFitThisRound << "\n";
 		fout_.flush();
-		std::cout<<"----------------(first horiz.)\n";
+		std::cout << "----------------(first horiz.)\n";
 	}
 
 	void addChromosome(const VectorStringType& str, const RealType& f)
@@ -316,15 +318,15 @@ private:
 
 		chromosomes_.push_back(chromosome);
 
-		std::cout<<ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
+		std::cout << ProgramGlobals::vecStrToStr(chromosome->vecString(), " ");
 		const auto fit = (params_.options.isSet("printcompact")) ? " fit " : " fitness ";
-		std::cout<<fit<<f;
+		std::cout << fit << f;
 		if (!params_.options.isSet("novectorinfo")) {
-			std::cout<<" "<<fitness_.info(*chromosome);
+			std::cout << " " << fitness_.info(*chromosome);
 		}
 
 		const auto esize = (params_.options.isSet("printcompact")) ? " #= " : " effective size= ";
-		std::cout<<esize<<chromosome->effectiveSize()<<"\n";
+		std::cout << esize << chromosome->effectiveSize() << "\n";
 	}
 
 	bool notAdded(const VectorVectorStringType& newChromosomes,
@@ -332,7 +334,8 @@ private:
 	{
 		return (find(newChromosomes.begin(),
 		             newChromosomes.end(),
-		             newStr) == newChromosomes.end());
+		             newStr)
+		        == newChromosomes.end());
 	}
 
 	SizeType findIndexWithFitness(const ValueType& f,
@@ -342,14 +345,14 @@ private:
 	{
 		SizeType population = 2 * populationOver2;
 		SizeType index = 0;
-		ValueType value = f*fitness_.maxFitness();
-		ValueType min = getMax(fitness,value);
+		ValueType value = f * fitness_.maxFitness();
+		ValueType min = getMax(fitness, value);
 
 		for (SizeType i = populationOver2; i < population; i++) {
-			if (find(added.begin(),added.end(),i) != added.end())
+			if (find(added.begin(), added.end(), i) != added.end())
 				continue;
-			if (fabs(-fitness[i]-value) < min) {
-				min = fabs(-fitness[i]-value);
+			if (fabs(-fitness[i] - value) < min) {
+				min = fabs(-fitness[i] - value);
 				index = i;
 			}
 		}
@@ -357,41 +360,42 @@ private:
 		return index;
 	}
 
-	ValueType getMax(const VectorRealType& fitness,const ValueType& value) const
+	ValueType getMax(const VectorRealType& fitness, const ValueType& value) const
 	{
 		ValueType max = 0;
 		for (SizeType i = 0; i < fitness.size(); i++) {
-			if (fabs(-fitness[i]-value) > max) {
-				max = fabs(-fitness[i]-value);
+			if (fabs(-fitness[i] - value) > max) {
+				max = fabs(-fitness[i] - value);
 			}
 		}
 		return max;
 	}
 
-	void orderBySize(VectorVectorStringType& newChromosomes,const VectorRealType& fitness) const
+	void orderBySize(VectorVectorStringType& newChromosomes, const VectorRealType& fitness) const
 	{
 		constexpr SizeType threadNum = 0;
 		RealType value = -fitness_.maxFitness();
 		VectorRealType bestSize;
 
 		for (SizeType i = 0; i < fitness.size(); i++) {
-			if (fitness[i] != value) break;
+			if (fitness[i] != value)
+				break;
 			ChromosomeType chromosome(params_, evolution_, newChromosomes[i], threadNum);
 			bestSize.push_back(chromosome.effectiveSize());
-
 		}
-		if (bestSize.size() == 0) return;
+		if (bestSize.size() == 0)
+			return;
 
 		PsimagLite::Vector<SizeType>::Type iperm(bestSize.size());
 		PsimagLite::Sort<typename PsimagLite::Vector<RealType>::Type> sort;
-		sort.sort(bestSize,iperm);
+		sort.sort(bestSize, iperm);
 
 		VectorVectorStringType oldChromosomes = newChromosomes;
 		for (SizeType i = 0; i < fitness.size(); i++) {
-			if (fitness[i] != value) break;
+			if (fitness[i] != value)
+				break;
 			newChromosomes[i] = oldChromosomes[iperm[i]];
 		}
-
 	}
 
 	const ParametersEngineType& params_;

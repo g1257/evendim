@@ -5,7 +5,7 @@
 
 namespace Gep {
 
-template<typename ComplexOrRealType>
+template <typename ComplexOrRealType>
 class TwoBitGateLibrary {
 
 public:
@@ -20,9 +20,9 @@ public:
 	}
 }; // class GateLibrary
 
-template<typename VectorValueType>
+template <typename VectorValueType>
 class QuantumTwoBitGate : public PsimagLite::Node<VectorValueType,
-        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
+                                                  typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 public:
 
@@ -30,7 +30,8 @@ public:
 	typedef typename ValueType::value_type ComplexOrRealType;
 	typedef PsimagLite::Matrix<ComplexOrRealType> MatrixType;
 	typedef PsimagLite::Node<VectorValueType,
-	typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> NodeType;
+	                         typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type>
+	    NodeType;
 	typedef typename NodeType::VectorAnglesType VectorAnglesType;
 
 	QuantumTwoBitGate(PsimagLite::String cr,
@@ -38,10 +39,10 @@ public:
 	                  SizeType bitNumber2,
 	                  SizeType numberOfBits,
 	                  const MatrixType& gateMatrix)
-	    : code_(cr),
-	      bitNumber1_(bitNumber1),
-	      bitNumber2_(bitNumber2),
-	      gateMatrix_(gateMatrix)  // CNOT gate only has been implemented here
+	    : code_(cr)
+	    , bitNumber1_(bitNumber1)
+	    , bitNumber2_(bitNumber2)
+	    , gateMatrix_(gateMatrix) // CNOT gate only has been implemented here
 	{
 		code_ += ttos(bitNumber1);
 		code_ += "_";
@@ -66,15 +67,15 @@ public:
 		return exec(v);
 	}
 
-    // CNOT gate only has been implemented here
+	// CNOT gate only has been implemented here
 	virtual ValueType exec(const VectorValueType& v) const
 	{
 		assert(v.size() == 1);
 
 		const ValueType& vv = v[0];
 		const int n = vv.size();
-		assert(n == (1 << numberOfBits_));  // 2^N
-        return CNOT(vv, bitNumber1_, bitNumber2_);
+		assert(n == (1 << numberOfBits_)); // 2^N
+		return CNOT(vv, bitNumber1_, bitNumber2_);
 	}
 
 private:
@@ -83,10 +84,10 @@ private:
 	PsimagLite::String code_;
 	SizeType bitNumber1_;
 	SizeType bitNumber2_;
-	MatrixType gateMatrix_;  // CNOT gate only has been implemented here
+	MatrixType gateMatrix_; // CNOT gate only has been implemented here
 }; // class QuantumTwoBitGate
 
-template<typename T>
+template <typename T>
 SizeType QuantumTwoBitGate<T>::numberOfBits_ = 0;
 }
 

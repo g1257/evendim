@@ -5,11 +5,9 @@
 #include "InputNg.h"
 #include "PsimagLite.h"
 
-namespace Gep
-{
+namespace Gep {
 
-class Graph
-{
+class Graph {
 
 public:
 
@@ -64,7 +62,7 @@ public:
 		     ++site1) {
 			SizeType offset1 = findOffset(site1, pyramid);
 			VectorBoolType tmpVector(vertices - site1 - 1,
-			    false);
+			                         false);
 			for (SizeType site2 = site1 + 1;
 			     site2 < vertices;
 			     ++site2) {
@@ -103,7 +101,7 @@ public:
 	}
 
 	friend std::ostream& operator<<(std::ostream& os,
-	    const Graph& graph)
+	                                const Graph& graph)
 	{
 		const SizeType n = graph.vertices();
 		if (n < 2)
@@ -122,14 +120,14 @@ public:
 private:
 
 	void qaoaForVertex(PsimagLite::String& str,
-	    SizeType vertex) const
+	                   SizeType vertex) const
 	{
 		assert(vertex < triangular_.size());
 		neighborsToQaoa(str, triangular_[vertex]);
 	}
 
 	void neighborsToQaoa(PsimagLite::String& str,
-	    const VectorBoolType& v) const
+	                     const VectorBoolType& v) const
 	{
 		for (SizeType i = 0; i < v.size(); ++i) {
 			const unsigned char c = (v[i]) ? '1' : '0';
@@ -212,7 +210,7 @@ private:
 	}
 
 	void addToNeighbors(const SizeType site,
-	    PsimagLite::String neighs)
+	                    PsimagLite::String neighs)
 	{
 		assert(site + 1 < vertices_);
 		assert(neighs.size() == vertices_ - site - 1);
@@ -337,9 +335,9 @@ private:
 	}
 
 	static SizeType readUntil(PsimagLite::String& buffer,
-	    SizeType ind,
-	    PsimagLite::String data,
-	    unsigned char c)
+	                          SizeType ind,
+	                          PsimagLite::String data,
+	                          unsigned char c)
 	{
 		buffer = "";
 

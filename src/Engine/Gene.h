@@ -18,14 +18,14 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #ifndef GENE_H
 #define GENE_H
 
-#include "Vector.h"
-#include "TypeToString.h"
-#include "PsimagLite.h"
 #include "ProgramGlobals.h"
+#include "PsimagLite.h"
+#include "TypeToString.h"
+#include "Vector.h"
 
 namespace Gep {
 
-template<typename TreeType,typename EvolutionType>
+template <typename TreeType, typename EvolutionType>
 class Gene {
 
 public:
@@ -38,13 +38,13 @@ public:
 	typedef Gene<TreeType, EvolutionType> GeneType;
 
 	Gene(const Gene& other)
-	    : head_ (other.head_),
-	      tail_(other.tail_),
-	      vecStr_(other.vecStr_),
-	    isLinearTree_(other.isLinearTree_),
-	      vt_(other.vt_.size(), nullptr)
+	    : head_(other.head_)
+	    , tail_(other.tail_)
+	    , vecStr_(other.vecStr_)
+	    , isLinearTree_(other.isLinearTree_)
+	    , vt_(other.vt_.size(), nullptr)
 	{
-		const SizeType  n = vt_.size();
+		const SizeType n = vt_.size();
 		for (SizeType i = 0; i < n; ++i) {
 			vt_[i] = new TreeType(*other.vt_[i]);
 		}
@@ -55,10 +55,10 @@ public:
 	     const EvolutionType& evolution,
 	     const VectorStringType& vecStr,
 	     SizeType threadNum)
-	    : head_(head),
-	      tail_(evolution.tail(head)),
-	      vecStr_(vecStr),
-	    isLinearTree_(true)
+	    : head_(head)
+	    , tail_(evolution.tail(head))
+	    , vecStr_(vecStr)
+	    , isLinearTree_(true)
 	{
 		evolution.checkStringNonCell(vecStr_, head, isCell);
 
@@ -145,15 +145,18 @@ private:
 
 			va.push_back(a);
 			vt.push_back(tree);
-			if (sumOfA == 0) break;
+			if (sumOfA == 0)
+				break;
 		}
 
 		SizeType k = 0;
 		for (SizeType i = 0; i < vt.size(); i++) {
 			SizeType a = va[i];
-			if (a == 0 || !vt[i]) continue;
-			for (SizeType j = k+1; j < k+a+1; j++) {
-				if (j>=vt.size()) continue;
+			if (a == 0 || !vt[i])
+				continue;
+			for (SizeType j = k + 1; j < k + a + 1; j++) {
+				if (j >= vt.size())
+					continue;
 				vt[i]->setDescendants(*vt[j]);
 			}
 
@@ -164,7 +167,8 @@ private:
 	void deleteAll()
 	{
 		for (SizeType i = 0; i < vt_.size(); i++) {
-			if (vt_[i]) delete vt_[i];
+			if (vt_[i])
+				delete vt_[i];
 			vt_[i] = 0;
 		}
 	}

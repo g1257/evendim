@@ -1,5 +1,5 @@
-#include "PsimagLite.h"
 #include "Fitness/Graph.hh"
+#include "PsimagLite.h"
 
 int main(int argc, char* argv[])
 {
@@ -11,13 +11,14 @@ int main(int argc, char* argv[])
 	if (vertices < 2)
 		err(PsimagLite::String(argv[0]) + ": Expected at least two vertices\n");
 
-	SizeType n = vertices*(vertices - 1)/2;
-	Gep::Graph::LongUintType nstates = (1<<n);
-	std::cout<<"Graph, order "<<n<<"\n";
+	SizeType n = vertices * (vertices - 1) / 2;
+	Gep::Graph::LongUintType nstates = (1 << n);
+	std::cout << "Graph, order " << n << "\n";
 	for (Gep::Graph::LongUintType state = 0; state < nstates; ++state) {
 		Gep::Graph graph(state, vertices);
-		if (!graph.isConnected()) continue;
-		std::cout<<graph;
-		std::cout<<"----------------------------------------\n";
+		if (!graph.isConnected())
+			continue;
+		std::cout << graph;
+		std::cout << "----------------------------------------\n";
 	}
 }

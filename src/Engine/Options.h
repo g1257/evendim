@@ -1,9 +1,9 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
-#include "PsimagLite.h"
 #include "InputNg.h"
-#include <cctype>
+#include "PsimagLite.h"
 #include <algorithm>
+#include <cctype>
 #include <numeric>
 
 namespace Gep {
@@ -43,8 +43,7 @@ private:
 
 	static PsimagLite::String toLower(PsimagLite::String data)
 	{
-		std::transform(data.begin(), data.end(), data.begin(),
-		               [](unsigned char c){ return std::tolower(c); });
+		std::transform(data.begin(), data.end(), data.begin(), [](unsigned char c) { return std::tolower(c); });
 		return data;
 	}
 
@@ -53,7 +52,7 @@ private:
 		std::transform(vdata_.begin(),
 		               vdata_.end(),
 		               vdata_.begin(),
-		               [](PsimagLite::String s){ return toLower(s); });
+		               [](PsimagLite::String s) { return toLower(s); });
 	}
 
 	VectorStringType vdata_;

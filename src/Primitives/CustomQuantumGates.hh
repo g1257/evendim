@@ -9,12 +9,10 @@
 #include "Vector.h"
 #include <unordered_map>
 
-namespace Gep
-{
+namespace Gep {
 
 template <typename ComplexType>
-class CustomQuantumGates
-{
+class CustomQuantumGates {
 
 	typedef PsimagLite::Vector<PsimagLite::String>::Type
 	    VectorStringType;
@@ -25,7 +23,7 @@ class CustomQuantumGates
 public:
 
 	void push(const std::string& name,
-	    const PsimagLite::Matrix<PsimagLite::String>& symbolicMatrix)
+	          const PsimagLite::Matrix<PsimagLite::String>& symbolicMatrix)
 	{
 		if (indices_.count(name) > 0) {
 			err("Matrix named " + name + " already defined\n");
@@ -46,7 +44,7 @@ public:
 	}
 
 	void evaluate(MatrixType& matrix,
-	    const std::string& name2) const
+	              const std::string& name2) const
 	{
 		if (name2.substr(0, 2) == "CG")
 			return;
@@ -96,7 +94,7 @@ private:
 
 	static SizeType
 	getNumberOfParams(const PsimagLite::Matrix<PsimagLite::String>& symbolicMatrix,
-	    const std::string& name)
+	                  const std::string& name)
 	{
 		SizeType rows = symbolicMatrix.rows();
 		SizeType cols = symbolicMatrix.cols();
@@ -104,14 +102,14 @@ private:
 		for (SizeType i = 0; i < rows; ++i) {
 			for (SizeType j = 0; j < cols; ++j) {
 				pushParamsIfAny(seen,
-				    symbolicMatrix(i, j));
+				                symbolicMatrix(i, j));
 			}
 		}
 
 		SizeType maxParams = seen.size();
 		if (maxParams == 0)
 			err("Gate named " + name + " contains no parameters. Use CG "
-						   "instead.\n");
+			                           "instead.\n");
 
 		PsimagLite::Sort<std::vector<SizeType>> sort;
 		std::vector<SizeType> iperm(maxParams);
@@ -126,20 +124,20 @@ private:
 
 	// Up to 10 parameters from 0 to 9
 	static void pushParamsIfAny(std::vector<SizeType>& seen,
-	    const std::string& value)
+	                            const std::string& value)
 	{
 		SizeType l = value.length();
 		for (SizeType i = 0; i < l; ++i) {
 			if (value[i] == 'p') {
 				if (i + 1 == l)
 					err("Symbolic value " + value + " syntax error. Nothing "
-									"follows "
-									"p\n");
+					                                "follows "
+					                                "p\n");
 				unsigned char c = value[i + 1];
 				if ((c < 48) || (c > 57))
 					err("Symbolic value " + value + " syntax error. p must be "
-									"followed "
-									"by a digit.\n");
+					                                "followed "
+					                                "by a digit.\n");
 				SizeType x = c - 48;
 				if (std::find(seen.begin(), seen.end(), x)
 				    == seen.end())
@@ -150,7 +148,7 @@ private:
 
 	static std::complex<double>
 	maybeReplaceParam(const std::string& value,
-	    const std::vector<double>& params)
+	                  const std::vector<double>& params)
 	{
 		// Make a modifiable copy
 		PsimagLite::String copyOfExpr = value;
@@ -160,8 +158,8 @@ private:
 		// etc.
 		for (SizeType i = 0; i < params.size(); ++i) {
 			PsimagLite::replaceAll(copyOfExpr,
-			    "%p" + ttos(i),
-			    ttos(params[i]));
+			                       "%p" + ttos(i),
+			                       ttos(params[i]));
 		}
 
 		VectorStringType ve;

@@ -15,17 +15,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Evolution.h"
-#include "Primitives/QuantumCircuit.h"
 #include "Engine.h"
-#include <unistd.h>
-#include "Fitness/QuantumFitness.h"
+#include "Evolution.h"
 #include "Fitness/GroundStateFitness.h"
-#include "InputNg.h"
-#include "InputCheck.h"
+#include "Fitness/QuantumFitness.h"
 #include "FloatingPoint.h"
-#include "ProgramGlobals.h"
+#include "InputCheck.h"
+#include "InputNg.h"
+#include "Primitives/QuantumCircuit.h"
 #include "Primitives/QuasiVector.hh"
+#include "ProgramGlobals.h"
+#include <unistd.h>
 
 typedef double RealType;
 typedef std::complex<RealType> ComplexType;
@@ -37,11 +37,11 @@ typedef Gep::ParametersEngine<RealType> ParametersEngineType;
 typedef PsimagLite::Tree<PrimitivesType> TreeType;
 typedef Gep::Chromosome<TreeType, EvolutionType, ParametersEngineType> ChromosomeType;
 
-template<template<typename> class FitnessTemplate>
+template <template <typename> class FitnessTemplate>
 RealType getFitness2(PsimagLite::InputNg<Gep::InputCheck>::Readable& io,
                      const Gep::ParametersEngine<double>& params,
                      EvolutionType& evolution,
-                     const ChromosomeType&  chromosome)
+                     const ChromosomeType& chromosome)
 {
 	typedef Gep::Engine<FitnessTemplate, EvolutionType> EngineType;
 	typedef typename EngineType::FitnessType FitnessType;
@@ -59,14 +59,15 @@ RealType getFitness2(PsimagLite::InputNg<Gep::InputCheck>::Readable& io,
 RealType getFitness(PsimagLite::InputNg<Gep::InputCheck>::Readable& io,
                     const Gep::ParametersEngine<double>& params,
                     EvolutionType& evolution,
-                    const ChromosomeType&  chromosome)
+                    const ChromosomeType& chromosome)
 {
 	PsimagLite::String runType;
 	io.readline(runType, "RunType=");
 
 	if (runType == "FunctionFit") {
 		return getFitness2<Gep::QuantumFitness>(io, params, evolution, chromosome);
-	} else if (runType == "GroundState") {
+	}
+	else if (runType == "GroundState") {
 		return getFitness2<Gep::GroundStateFitness>(io, params, evolution, chromosome);
 	}
 
@@ -88,12 +89,11 @@ int main(int argc, char* argv[])
 	PsimagLite::String strUsage(argv[0]);
 	strUsage += " -f filename [-i filenameForVector] [-v] individual | -r size\n";
 	strUsage += "\t-f filename similar to the one used by quantumGep driver\n";
-	strUsage += "\t-i filenameForVector is an ASCII file with number of entries first " +
-	        PsimagLite::String("followed by entries separated by C++ whitespace\n");
+	strUsage += "\t-i filenameForVector is an ASCII file with number of entries first " + PsimagLite::String("followed by entries separated by C++ whitespace\n");
 	strUsage += "\tindividual is a comma-separated list of gates ending in 0\n";
 	strUsage += "\t-r size will generate a random vector of norm 1\n";
 
-	while ((opt = getopt(argc, argv,"f:i:r:c:p:v")) != -1) {
+	while ((opt = getopt(argc, argv, "f:i:r:c:p:v")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
@@ -122,8 +122,8 @@ int main(int argc, char* argv[])
 	if (randomSize > 0) {
 		QuasiVectorType rVector;
 		PsimagLite::MersenneTwister rng(12345);
-        rVector.randomize(randomSize, rng, 1., 0.);
-        rVector.print(std::cout);
+		rVector.randomize(randomSize, rng, 1., 0.);
+		rVector.print(std::cout);
 		return 0;
 	}
 
@@ -153,14 +153,16 @@ int main(int argc, char* argv[])
 		gates = gepOptions.primitives;
 
 	if (gepOptions.primitives == "?") {
-		std::cout<<"Default gates are: "<<gates<<"\n";
+		std::cout << "Default gates are: " << gates << "\n";
 		return 0;
 	}
 
 	SizeType seed = 12345;
 	try {
 		io.readline(seed, "RngSeed=");
-	} catch (std::exception&) {}
+	}
+	catch (std::exception&) {
+	}
 
 	VectorStringType tokens;
 
@@ -183,32 +185,32 @@ int main(int argc, char* argv[])
 	EvolutionType evolution(primitives, seed, verbose);
 
 	constexpr SizeType threadNum = 0;
-	ChromosomeType  chromosome(params,
-	                           evolution,
-	                           tokens,
-	                           threadNum);
+	ChromosomeType chromosome(params,
+	                          evolution,
+	                          tokens,
+	                          threadNum);
 
-    QuasiVectorType inVector(vectorFilename);
+	QuasiVectorType inVector(vectorFilename);
 
-    const SizeType x = (1 << numberOfBits);
+	const SizeType x = (1 << numberOfBits);
 	if (x != inVector.size())
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
 
-    std::cout<<"Norm of input state= "<<inVector.norm()<<"\n";
+	std::cout << "Norm of input state= " << inVector.norm() << "\n";
 	evolution.setInput(0, inVector, threadNum);
 
 	QuasiVectorType outVector = chromosome.exec(0);
-    std::cout<<"Norm of output state= "<<outVector.norm()<<"\n";
+	std::cout << "Norm of output state= " << outVector.norm() << "\n";
 
 	outVector.print(std::cout);
 
 	RealType f = getFitness(io, params, evolution, chromosome);
-	std::cout<<"Fitness= "<<f<<"\n";
+	std::cout << "Fitness= " << f << "\n";
 
 	VectorStringType vecStr = chromosome.effectiveVecString();
 	CanonicalFormType canonicalForm(vecStr, evolution.nodeFactory());
 	canonicalForm.changeIfNeeded(vecStr);
 	for (SizeType i = 0; i < vecStr.size(); ++i)
-		std::cout<<vecStr[i]<<" ";
-	std::cout<<"\n";
+		std::cout << vecStr[i] << " ";
+	std::cout << "\n";
 }

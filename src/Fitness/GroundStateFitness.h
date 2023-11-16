@@ -17,24 +17,24 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef EVENDIM_GROUND_STATE_FITNESS_H
 #define EVENDIM_GROUND_STATE_FITNESS_H
-#include "PsimagLite.h"
-#include "Minimizer.h"
-#include "MinimizerParams.h"
 #include "BaseFitness.h"
-#include "MersenneTwister.h"
 #include "GroundStateParams.h"
 #include "Hamiltonian.h"
+#include "MersenneTwister.h"
+#include "Minimizer.h"
+#include "MinimizerParams.h"
+#include "PsimagLite.h"
 
 namespace Gep {
 
-template<typename ChromosomeType, typename EvolutionType, typename GroundStateParamsType>
+template <typename ChromosomeType, typename EvolutionType, typename GroundStateParamsType>
 class FunctionToMinimize2 {
 public:
 
 	typedef typename GroundStateParamsType::ComplexType ComplexType;
-    typedef typename EvolutionType::PrimitivesType PrimitivesType;
-    typedef typename PrimitivesType::NodeType NodeType;
-    typedef typename NodeType::ValueType QuasiVectorType;
+	typedef typename EvolutionType::PrimitivesType PrimitivesType;
+	typedef typename PrimitivesType::NodeType NodeType;
+	typedef typename NodeType::ValueType QuasiVectorType;
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef RealType FieldType;
@@ -42,17 +42,18 @@ public:
 	typedef PsimagLite::Matrix<ComplexType> MatrixType;
 	typedef typename EvolutionType::NodeFactoryType NodeFactoryType;
 
-	enum class FunctionEnum {FITNESS, DIFFERENCE};
+	enum class FunctionEnum { FITNESS,
+		                  DIFFERENCE };
 
 	FunctionToMinimize2(EvolutionType& evolution,
 	                    const ChromosomeType& chromosome,
 	                    const GroundStateParamsType& groundStateParams,
 	                    SizeType thread)
-	    : evolution_(evolution),
-	      chromosome_(chromosome),
-	      groundStateParams_(groundStateParams),
-	      outVector_(groundStateParams_.inVector.size()),
-	      threadNum_(thread)
+	    : evolution_(evolution)
+	    , chromosome_(chromosome)
+	    , groundStateParams_(groundStateParams)
+	    , outVector_(groundStateParams_.inVector.size())
+	    , threadNum_(thread)
 	{
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
 	}
@@ -111,20 +112,23 @@ public:
 			                                evolution_,
 			                                vecStr,
 			                                threadNum_);
-		} else {
+		}
+		else {
 			chromosome = &chromosome_;
 		}
 
 		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
-		if (verbose) evolution_.printInputs(std::cout);
+		if (verbose)
+			evolution_.printInputs(std::cout);
 
 		// oracle goes here
 		RealType e = 0;
 		if (chromosome->isLinearTree()) {
-			//LinearTreeExecType linearTreeExec(chromosome->vecStr(), threadNum_);
-			// TODO: FIXME: Consider Hamiltonian and initial state
-			e = 0; //linearTreeExec.getEnergy();
-		} else {
+			// LinearTreeExecType linearTreeExec(chromosome->vecStr(), threadNum_);
+			//  TODO: FIXME: Consider Hamiltonian and initial state
+			e = 0; // linearTreeExec.getEnergy();
+		}
+		else {
 			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
 		}
 
@@ -164,7 +168,8 @@ public:
 				continue;
 			}
 
-			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag) continue;
+			if (numberOfAnglesOneGate(vecStr[i]) == 0 || !flag)
+				continue;
 			PsimagLite::String str = vecStr[i];
 			str = NodeFactoryType::stripPreviousAngleIfAny(str);
 			if (angles.size() < currentIndex)
@@ -185,7 +190,8 @@ public:
 		SizeType currentIndex = 0;
 		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < n; ++i) {
-			if (numberOfAnglesOneGate(vStr[i]) == 0) continue;
+			if (numberOfAnglesOneGate(vStr[i]) == 0)
+				continue;
 			if (angles.size() < currentIndex)
 				err("initAngles: too few angles for individual\n");
 
@@ -198,7 +204,7 @@ public:
 
 private:
 
-	template<typename SomeRngType>
+	template <typename SomeRngType>
 	static void initAngle(RealType& angle,
 	                      PsimagLite::String str,
 	                      SomeRngType& rng)
@@ -207,7 +213,7 @@ private:
 		                                                           str.end(),
 		                                                           ':');
 		if (it == str.end()) {
-			angle = 2*M_PI*rng();
+			angle = 2 * M_PI * rng();
 			return;
 		}
 
@@ -229,7 +235,8 @@ private:
 
 	static SizeType numberOfAnglesOneGate(PsimagLite::String str)
 	{
-		if (str.length() == 0) return 0;
+		if (str.length() == 0)
+			return 0;
 		return (str[0] == 'R' || str.substr(0, 2) == "PG") ? 1 : 0;
 	}
 
@@ -264,7 +271,8 @@ private:
 		for (SizeType i = 0; i < n; ++i) {
 			w[i] = v[i];
 			SizeType m = numberOfAnglesOneGate(v[i]);
-			if (m == 0) continue;
+			if (m == 0)
+				continue;
 			if (m == 1) {
 				if (count++ == angleIndex)
 					w[i] = "_" + v[i];
@@ -297,7 +305,7 @@ $\langle v|H|v\rangle,$ where $|v\rangle$ is the vector produced
 by the individual (that is, the quantum circuit) when applied to the
 initial state, and $H$ is the Hamiltonian.
 */
-template<typename ChromosomeType>
+template <typename ChromosomeType>
 class GroundStateFitness : public BaseFitness<ChromosomeType> {
 
 public:
@@ -316,10 +324,10 @@ public:
 	typedef GroundStateParamsType FitnessParamsType;
 
 	GroundStateFitness(SizeType samples,
-	                  EvolutionType& evolution,
-	                  FitnessParamsType* fitParams)
-	    : evolution_(evolution),
-	      fitParams_(*fitParams)
+	                   EvolutionType& evolution,
+	                   FitnessParamsType* fitParams)
+	    : evolution_(evolution)
+	    , fitParams_(*fitParams)
 	{
 		if (evolution.numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
@@ -335,14 +343,15 @@ public:
 	                    SizeType threadNum)
 	{
 		typedef FunctionToMinimize2<ChromosomeType, EvolutionType, GroundStateParamsType>
-		        FunctionToMinimizeType;
+		    FunctionToMinimizeType;
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename ChromosomeType::VectorStringType VectorStringType;
 
 		evolution_.setInput(0, fitParams_.inVector, threadNum);
 
-        RealType norma = fitParams_.inVector.norm();
-		if (fabs(norma - 1) > 1e-4) err("Input vector not normalized\n");
+		RealType norma = fitParams_.inVector.norm();
+		if (fabs(norma - 1) > 1e-4)
+			err("Input vector not normalized\n");
 
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
@@ -362,9 +371,11 @@ public:
 			used = min.simplex(angles,
 			                   minParams.delta,
 			                   minParams.tol);
-		} else if (minParams.algo == MinimizerParamsType::NONE) {
+		}
+		else if (minParams.algo == MinimizerParamsType::NONE) {
 			used = 1;
-		} else {
+		}
+		else {
 			used = min.conjugateGradient(angles,
 			                             minParams.delta,
 			                             minParams.delta2,
@@ -392,23 +403,25 @@ public:
 		}
 
 		const bool printFooter = minParams.verbose;
-		//const int returnStatus = (used > 0) ? 0 : 1;
+		// const int returnStatus = (used > 0) ? 0 : 1;
 
 		RealType value = f.fitness(&angles,
 		                           FunctionToMinimizeType::FunctionEnum::FITNESS,
 		                           evolution_.verbose());
 
-		if (!printFooter) return value; // <--- EARLY EXIT HERE
+		if (!printFooter)
+			return value; // <--- EARLY EXIT HERE
 
-		std::cerr<<"QuantumOracle::minimize(): ";
+		std::cerr << "QuantumOracle::minimize(): ";
 		if (min.status() == MinimizerType::GSL_SUCCESS) {
-			std::cerr<<" converged after ";
-		} else {
-			std::cerr<<"NOT CONVERGED after ";
+			std::cerr << " converged after ";
+		}
+		else {
+			std::cerr << "NOT CONVERGED after ";
 		}
 
 		++used;
-		std::cerr<<used<<" iterations. "<<toString(angles)<<"\n";
+		std::cerr << used << " iterations. " << toString(angles) << "\n";
 
 		return value;
 	}

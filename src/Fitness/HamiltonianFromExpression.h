@@ -1,14 +1,14 @@
 #ifndef HAMILTONIANFROMEXPRESSION_H
 #define HAMILTONIANFROMEXPRESSION_H
-#include "Vector.h"
-#include "CanonicalExpression.h"
-#include "HamiltonianSpec.h"
-#include "CrsMatrix.h"
 #include "AuxForHamSpec.h"
+#include "CanonicalExpression.h"
+#include "CrsMatrix.h"
+#include "HamiltonianSpec.h"
+#include "Vector.h"
 
 namespace Gep {
 
-template<typename ComplexType>
+template <typename ComplexType>
 class HamiltonianFromExpression {
 
 public:
@@ -21,7 +21,8 @@ public:
 	// 0.42*P3;H2+-4.2*Rx0:1.57*Sy1
 	HamiltonianFromExpression(PsimagLite::String expression,
 	                          SizeType numberOfBits)
-	    : hamString_(expression), bits_(numberOfBits)
+	    : hamString_(expression)
+	    , bits_(numberOfBits)
 	{
 		fillMatrix();
 	}
@@ -36,7 +37,7 @@ public:
 		crsMatrixToFullMatrix(dense, matrix);
 		typename PsimagLite::Vector<RealType>::Type eigs(dense.rows());
 		diag(dense, eigs, 'V');
-		std::cout<<"gs energy="<<eigs[0]<<"\n";
+		std::cout << "gs energy=" << eigs[0] << "\n";
 	}
 
 private:
@@ -58,7 +59,8 @@ private:
 		PsimagLite::String buffer;
 		const SizeType n = str.length();
 		for (SizeType i = 0; i < n; ++i)
-			if (str[i] != ' ') buffer += str[i];
+			if (str[i] != ' ')
+				buffer += str[i];
 		return buffer;
 	}
 

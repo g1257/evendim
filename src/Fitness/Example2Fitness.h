@@ -21,7 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename ChromosomeType>
+template <typename ChromosomeType>
 class Example2Fitness : public BaseFitness<ChromosomeType> {
 
 public:
@@ -34,7 +34,8 @@ public:
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 	Example2Fitness(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
-	    : samples_(samples),evolution_(evolution)
+	    : samples_(samples)
+	    , evolution_(evolution)
 	{
 		if (evolution.numberOfInputs() != 1) {
 			throw PsimagLite::RuntimeError("Example2Fitness::ctor(): 1 input expected\n");
@@ -49,12 +50,13 @@ public:
 		RealType sum = 0;
 		PsimagLite::MersenneTwister rng(seed);
 		for (SizeType i = 0; i < maxFitness(); i++) {
-			SizeType x = static_cast<SizeType>(rng()*1000);
+			SizeType x = static_cast<SizeType>(rng() * 1000);
 			RealType fOfX = f(x);
 			evolution_.setInput(0, x, threadNum);
-			if (verbose) evolution_.printInputs(std::cout);
+			if (verbose)
+				evolution_.printInputs(std::cout);
 
-			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
+			RealType tmp = fabs((chromosome.exec(0) - fOfX) / fOfX);
 
 			sum += (1.0 - fabs(tmp));
 		}
@@ -67,12 +69,14 @@ private:
 
 	RealType f(const SizeType& x)
 	{
-		if (x<4) return 1;
+		if (x < 4)
+			return 1;
 
 		SizeType sqrtX = 1 + static_cast<SizeType>(sqrt(x));
 
 		for (SizeType i = 2; i < sqrtX; i++) {
-			if (x % i == 0) return -1;
+			if (x % i == 0)
+				return -1;
 		}
 
 		return 1;

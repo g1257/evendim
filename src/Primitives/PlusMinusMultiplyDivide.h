@@ -17,17 +17,17 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef PLUS_MINUS_MULT_DIV_H
 #define PLUS_MINUS_MULT_DIV_H
-#include "Vector.h"
-#include <cassert>
 #include "AST/Node.h"
+#include "CanonicalFormEmpty.h"
+#include "MersenneTwister.h"
 #include "NodeAdf.h"
 #include "NodeDc.h"
-#include "MersenneTwister.h"
-#include "CanonicalFormEmpty.h"
+#include "Vector.h"
+#include <cassert>
 
 namespace Gep {
 
-template<typename ValueType_>
+template <typename ValueType_>
 class PlusMinusMultiplyDivide {
 
 public:
@@ -50,7 +50,9 @@ public:
 	PlusMinusMultiplyDivide(SizeType inputs,
 	                        SizeType genes,
 	                        SizeType constants)
-	    : dcValues_(constants), dcArray_(constants), rng_(1000)
+	    : dcValues_(constants)
+	    , dcArray_(constants)
+	    , rng_(1000)
 	{
 		addConstants();
 
@@ -63,8 +65,8 @@ public:
 		NodeType* times = new TimesType();
 		nodes_.push_back(times);
 
-//		NodeType* dividedBy = new DividedByType();
-//		nodes_.push_back(dividedBy);
+		//		NodeType* dividedBy = new DividedByType();
+		//		nodes_.push_back(dividedBy);
 
 		for (SizeType i = 0; i < inputs; i++) {
 			NodeType* input = new InputType(i);
@@ -72,7 +74,7 @@ public:
 		}
 
 		for (SizeType i = 0; i < genes; i++) {
-			NodeType* adf = new NodeAdfType(i,0);
+			NodeType* adf = new NodeAdfType(i, 0);
 			nodes_.push_back(adf);
 		}
 	}
@@ -98,10 +100,11 @@ private:
 
 	void addConstants()
 	{
-		if (dcValues_.size() == 0) return;
+		if (dcValues_.size() == 0)
+			return;
 		dcArray_.resize(dcValues().size());
 		for (SizeType i = 0; i < dcValues_.size(); i++) {
-			dcValues_[i] = 10.0*rng_() - 10.0;
+			dcValues_[i] = 10.0 * rng_() - 10.0;
 			dcArray_[i] = ttos(i);
 		}
 
@@ -112,7 +115,7 @@ private:
 	VectorValueType dcValues_;
 	VectorStringType dcArray_;
 	VectorNodeType nodes_;
-	mutable PsimagLite::MersenneTwister rng_; //RandomForTests<double> rng_;
+	mutable PsimagLite::MersenneTwister rng_; // RandomForTests<double> rng_;
 }; // class PlusMinusMultiplyDivide
 
 } // namespace Gep

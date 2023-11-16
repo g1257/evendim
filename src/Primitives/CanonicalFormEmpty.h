@@ -10,11 +10,10 @@ public:
 
 	typedef PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 
-	template<typename T>
-	CanonicalFormEmpty(const VectorStringType&, const T&) {}
+	template <typename T>
+	CanonicalFormEmpty(const VectorStringType&, const T&) { }
 
-	void changeIfNeeded(VectorStringType&) const {}
-
+	void changeIfNeeded(VectorStringType&) const { }
 };
 }
 #endif // CANONICAL_FORM_EMPTY_H

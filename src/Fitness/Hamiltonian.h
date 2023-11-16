@@ -1,25 +1,28 @@
 #ifndef EVENDIM_HAMILTONIAN_H
 #define EVENDIM_HAMILTONIAN_H
-#include "InputNg.h"
-#include "InputCheck.h"
-#include "PsimagLite.h"
+#include "../Primitives/QuasiVector.hh"
 #include "CrsMatrix.h"
 #include "HamiltonianFromExpression.h"
+#include "InputCheck.h"
+#include "InputNg.h"
 #include "IsingGraph.hh"
-#include "../Primitives/QuasiVector.hh"
+#include "PsimagLite.h"
 
 namespace Gep {
 
 // H = coupling*\sum_{i} sigma^x_i sigma^x_{i + 1}
-template<typename ComplexType>
+template <typename ComplexType>
 class Hamiltonian {
 
 public:
 
-	enum class TypeEnum {FILE, XX, EXPRESSION, ISING_GRAPH};
+	enum class TypeEnum { FILE,
+		              XX,
+		              EXPRESSION,
+		              ISING_GRAPH };
 
 	typedef PsimagLite::InputNg<InputCheck> InputNgType;
-    typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
+	typedef typename PsimagLite::Vector<ComplexType>::Type VectorType;
 	typedef QuasiVector<ComplexType> QuasiVectorType;
 	typedef typename PsimagLite::Vector<QuasiVectorType>::Type VectorQuasiVectorType;
 	typedef typename PsimagLite::Vector<SizeType>::Type VectorSizeType;
@@ -32,12 +35,12 @@ public:
 	typedef IsingGraph<ComplexType> IsingGraphType;
 
 	Hamiltonian(typename InputNgType::Readable& io, SizeType numberOfThreads)
-	    : hamTipo(TypeEnum::XX),
-	      bits_(0),
-	      periodic_(false),
-	      isingGraph_(nullptr),
-	      needsTransformAndTruncate_(false)
-    {
+	    : hamTipo(TypeEnum::XX)
+	    , bits_(0)
+	    , periodic_(false)
+	    , isingGraph_(nullptr)
+	    , needsTransformAndTruncate_(false)
+	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 
 		PsimagLite::String ham;
@@ -51,8 +54,7 @@ public:
 			SizeType hilbert = (1 << bits_);
 
 			if (matrix_.rows() != hilbert && !needsTransformAndTruncate_)
-				err("Matrix rows = " + ttos(matrix_.rows()) + " but " +
-				    ttos(hilbert) + " expected or a Basis= line needed\n");
+				err("Matrix rows = " + ttos(matrix_.rows()) + " but " + ttos(hilbert) + " expected or a Basis= line needed\n");
 
 			assert(isHermitian(matrix_, true));
 
@@ -62,7 +64,9 @@ public:
 		RealType coupling = 1;
 		try {
 			io.readline(coupling, "HamiltonianCoupling=");
-		} catch (std::exception&) {}
+		}
+		catch (std::exception&) {
+		}
 
 		bool hasPeriodic = false;
 		try {
@@ -70,7 +74,9 @@ public:
 			io.readline(tmp, "HamiltonianIsPeriodic=");
 			periodic_ = (tmp > 0);
 			hasPeriodic = true;
-		} catch (std::exception&) {}
+		}
+		catch (std::exception&) {
+		}
 
 		if (ham == "IsingGraph" || ham == "zz") {
 			PsimagLite::String graphFile = "zz";
@@ -110,7 +116,7 @@ public:
 
 			RealType hJ = 0;
 			io.readline(hJ, "HamiltonianJ=");
-			matrix_ = hJ*matrixZxZ;
+			matrix_ = hJ * matrixZxZ;
 
 			RealType h1 = 0;
 			io.readline(h1, "Hamiltonianh1=");
@@ -119,9 +125,9 @@ public:
 			RealType h2 = 0;
 			io.readline(h2, "Hamiltonianh2=");
 			addMatrixWithWeight(matrix_, h2, matrixXx);
-
-		} else {
-			std::cerr<<"Asumming Hamiltonian Expression\n";
+		}
+		else {
+			std::cerr << "Asumming Hamiltonian Expression\n";
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
 			matrix_ = hamExpression.getMatrix();
 		}
@@ -133,17 +139,16 @@ public:
 	RealType energy(const QuasiVectorType& y, SizeType threadNum) const
 	{
 		switch (hamTipo) {
-		case  TypeEnum::ISING_GRAPH: {
+		case TypeEnum::ISING_GRAPH: {
 			assert(isingGraph_);
-            return isingGraph_->energyZZ(y.toVector());
+			return isingGraph_->energyZZ(y.toVector());
 			break;
 		}
 
-        default: {
-            return tensorEnergy(y, matrix_, y);
+		default: {
+			return tensorEnergy(y, matrix_, y);
 			break;
 		}
-
 		}
 	}
 
@@ -153,13 +158,14 @@ public:
 		const SizeType n = v.size();
 		PsimagLite::String buffer;
 		for (SizeType i = 0; i < n; ++i) {
-            if (v.hasWeight(i, epsilon)) buffer += ttos(i) + " ";
+			if (v.hasWeight(i, epsilon))
+				buffer += ttos(i) + " ";
 		}
 
 		return buffer;
 	}
 
-	template<typename SomeChromosomeType>
+	template <typename SomeChromosomeType>
 	PsimagLite::String info(const SomeChromosomeType& chromosome) const
 	{
 		return info(chromosome.exec(0), 1e-4);
@@ -185,9 +191,11 @@ private:
 				SizeType maskSite = (1 << site);
 				SizeType j = i ^ maskSite;
 				SizeType site2 = site + 1;
-				if (site2 >= bits_ && !periodic_) continue;
+				if (site2 >= bits_ && !periodic_)
+					continue;
 				assert(site2 <= bits_);
-				if (site2 == bits_) site2 = 0;
+				if (site2 == bits_)
+					site2 = 0;
 				SizeType maskSite2 = (1 << site2);
 				j ^= maskSite2;
 				v[j] += coupling;
@@ -203,7 +211,7 @@ private:
 		VectorRealType eigs(hilbertSpace);
 		PsimagLite::Matrix<ComplexType> a = matrix_.toDense();
 		diag(a, eigs, 'V');
-		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
+		std::cout << "Ground State Energy=" << eigs[0] << "\n";
 	}
 
 	SizeType fillThisRow(VectorRealType& v, VectorBoolType& bcols)
@@ -212,7 +220,8 @@ private:
 		assert(hilbertSpace == bcols.size());
 		SizeType counter = 0;
 		for (SizeType i = 0; i < hilbertSpace; ++i) {
-			if (!bcols[i]) continue;
+			if (!bcols[i])
+				continue;
 			matrix_.pushCol(i);
 			matrix_.pushValue(v[i]);
 			++counter;
@@ -230,10 +239,10 @@ private:
 			err("Could not open file " + filename + "\n");
 
 		SizeType rows = 0;
-		fin>>rows;
+		fin >> rows;
 
-		SizeType cols =0;
-		fin>>cols;
+		SizeType cols = 0;
+		fin >> cols;
 		if (rows != cols)
 			err("Hamiltonian must have rows==cols\n");
 
@@ -247,7 +256,9 @@ private:
 		try {
 			io.read(scale, "ScaleHamiltonian");
 			hasScale = true;
-		} catch (std::exception&) {}
+		}
+		catch (std::exception&) {
+		}
 
 		scaleHamiltonian(mat, scale, hasScale);
 
@@ -255,25 +266,29 @@ private:
 			io.read(basis_, "Basis");
 			needsTransformAndTruncate_ = true;
 			transformAndTruncate(mat);
-			std::cerr<<"Has basis of size "<<basis_.size()<<"\n";
-		} catch (std::exception&) {
+			std::cerr << "Has basis of size " << basis_.size() << "\n";
+		}
+		catch (std::exception&) {
 			fullMatrixToCrsMatrix(matrix_, mat);
 			printGs(mat);
 		}
 	}
 
 	static void scaleHamiltonian(PsimagLite::Matrix<ComplexType>& mat,
-                                 const VectorType& scale, bool hasScale)
+	                             const VectorType& scale,
+	                             bool hasScale)
 	{
-		if (!hasScale) return;
+		if (!hasScale)
+			return;
 
 		if (scale.size() != 2)
 			err("Expecting ScaleHamiltonian a vector of two entries\n");
 
 		for (SizeType i = 0; i < mat.rows(); ++i) {
 			for (SizeType j = 0; j < mat.cols(); ++j) {
-				ComplexType val = scale[0]*mat(i, j);
-				if (i == j) val += scale[1];
+				ComplexType val = scale[0] * mat(i, j);
+				if (i == j)
+					val += scale[1];
 				mat(i, j) = val;
 			}
 		}
@@ -284,19 +299,19 @@ private:
 		assert(mat.rows() == mat.cols());
 		VectorRealType eigs(mat.rows());
 		diag(mat, eigs, 'V');
-		std::cout<<"Ground State Energy="<<eigs[0]<<"\n";
-		std::cout<<"Eigenvector------------\n";
+		std::cout << "Ground State Energy=" << eigs[0] << "\n";
+		std::cout << "Eigenvector------------\n";
 		ComplexType sum = 0;
 		for (SizeType i = 0; i < mat.rows(); ++i) {
 			ComplexType val = mat(i, 0);
-			sum += val*PsimagLite::conj(val);
+			sum += val * PsimagLite::conj(val);
 			if (std::norm(val) < 1e-8)
 				continue;
 
-			std::cout<<i<<" "<<mat(i, 0)<<"\n";
+			std::cout << i << " " << mat(i, 0) << "\n";
 		}
 
-		std::cout<<"-------- End eigenvector="<<sum<<"\n\n";
+		std::cout << "-------- End eigenvector=" << sum << "\n\n";
 	}
 
 	void transformAndTruncate(PsimagLite::Matrix<ComplexType>& mat)
@@ -326,14 +341,16 @@ private:
 	                                    const PsimagLite::String& C,
 	                                    SizeType n)
 	{
-		if (n < 3) err("createNnn needs at least three sites\n");
+		if (n < 3)
+			err("createNnn needs at least three sites\n");
 		SizeType nMinusTwo = n - 2;
 		assert(nMinusTwo < n);
 		PsimagLite::String buffer;
 		for (SizeType i = 0; i < nMinusTwo; ++i) {
 			SizeType j = i + 1;
 			SizeType k = i + 2;
-			if (i > 0) buffer += "+";
+			if (i > 0)
+				buffer += "+";
 			buffer += A + ttos(i) + "*" + B + ttos(j) + "*" + C + ttos(k);
 		}
 
@@ -344,13 +361,15 @@ private:
 	                                   const PsimagLite::String& B,
 	                                   SizeType n)
 	{
-		if (n < 2) err("createNn needs at least two sites\n");
+		if (n < 2)
+			err("createNn needs at least two sites\n");
 		SizeType nMinusOne = n - 1;
 		assert(nMinusOne < n);
 		PsimagLite::String buffer;
 		for (SizeType i = 0; i < nMinusOne; ++i) {
 			SizeType j = i + 1;
-			if (i > 0) buffer += "+";
+			if (i > 0)
+				buffer += "+";
 			buffer += A + ttos(i) + "*" + B + ttos(j);
 		}
 
@@ -360,10 +379,12 @@ private:
 	static PsimagLite::String createLocal(const PsimagLite::String& A,
 	                                      SizeType n)
 	{
-		if (n < 1) err("createLocal needs at least one site\n");
+		if (n < 1)
+			err("createLocal needs at least one site\n");
 		PsimagLite::String buffer;
 		for (SizeType i = 0; i < n; ++i) {
-			if (i > 0) buffer += "+";
+			if (i > 0)
+				buffer += "+";
 			buffer += A + ttos(i);
 		}
 
@@ -372,7 +393,7 @@ private:
 
 	static void addMatrixWithWeight(SparseMatrixType& m, RealType weight, const SparseMatrixType& a)
 	{
-		m += weight*a;
+		m += weight * a;
 	}
 
 	TypeEnum hamTipo;

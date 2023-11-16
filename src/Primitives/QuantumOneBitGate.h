@@ -1,13 +1,13 @@
 #ifndef QUANTUM_ONE_BIT_GATES_H
 #define QUANTUM_ONE_BIT_GATES_H
 #include "AST/Node.h"
-#include "Matrix.h"
 #include "CustomQuantumGates.hh"
+#include "Matrix.h"
 #include "QuasiVector.hh"
 
 namespace Gep {
 
-template<typename ComplexOrRealType>
+template <typename ComplexOrRealType>
 class OneBitGateLibrary {
 
 public:
@@ -23,11 +23,11 @@ public:
 		if (name.substr(0, 2) == "CG" || name.substr(0, 2) == "PG") {
 			assert(customQuantumGates);
 			customQuantumGates->evaluate(gateMatrix, name);
-		} else {
+		}
+		else {
 			fillAnyGateBasic(gateMatrix, name);
 		}
 	}
-
 
 	static void fillPauli(MatrixType& gateMatrix, SizeType dir)
 	{
@@ -55,8 +55,8 @@ public:
 	// ind = 2 means rotation around z
 	static void rotation(MatrixType& gateMatrix, SizeType ind, RealType angle)
 	{
-		const RealType cosine = cos(0.5*angle);
-		const RealType sine = sin(0.5*angle);
+		const RealType cosine = cos(0.5 * angle);
+		const RealType sine = sin(0.5 * angle);
 
 		gateMatrix.resize(2, 2);
 		if (ind == 0) {
@@ -65,13 +65,15 @@ public:
 			gateMatrix(1, 0) = ComplexOrRealType(0, -sine);
 			gateMatrix(1, 1) = cosine;
 			return;
-		} else if (ind == 1) {
+		}
+		else if (ind == 1) {
 			gateMatrix(0, 0) = cosine;
 			gateMatrix(0, 1) = -sine;
 			gateMatrix(1, 0) = sine;
 			gateMatrix(1, 1) = cosine;
 			return;
-		} else if (ind == 2) {
+		}
+		else if (ind == 2) {
 			gateMatrix(0, 0) = ComplexOrRealType(cosine, -sine);
 			gateMatrix(0, 1) = 0;
 			gateMatrix(1, 0) = 0;
@@ -85,8 +87,8 @@ public:
 	// ind = 2 means rotation around z
 	static void diffRotation(MatrixType& gateMatrix, SizeType ind, RealType angle)
 	{
-		const RealType cosine = 0.5*cos(0.5*angle);
-		const RealType sine = 0.5*sin(0.5*angle);
+		const RealType cosine = 0.5 * cos(0.5 * angle);
+		const RealType sine = 0.5 * sin(0.5 * angle);
 
 		gateMatrix.resize(2, 2);
 		if (ind == 0) {
@@ -95,13 +97,15 @@ public:
 			gateMatrix(1, 0) = ComplexOrRealType(0, -cosine);
 			gateMatrix(1, 1) = -sine;
 			return;
-		} else if (ind == 1) {
+		}
+		else if (ind == 1) {
 			gateMatrix(0, 0) = -sine;
 			gateMatrix(0, 1) = -cosine;
 			gateMatrix(1, 0) = cosine;
 			gateMatrix(1, 1) = -sine;
 			return;
-		} else if (ind == 2) {
+		}
+		else if (ind == 2) {
 			gateMatrix(0, 0) = ComplexOrRealType(-sine, -cosine);
 			gateMatrix(0, 1) = 0;
 			gateMatrix(1, 0) = 0;
@@ -123,7 +127,8 @@ public:
 	static SizeType directionCharToInteger(char c)
 	{
 		int val = c - 120;
-		if (val >= 0 && val < 3) return val;
+		if (val >= 0 && val < 3)
+			return val;
 
 		throw PsimagLite::RuntimeError("findDirectionOfRotation\n");
 	}
@@ -143,7 +148,7 @@ private:
 		}
 
 		if (name == "T") {
-			RealType oneOverSqrt2 = 1.0/sqrt(2.0);
+			RealType oneOverSqrt2 = 1.0 / sqrt(2.0);
 			fillPhaseOrT(gateMatrix, oneOverSqrt2, oneOverSqrt2);
 			return;
 		}
@@ -187,7 +192,7 @@ private:
 
 	static void fillHadamard(MatrixType& gateMatrix)
 	{
-		static const ComplexOrRealType oneOverSqrt2 = 1/sqrt(2.);
+		static const ComplexOrRealType oneOverSqrt2 = 1 / sqrt(2.);
 
 		gateMatrix.resize(2, 2);
 		gateMatrix(0, 0) = oneOverSqrt2;
@@ -204,9 +209,9 @@ private:
 	}
 }; // class GateLibrary
 
-template<typename VectorValueType>
+template <typename VectorValueType>
 class QuantumOneBitGate : public PsimagLite::Node<VectorValueType,
-        typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
+                                                  typename PsimagLite::Real<typename VectorValueType::value_type::value_type>::Type> {
 
 public:
 
@@ -222,9 +227,9 @@ public:
 	                  SizeType bitNumber,
 	                  SizeType numberOfBits,
 	                  const MatrixType& gateMatrix)
-	    : code_(cr),
-	      bitNumber_(bitNumber),
-	      gateMatrix_(gateMatrix)
+	    : code_(cr)
+	    , bitNumber_(bitNumber)
+	    , gateMatrix_(gateMatrix)
 	{
 		code_ += ttos(bitNumber);
 		numberOfBits_ = numberOfBits;
@@ -245,9 +250,9 @@ public:
 
 		const ValueType& vv = v[0];
 		const int n = vv.size();
-		assert(n == (1 << numberOfBits_));  // 2^N
+		assert(n == (1 << numberOfBits_)); // 2^N
 
-        return oneBitGate(vv, bitNumber_, gateMatrix_);
+		return oneBitGate(vv, bitNumber_, gateMatrix_);
 	}
 
 	void setAngle(PsimagLite::String str) const
@@ -304,9 +309,12 @@ private:
 
 	char directionOfRotation() const
 	{
-		if (code_[0] == 'R') return code_[1];
-		if (code_.substr(0, 2) == "_R") return code_[2];
-		if (code_.substr(0, 2) == "PG") return 'x';
+		if (code_[0] == 'R')
+			return code_[1];
+		if (code_.substr(0, 2) == "_R")
+			return code_[2];
+		if (code_.substr(0, 2) == "PG")
+			return 'x';
 		throw PsimagLite::RuntimeError("directionOfRotation\n");
 	}
 
@@ -335,10 +343,10 @@ private:
 	mutable MatrixType gateMatrix_;
 }; // class QuantumOneBitGate
 
-template<typename T>
+template <typename T>
 SizeType QuantumOneBitGate<T>::numberOfBits_ = 0;
 
-template<typename T>
+template <typename T>
 typename QuantumOneBitGate<T>::CustomQuantumGatesType const* QuantumOneBitGate<T>::customOneBitGate_ = nullptr;
 }
 

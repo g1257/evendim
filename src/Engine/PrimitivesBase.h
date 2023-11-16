@@ -12,7 +12,7 @@ PSIDOCCOPY PrimitivesBase::nodes
 PSIDOCCOPY PrimitivesBase::dcValues
 PSIDOCCOPY PrimitivesBase::dcArray
 */
-template<typename ValueType_>
+template <typename ValueType_>
 class PrimitivesBase {
 public:
 

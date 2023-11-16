@@ -2,16 +2,14 @@
 #define EVENDIM_QUANTUMGEPXACC_H_
 
 #include "AllocatorCpu.h"
+#include "QuantumGEPGate.hh"
 #include "xacc.hpp"
 #include <string>
 #include <vector>
-#include "QuantumGEPGate.hh"
 
-namespace Gep
-{
+namespace Gep {
 
-class QuantumGEPXacc
-{
+class QuantumGEPXacc {
 
 public:
 
@@ -51,7 +49,8 @@ private:
 			if (gate.isParametric()) {
 				auto someGate = provider->createInstruction(gate.name(), gate.bits());
 				instructions.push_back(someGate);
-			} else {
+			}
+			else {
 				auto someGate = provider->createInstruction(gate.name(), gate.bits(), gate.params());
 				instructions.push_back(someGate);
 			}
@@ -79,7 +78,7 @@ private:
 			auto evaled = program->operator()({ a });
 			accelerator->execute(buffer, evaled);
 			std::cout << "<Z0>(" << a << ") = " << buffer->getExpectationValueZ()
-				  << "\n";
+			          << "\n";
 		}
 	}
 };

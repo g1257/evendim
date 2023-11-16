@@ -21,7 +21,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename ChromosomeType>
+template <typename ChromosomeType>
 class Example1Fitness : public BaseFitness<ChromosomeType> {
 
 public:
@@ -34,7 +34,8 @@ public:
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 	Example1Fitness(SizeType samples, EvolutionType& evolution, FitnessParamsType*)
-	    : samples_(samples),evolution_(evolution)
+	    : samples_(samples)
+	    , evolution_(evolution)
 	{
 		if (evolution.numberOfInputs() != 1) {
 			throw PsimagLite::RuntimeError("Example1Fitness::ctor(): 1 input expected\n");
@@ -63,9 +64,10 @@ public:
 			RealType fOfX = f(x);
 			evolution_.setInput(0, x, threadNum);
 
-			if (verbose) evolution_.printInputs(std::cout);
+			if (verbose)
+				evolution_.printInputs(std::cout);
 
-			RealType tmp = fabs((chromosome.exec(0)-fOfX)/fOfX);
+			RealType tmp = fabs((chromosome.exec(0) - fOfX) / fOfX);
 
 			sum += (1.0 - fabs(tmp));
 		}

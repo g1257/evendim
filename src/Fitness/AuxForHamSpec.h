@@ -8,7 +8,10 @@ class AuxForHamSpec {
 
 public:
 
-	AuxForHamSpec(SizeType numberOfBits) : bits_(numberOfBits) {}
+	AuxForHamSpec(SizeType numberOfBits)
+	    : bits_(numberOfBits)
+	{
+	}
 
 	SizeType numberOfBits() const { return bits_; }
 

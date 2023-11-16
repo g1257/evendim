@@ -11,14 +11,11 @@
 #include <string>
 #include <vector>
 
-namespace xacc
-{
+namespace xacc {
 
-namespace algorithm
-{
+namespace algorithm {
 
-	class QuantumGEP : public Algorithm
-	{
+	class QuantumGEP : public Algorithm {
 
 	protected:
 

@@ -21,15 +21,16 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 
 namespace Gep {
 
-template<typename VectorValueType, typename AnglesType_ = int>
+template <typename VectorValueType, typename AnglesType_ = int>
 class NodeAdf : public PsimagLite::Node<VectorValueType, AnglesType_> {
 
 	typedef typename VectorValueType::value_type ValueType;
 
 public:
 
-	NodeAdf(SizeType i,ValueType input_)
-	    : char_(i+48),strOneChar_(" ")
+	NodeAdf(SizeType i, ValueType input_)
+	    : char_(i + 48)
+	    , strOneChar_(" ")
 	{
 		strOneChar_[0] = char_;
 	}
