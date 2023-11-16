@@ -20,11 +20,11 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "BaseFitness.h"
 #include "GroundStateParams.h"
 #include "Hamiltonian.h"
+#include "LinearTreeExec.hh"
 #include "MersenneTwister.h"
 #include "Minimizer.h"
 #include "MinimizerParams.h"
 #include "PsimagLite.h"
-#include "LinearTreeExec.hh"
 
 namespace Gep {
 
@@ -125,11 +125,13 @@ public:
 
 		// oracle goes here
 		RealType e = 0;
-		if (chromosome->isLinearTree()) {
+		if (chromosome->params().options.isSet("useLinearTreeIfPossible")
+		    && chromosome->isLinearTree()) {
 			LinearTreeExecType linearTreeExec(chromosome->vecString(), threadNum_);
 			//  TODO: FIXME: Consider Hamiltonian and initial state
 			e = linearTreeExec.energy();
-		} else {
+		}
+		else {
 			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
 		}
 
