@@ -9,29 +9,27 @@
 
 namespace Gep {
 
-class QuantumGEPXacc {
+template <typename ComplexOrRealType>
+class LinearTreeExec {
 
 public:
 
+	using RealType = typename PsimagLite::Real<ComplexOrRealType>::Type;
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
 
-	QuantumGEPXacc(int argc, char* argv[])
+	LinearTreeExec(const VecStringType& vecStr, SizeType /* threadNum */)
 	{
-		xacc::Initialize(argc, argv);
-		// Get reference to the Accelerator
+		program_ = createProgram(vecStr);
 	}
 
-	~QuantumGEPXacc()
+	RealType energy() const
 	{
-		xacc::Finalize();
-	}
-
-	void testProgram(const VecStringType& circuit)
-	{
-		ProgramType program = createProgram(circuit);
-		test(program);
+		auto buffer = xacc::qalloc(2);
+		auto evaled = program->operator()({ a });
+		accelerator->execute(buffer, evaled);
+		return buffer->getExpectationValueZ();
 	}
 
 private:
@@ -56,31 +54,19 @@ private:
 			}
 		}
 
-		// Create X, Ry, CX, and Measure gates
-		// auto x = provider->createInstruction("X", { 0 });
-		// auto ry = provider->createInstruction("Ry", { 1 }, { "t" });
-		// auto cx = provider->createInstruction("CNOT", { 1, 0 });
+		       // Create X, Ry, CX, and Measure gates
+		       // auto x = provider->createInstruction("X", { 0 });
+		       // auto ry = provider->createInstruction("Ry", { 1 }, { "t" });
+		       // auto cx = provider->createInstruction("CNOT", { 1, 0 });
 		auto m0 = provider->createInstruction("Measure", { 0 });
 		instructions.push_back(m0);
 
-		// Add them to the CompositeInstruction
+		       // Add them to the CompositeInstruction
 		program->addInstructions(instructions);
 		return program;
 	}
 
-	void test(const ProgramType& program)
-	{
-		auto accelerator = xacc::getAccelerator("tnqvm");
-		// Loop over [-pi, pi] and compute <Z0>
-		auto angles = xacc::linspace(-xacc::constants::pi, xacc::constants::pi, 20);
-		for (auto& a : angles) {
-			auto buffer = xacc::qalloc(2);
-			auto evaled = program->operator()({ a });
-			accelerator->execute(buffer, evaled);
-			std::cout << "<Z0>(" << a << ") = " << buffer->getExpectationValueZ()
-			          << "\n";
-		}
-	}
+	ProgramType program_;
 };
 }
-#endif
+#endif // LINEARTREEEXEC_DUMMY_HH
