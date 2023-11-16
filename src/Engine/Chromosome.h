@@ -50,7 +50,8 @@ public:
 	           SizeType threadNum)
 	    : evolution_(evolution),
 	      params_(params),
-	      geneLength_(evolution.geneLength(params.head))
+	      geneLength_(evolution.geneLength(params.head)),
+	    isLinearTree_(true)
 	{
 		SizeType len = vecStr.size();
 		if (len == 0)
@@ -71,7 +72,12 @@ public:
 				                              evolution,
 				                              buffer,
 				                              threadNum);
+
+				// All genes must be linear for the chromosome to be linear
+				if (isLinearTree_ && !gene->isLinearTree()) isLinearTree_ = false;
+
 				genes_.push_back(gene);
+
 				if (genes_.size() == params.genes) break;
 			}
 		}
@@ -109,6 +115,8 @@ public:
 
 		assert(adfs_.size() == params.adfs);
 		if (adfs_.size() == 0) return;
+
+		isLinearTree_ = false; // disable linear tree when there are ADFs
 		assert(adfs_.size() == 1);
 
 		adfsVecStr_ = adfs_[0]->vecString();
@@ -139,6 +147,8 @@ public:
 
 		adfsVecStr_ = other.adfsVecStr_;
 
+		isLinearTree_ = other.isLinearTree_;
+
 		const SizeType n = genes_.size();
 		for (SizeType i = 0; i < n; ++i) {
 			delete genes_[i];
@@ -153,6 +163,8 @@ public:
 
 		return *this;
 	}
+
+	bool isLinearTree() const { return isLinearTree_; }
 
 	SizeType geneLength() const { return geneLength_; }
 
@@ -394,6 +406,7 @@ private:
 	const EvolutionType& evolution_;
 	const ParametersType& params_;
 	SizeType geneLength_;
+	bool isLinearTree_;
 	VectorStringType effectiveVecStr_;
 	VectorStringType adfsVecStr_;
 	VectorGeneType genes_;

@@ -119,7 +119,14 @@ public:
 		if (verbose) evolution_.printInputs(std::cout);
 
 		// oracle goes here
-		RealType e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
+		RealType e = 0;
+		if (chromosome->isLinearTree()) {
+			//LinearTreeExecType linearTreeExec(chromosome->vecStr(), threadNum_);
+			// TODO: FIXME: Consider Hamiltonian and initial state
+			e = 0; //linearTreeExec.getEnergy();
+		} else {
+			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
+		}
 
 		if (angles) {
 			delete chromosome;

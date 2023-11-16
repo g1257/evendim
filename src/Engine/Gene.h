@@ -41,6 +41,7 @@ public:
 	    : head_ (other.head_),
 	      tail_(other.tail_),
 	      vecStr_(other.vecStr_),
+	    isLinearTree_(other.isLinearTree_),
 	      vt_(other.vt_.size(), nullptr)
 	{
 		const SizeType  n = vt_.size();
@@ -56,19 +57,24 @@ public:
 	     SizeType threadNum)
 	    : head_(head),
 	      tail_(evolution.tail(head)),
-	      vecStr_(vecStr)
+	      vecStr_(vecStr),
+	    isLinearTree_(true)
 	{
 		evolution.checkStringNonCell(vecStr_, head, isCell);
 
 		SizeType headPlusTail = head_ + tail_;
 
 		fromString(vt_, evolution, vecStr, headPlusTail, isCell, threadNum);
+
+		isLinearTree_ = (vt_.size() == 0) ? true : vt_[0]->isLinearTree();
 	}
 
 	~Gene()
 	{
 		deleteAll();
 	}
+
+	bool isLinearTree() const { return isLinearTree_; }
 
 	const VectorStringType& vecString() const
 	{
@@ -80,6 +86,7 @@ public:
 		return vt_[0]->exec();
 	}
 
+	// Apparently this is only used for adfs
 	void set(const VectorValueType& values) const
 	{
 		vt_[0]->set(values);
@@ -165,6 +172,7 @@ private:
 	SizeType head_;
 	SizeType tail_;
 	VectorStringType vecStr_;
+	bool isLinearTree_;
 	VectorTreeType vt_;
 }; // class Gene
 
