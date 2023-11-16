@@ -25,6 +25,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "InputNg.h"
 #include "Primitives/QuantumCircuit.h"
 #include "Primitives/QuasiVector.hh"
+#include "XaccBackend.hh"
 #include <unistd.h>
 
 template <template <typename> class FitnessTemplate, typename EvolutionType>
@@ -166,6 +167,9 @@ int main(int argc, char* argv[])
 	                                          false, // setAffinities,
 	                                          0); // threadsStackSize;
 	PsimagLite::Concurrency::setOptions(codeSection);
+
+	// Xacc backend if needed
+	Gep::XaccBackend xaccBackend(argc, argv);
 
 	PrimitivesType primitives(numberOfBits, gates, io);
 	EvolutionType evolution(primitives, seed, verbose);
