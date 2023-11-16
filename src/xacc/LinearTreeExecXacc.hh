@@ -27,7 +27,9 @@ public:
 	RealType energy() const
 	{
 		auto buffer = xacc::qalloc(2);
-		auto evaled = program->operator()({ a });
+		double angle = 0.;
+		auto evaled = program_->operator()({ angle });
+		auto accelerator = xacc::getAccelerator("tnqvm");
 		accelerator->execute(buffer, evaled);
 		return buffer->getExpectationValueZ();
 	}
@@ -54,14 +56,14 @@ private:
 			}
 		}
 
-		       // Create X, Ry, CX, and Measure gates
-		       // auto x = provider->createInstruction("X", { 0 });
-		       // auto ry = provider->createInstruction("Ry", { 1 }, { "t" });
-		       // auto cx = provider->createInstruction("CNOT", { 1, 0 });
+		// Create X, Ry, CX, and Measure gates
+		// auto x = provider->createInstruction("X", { 0 });
+		// auto ry = provider->createInstruction("Ry", { 1 }, { "t" });
+		// auto cx = provider->createInstruction("CNOT", { 1, 0 });
 		auto m0 = provider->createInstruction("Measure", { 0 });
 		instructions.push_back(m0);
 
-		       // Add them to the CompositeInstruction
+		// Add them to the CompositeInstruction
 		program->addInstructions(instructions);
 		return program;
 	}

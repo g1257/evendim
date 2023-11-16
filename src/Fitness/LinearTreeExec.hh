@@ -2,7 +2,7 @@
 #define LINEARTREEEXEC_HH
 
 #ifdef USE_XACC
-#include "LinearTreeExecXacc.hh"
+#include "../xacc/LinearTreeExecXacc.hh"
 #else
 #include "LinearTreeExecDummy.hh"
 #endif
