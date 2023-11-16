@@ -24,6 +24,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Minimizer.h"
 #include "MinimizerParams.h"
 #include "PsimagLite.h"
+#include "LinearTreeExec.hh"
 
 namespace Gep {
 
@@ -41,6 +42,7 @@ public:
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 	typedef PsimagLite::Matrix<ComplexType> MatrixType;
 	typedef typename EvolutionType::NodeFactoryType NodeFactoryType;
+	using LinearTreeExecType = LinearTreeExec<ComplexType>;
 
 	enum class FunctionEnum { FITNESS,
 		                  DIFFERENCE };
@@ -124,11 +126,10 @@ public:
 		// oracle goes here
 		RealType e = 0;
 		if (chromosome->isLinearTree()) {
-			// LinearTreeExecType linearTreeExec(chromosome->vecStr(), threadNum_);
+			LinearTreeExecType linearTreeExec(chromosome->vecString(), threadNum_);
 			//  TODO: FIXME: Consider Hamiltonian and initial state
-			e = 0; // linearTreeExec.getEnergy();
-		}
-		else {
+			e = linearTreeExec.energy();
+		} else {
 			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
 		}
 
