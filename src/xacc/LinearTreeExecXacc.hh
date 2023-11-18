@@ -2,6 +2,7 @@
 #define EVENDIM_QUANTUMGEPXACC_H_
 
 #include "AllocatorCpu.h"
+#include "Complex.h"
 #include "QuantumGEPGate.hh"
 #include "xacc.hpp"
 #include <string>
