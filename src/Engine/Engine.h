@@ -117,7 +117,7 @@ fitness, where p is the population number set from the input file or the command
 			                          parentFitness[ind] = -fitness_.getFitness(*chromosomes_[ind], seeds[ind], threadNum);
 		                          });
 
-		evolution_.nodeFactory().sync();
+		evolution_.nodeHelper().nodeFactory().sync();
 
 		recombination(newChromosomes, parentFitness, 1);
 
@@ -141,7 +141,7 @@ private:
 	{
 		for (SizeType i = 0; i < newChromosomes.size(); i++) {
 			CanonicalFormType canonicalForm(newChromosomes[i],
-			                                evolution_.nodeFactory());
+			                                evolution_.nodeHelper().nodeFactory());
 			canonicalForm.changeIfNeeded(newChromosomes[i]);
 		}
 	}
@@ -269,7 +269,7 @@ private:
 				                          std::cerr << symbol;
 		                          });
 
-		evolution_.nodeFactory().sync();
+		evolution_.nodeHelper().nodeFactory().sync();
 
 		if (withProgressBar)
 			std::cerr << "\n";

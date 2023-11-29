@@ -37,7 +37,7 @@ public:
 	    : samples_(samples)
 	    , evolution_(evolution)
 	{
-		if (evolution.numberOfInputs() != 1) {
+		if (evolution.nodeHelper().numberOfInputs() != 1) {
 			throw PsimagLite::RuntimeError("Example1Fitness::ctor(): 1 input expected\n");
 		}
 
@@ -62,10 +62,10 @@ public:
 			RealType x = (b) ? r : samples_[i];
 			samples_[i] = r;
 			RealType fOfX = f(x);
-			evolution_.setInput(0, x, threadNum);
+			evolution_.nodeHelper().setInput(0, x, threadNum);
 
 			if (verbose)
-				evolution_.printInputs(std::cout);
+				evolution_.nodeHelper().printInputs(std::cout);
 
 			RealType tmp = fabs((chromosome.exec(0) - fOfX) / fOfX);
 

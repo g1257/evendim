@@ -50,7 +50,7 @@ public:
 	    : samples_(samples)
 	    , evolution_(evolution)
 	{
-		if (evolution.numberOfInputs() != stringLength_) {
+		if (evolution.nodeHelper().numberOfInputs() != stringLength_) {
 			throw PsimagLite::RuntimeError("Example3Fitness::ctor(): " + ttos(stringLength_) + " inputs expected\n");
 		}
 	}
@@ -70,10 +70,10 @@ public:
 			for (SizeType j = 0; j < stringLength_; ++j)
 				r[j] = static_cast<SizeType>(128 * evolution_.rng());
 
-			evolution_.setInput(r);
+			evolution_.nodeHelper().setInput(r);
 
 			if (verbose)
-				evolution_.printInputs(std::cout);
+				evolution_.nodeHelper().printInputs(std::cout);
 			RealType fOfX = f(r);
 			RealType tmp = fabs((chromosome.exec(0) - fOfX) / fOfX);
 

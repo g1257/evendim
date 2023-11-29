@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
 		err("File " + vectorFilename + " should contain " + ttos(x) + " entries.\n");
 
 	std::cout << "Norm of input state= " << inVector.norm() << "\n";
-	evolution.setInput(0, inVector, threadNum);
+	evolution.nodeHelper().setInput(0, inVector, threadNum);
 
 	QuasiVectorType outVector = chromosome.exec(0);
 	std::cout << "Norm of output state= " << outVector.norm() << "\n";
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 	std::cout << "Fitness= " << f << "\n";
 
 	VectorStringType vecStr = chromosome.effectiveVecString();
-	CanonicalFormType canonicalForm(vecStr, evolution.nodeFactory());
+	CanonicalFormType canonicalForm(vecStr, evolution.nodeHelper().nodeFactory());
 	canonicalForm.changeIfNeeded(vecStr);
 	for (SizeType i = 0; i < vecStr.size(); ++i)
 		std::cout << vecStr[i] << " ";

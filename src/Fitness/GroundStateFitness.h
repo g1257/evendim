@@ -41,8 +41,8 @@ public:
 	typedef RealType FieldType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 	typedef PsimagLite::Matrix<ComplexType> MatrixType;
-	typedef typename EvolutionType::NodeFactoryType NodeFactoryType;
-	using LinearTreeExecType = LinearTreeExec<ComplexType>;
+	typedef typename EvolutionType::NodeHelperType::NodeFactoryType NodeFactoryType;
+	using LinearTreeExecType = LinearTreeExecCPU<NodeType>;
 
 	enum class FunctionEnum { FITNESS,
 		                  DIFFERENCE };
@@ -86,11 +86,11 @@ public:
 		                                                      threadNum_);
 
 		dest.resize(angles.size());
-		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
+		evolution_.nodeHelper().setInput(0, groundStateParams_.inVector, threadNum_);
 
 		const QuasiVectorType& inVector = groundStateParams_.inVector;
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
-			evolution_.setInput(0, inVector, threadNum_);
+			evolution_.nodeHelper().setInput(0, inVector, threadNum_);
 
 			computeDifferentialVector(differential_, angles, angleIndex);
 
@@ -119,16 +119,16 @@ public:
 			chromosome = &chromosome_;
 		}
 
-		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
+		evolution_.nodeHelper().setInput(0, groundStateParams_.inVector, threadNum_);
 		if (verbose)
-			evolution_.printInputs(std::cout);
+			evolution_.nodeHelper().printInputs(std::cout);
 
 		// oracle goes here
 		RealType e = 0;
 		if (chromosome->params().options.isSet("useLinearTreeIfPossible")
 		    && chromosome->isLinearTree()) {
-			const LinearTreeExecType& linearTreeExec = evolution_.linearTree();
-			const LinearTreeExecType::Handle& handle =
+			const LinearTreeExecType& linearTreeExec = evolution_.nodeHelper().linearTreeExec();
+			const typename LinearTreeExecType::HandleType& handle =
 			    linearTreeExec.getHandle(groundStateParams_.inVector, chromosome->vecString(), threadNum_);
 			e = linearTreeExec.energy(handle, groundStateParams_.hamiltonian);
 		}
@@ -260,7 +260,7 @@ private:
 		ChromosomeType newChromosome(chromosome_.params(), evolution_, tmpString, threadNum_);
 
 		// apply to inVector
-		evolution_.setInput(0, groundStateParams_.inVector, threadNum_);
+		evolution_.nodeHelper().setInput(0, groundStateParams_.inVector, threadNum_);
 		differential = newChromosome.exec(0);
 	}
 
@@ -333,13 +333,13 @@ public:
 	    : evolution_(evolution)
 	    , fitParams_(*fitParams)
 	{
-		if (evolution.numberOfInputs() != 1)
+		if (evolution.nodeHelper().numberOfInputs() != 1)
 			err("QuantumOracle::ctor(): 1 input expected\n");
 		if (samples != 1)
 			err("Expecting samples == 1\n");
 
 		const SizeType threadNum = 0;
-		evolution.setInput(0, fitParams->inVector, threadNum);
+		evolution.nodeHelper().setInput(0, fitParams->inVector, threadNum);
 	}
 
 	RealType getFitness(const ChromosomeType& chromosome,
@@ -351,7 +351,7 @@ public:
 		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
 		typedef typename ChromosomeType::VectorStringType VectorStringType;
 
-		evolution_.setInput(0, fitParams_.inVector, threadNum);
+		evolution_.nodeHelper().setInput(0, fitParams_.inVector, threadNum);
 
 		RealType norma = fitParams_.inVector.norm();
 		if (fabs(norma - 1) > 1e-4)
@@ -435,7 +435,7 @@ public:
 	PsimagLite::String info(const ChromosomeType& chromosome) const
 	{
 		SizeType threadNum = 0;
-		evolution_.setInput(0, fitParams_.inVector, threadNum);
+		evolution_.nodeHelper().setInput(0, fitParams_.inVector, threadNum);
 		return fitParams_.hamiltonian.info(chromosome);
 	}
 

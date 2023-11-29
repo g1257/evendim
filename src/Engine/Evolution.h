@@ -19,7 +19,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #define EVOLUTION_H
 
 #include "MersenneTwister.h"
-#include "NodeFactory.h"
+#include "NodeHelper.hh"
 #include "ProgramGlobals.h"
 #include "PsimagLite.h"
 #include "TypeToString.h"
@@ -40,7 +40,7 @@ public:
 	typedef typename NodeType::ValueType ValueType;
 	typedef typename PsimagLite::Vector<PsimagLite::String>::Type VectorStringType;
 	typedef PrimitivesType_ PrimitivesType;
-	typedef NodeFactory<NodeType> NodeFactoryType;
+	using NodeHelperType = NodeHelper<NodeType>;
 	typedef PsimagLite::Vector<SizeType>::Type VectorSizeType;
 
 	Evolution(PrimitivesType& primitives,
@@ -49,12 +49,12 @@ public:
 	    : primitives_(primitives)
 	    , verbose_(verbose)
 	    , maxArity_(0)
-	    , nodeFactory_(primitives.nodesSerial())
+	    , nodeHelper_(primitives.nodesSerial())
 	    , rng_(r)
 	{
-		maxArity_ = maxArity();
+		maxArity_ = nodeHelper_.maxArity();
 
-		setInputsTerminalsAndNonTerminals();
+		nodeHelper_.setInputsTerminalsAndNonTerminals(terminals_, nonTerminals_);
 	}
 
 	SizeType geneLength(SizeType head) const
@@ -257,46 +257,11 @@ public:
 		}
 	}
 
-	NodeFactoryType& nodeFactory() { return nodeFactory_; }
+	NodeHelperType& nodeHelper() { return nodeHelper_; }
 
-	const NodeFactoryType& nodeFactory() const { return nodeFactory_; }
+	const NodeHelperType& nodeHelper() const { return nodeHelper_; }
 
 	double rng() const { return rng_(); }
-
-	SizeType numberOfInputs() const { return inputs_.size(); }
-
-	void setInput(SizeType ind, ValueType x, SizeType threadNum)
-	{
-		assert(ind < inputs_.size());
-		assert(inputs_[ind] < nodeFactory_.numberOfNodes());
-		return nodeFactory_.node(inputs_[ind], threadNum).set(x);
-	}
-
-	void setInput(const VectorValueType& x) const
-	{
-		assert(x.size() == inputs_.size());
-		SizeType n = std::min(x.size(), inputs_.size());
-		assert(n > 0);
-		assert(n < nodeFactory_.numberOfNodes() + 1);
-		const SizeType threadNum = 0;
-		for (SizeType i = 0; i < n; ++i) {
-			nodeFactory_.node(inputs_[i], threadNum).set(x[i]);
-		}
-	}
-
-	void printInputs(std::ostream& os) const
-	{
-		assert(nodeFactory_.numberOfNodes() > 0);
-
-		const SizeType threadNum = 0;
-		os << "inputs= ";
-		for (SizeType i = 0; i < inputs_.size(); i++) {
-			SizeType j = inputs_[i];
-			nodeFactory_.node(j, threadNum).print(os);
-		}
-
-		os << "\n";
-	}
 
 	static bool isAnInteger(PsimagLite::String str)
 	{
@@ -323,37 +288,11 @@ private:
 		return ret;
 	}
 
-	SizeType maxArity() const
-	{
-		SizeType threadNum = 0;
-		SizeType maxArity = 0;
-		for (SizeType i = 0; i < nodeFactory_.numberOfNodes(); ++i) {
-			if (maxArity < nodeFactory_.node(i, threadNum).arity())
-				maxArity = nodeFactory_.node(i, threadNum).arity();
-		}
-
-		return maxArity;
-	}
-
-	void setInputsTerminalsAndNonTerminals()
-	{
-		SizeType threadNum = 0;
-		for (SizeType i = 0; i < nodeFactory_.numberOfNodes(); ++i) {
-			if (nodeFactory_.node(i, threadNum).isInput()) {
-				inputs_.push_back(i);
-				terminals_.push_back(nodeFactory_.node(i, threadNum).code());
-			}
-			else if (nodeFactory_.node(i, threadNum).arity() > 0 && nodeFactory_.node(i, threadNum).code()[0] != '_') {
-				nonTerminals_.push_back(nodeFactory_.node(i, threadNum).code());
-			}
-		}
-	}
 
 	PrimitivesType& primitives_;
 	bool verbose_;
 	SizeType maxArity_;
-	NodeFactoryType nodeFactory_;
-	VectorSizeType inputs_;
+	NodeHelperType nodeHelper_;
 	VectorStringType nonTerminals_;
 	VectorStringType terminals_;
 	mutable PsimagLite::MersenneTwister rng_; // RandomForTests<double> rng_;

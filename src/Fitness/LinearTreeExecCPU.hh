@@ -9,34 +9,43 @@
 
 namespace Gep {
 
-template<typename RealType>
+template<typename T>
+struct UnderlyingType {
+	using Type = T;
+};
+
+template<typename T>
+struct UnderlyingType<QuasiVector<T> > {
+	using Type = T;
+};
+
+template<typename NodeType>
 class LinearTreeExecCPU {
 
 public:
 
 	using VectorStringType = std::vector<std::string>;
-	using ComplexType = std::vector<RealType>;
-	using VectorComplexType = std::vector<ComplexType>;
-	using VectorVectorComplexType = std::vector<VectorComplexType>;
-	using AnglesType = RealType;
-	using NodeType = PsimagLite::Node<VectorVectorComplexType, AnglesType>;
-	using NodeFactorType = NodeFactory<NodeType>;
+	using AnglesType = typename NodeType::AnglesType;
+	using NodeFactoryType = NodeFactory<NodeType>;
+	using ValueType = typename NodeType::ValueType;
+	using ComplexType = typename UnderlyingType<ValueType>::Type;
+	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using HamiltonianType = Hamiltonian<ComplexType>;
-	using HandleType = std::pair<VectorComplexType, SizeType>;
+	using HandleType = std::pair<ValueType, SizeType>;
 
-	LinearTreeExecCPU(const NodeFactorType& nodeFactory)
+	explicit LinearTreeExecCPU(const NodeFactoryType& nodeFactory)
 	    : nodeFactory_(nodeFactory)
 	{}
 
-	HandleType getHandle(const VectorComplexType& initVector,
+	HandleType getHandle(const ValueType& initVector,
 	                     const VectorStringType& circuit,
-	                     SizeType threadNum)
+	                     SizeType threadNum) const
 	{
-		static const VectorComplexType value;
+		static const ValueType value;
 		constexpr bool isCell = false;
 		SizeType ngates = circuit.size();
-		VectorComplexType v = initVector;
-		VectorComplexType w;
+		ValueType v = initVector;
+		ValueType w;
 		// here we could use commutation relations, order by site, etc TODO FIXME
 		for (SizeType i = 0; i < ngates; ++i) {
 			const NodeType& node = nodeFactory_.findNodeFromCode(circuit[i],
@@ -51,14 +60,18 @@ public:
 	}
 
 	RealType energy(const HandleType& handle,
-	                const HamiltonianType& hamiltonian)
+	                const HamiltonianType& hamiltonian) const
 	{
 		return hamiltonian.energy(handle.first, handle.second);
 	}
 
 private:
 
-	const NodeFactorType& nodeFactory_;
+	LinearTreeExecCPU(const LinearTreeExecCPU&) = delete;
+
+	LinearTreeExecCPU& operator=(const LinearTreeExecCPU&) = delete;
+
+	const NodeFactoryType& nodeFactory_;
 };
 }
 #endif // LINEARTREEEXEC_CPU_HH

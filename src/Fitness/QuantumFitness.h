@@ -36,7 +36,7 @@ public:
 	typedef RealType FieldType;
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 	typedef typename PsimagLite::Vector<QuasiVectorType>::Type VectorQuasiVectorType;
-	typedef typename EvolutionType::NodeFactoryType NodeFactoryType;
+	typedef typename EvolutionType::NodeHelperType::NodeFactoryType NodeFactoryType;
 
 	enum class FunctionEnum { FITNESS,
 		                  DIFFERENCE };
@@ -90,7 +90,7 @@ public:
 		for (SizeType angleIndex = 0; angleIndex < numberOfAngles_; ++angleIndex) {
 			for (SizeType i = 0; i < samples; ++i) {
 				setInVector(i);
-				evolution_.setInput(0, inVector_, threadNum_);
+				evolution_.nodeHelper().setInput(0, inVector_, threadNum_);
 				functionF(outVector_, inVector_);
 
 				computeDifferentialVector(differential_, angles, angleIndex);
@@ -123,9 +123,9 @@ public:
 		RealType sum = 0;
 		for (SizeType i = 0; i < samples; ++i) {
 			setInVector(i);
-			evolution_.setInput(0, inVector_, threadNum_);
+			evolution_.nodeHelper().setInput(0, inVector_, threadNum_);
 			if (verbose)
-				evolution_.printInputs(std::cout);
+				evolution_.nodeHelper().printInputs(std::cout);
 
 			functionF(outVector_, inVector_);
 
@@ -346,7 +346,7 @@ public:
 	    , minParams_(*minParams)
 	    , status_(0)
 	{
-		if (evolution.numberOfInputs() != 1)
+		if (evolution.nodeHelper().numberOfInputs() != 1)
 			err("QuantumFitness::ctor(): 1 input expected\n");
 	}
 

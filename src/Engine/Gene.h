@@ -123,7 +123,7 @@ private:
 
 		for (SizeType i = 0; i < effectiveSize; i++) {
 			PsimagLite::String cStr = vecStr[i];
-			const NodeType& node = evolution.nodeFactory().findNodeFromCode(cStr,
+			const NodeType& node = evolution.nodeHelper().nodeFactory().findNodeFromCode(cStr,
 			                                                                dcValue,
 			                                                                isCell,
 			                                                                threadNum);
