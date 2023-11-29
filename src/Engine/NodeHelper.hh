@@ -11,6 +11,7 @@ class NodeHelper {
 public:
 
 	using ValueType = typename NodeType::ValueType;
+	using AnglesType = typename NodeType::AnglesType;
 	using NodeFactoryType = NodeFactory<NodeType>;
 	using VectorNodeType = std::vector<NodeType*>;
 	using VectorSizeType = std::vector<SizeType>;
@@ -18,7 +19,7 @@ public:
 	using VectorValueType = std::vector<ValueType>;
 	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
-	using LinearTreeExecType = LinearTreeExecCPU<NodeType>;
+	using LinearTreeExecType = LinearTreeExecCPU<ValueType, AnglesType>;
 
 	NodeHelper(const VectorNodeType& nodes)
 	    : nodeFactory_(nodes)

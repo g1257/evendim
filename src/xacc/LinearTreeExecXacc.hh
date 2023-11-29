@@ -10,12 +10,24 @@
 
 namespace Gep {
 
-template <typename ComplexOrRealType>
+template <typename T1, typename T2>
+struct EnforceTypesEqual { };
+
+template <typename T>
+struct EnforceTypesEqual<T, T> {
+	using Type = int;
+};
+
+template <typename VectorComplexType, typename RealType_>
 class LinearTreeExec {
 
 public:
 
-	using RealType = typename PsimagLite::Real<ComplexOrRealType>::Type;
+	using ComplexType = typename VectorComplexType::value_type;
+	using RealType = typename PsimagLite::Real<ComplexType>::Type;
+
+	void bogus(EnforceTypesEqual<RealType, RealType_>::Type x) { }
+
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;

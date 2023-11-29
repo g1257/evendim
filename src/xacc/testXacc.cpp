@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	// This call xacc::init in its ctor and xacc:fin in its dtor
 	Gep::XaccBackend xaccBackend(argc, argv);
 
-	using LinearTreeExecType = Gep::LinearTreeExec<std::complex<double>>;
+	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double>;
 
 	typename LinearTreeExecType::VecStringType mycircuit { "Sx0" };
 

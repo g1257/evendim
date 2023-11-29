@@ -19,16 +19,16 @@ struct UnderlyingType<QuasiVector<T>> {
 	using Type = T;
 };
 
-template <typename NodeType>
+template <typename ValueType, typename AnglesType_>
 class LinearTreeExecCPU {
 
 public:
 
-	using VectorStringType = std::vector<std::string>;
-	using AnglesType = typename NodeType::AnglesType;
-	using NodeFactoryType = NodeFactory<NodeType>;
-	using ValueType = typename NodeType::ValueType;
 	using VectorValueType = typename std::vector<ValueType>;
+	using VectorStringType = std::vector<std::string>;
+	using AnglesType = AnglesType_;
+	using NodeType = PsimagLite::Node<VectorValueType, AnglesType>;
+	using NodeFactoryType = NodeFactory<NodeType>;
 	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using HamiltonianType = Hamiltonian<ComplexType>;
@@ -50,7 +50,8 @@ public:
 		ValueType w;
 		// here we could use commutation relations, order by site, etc TODO FIXME
 		for (SizeType i = 0; i < ngates; ++i) {
-			if (circuit[i] == "0") break;
+			if (circuit[i] == "0")
+				break;
 			const NodeType& node = nodeFactory_.findNodeFromCode(circuit[i],
 			                                                     value,
 			                                                     isCell,

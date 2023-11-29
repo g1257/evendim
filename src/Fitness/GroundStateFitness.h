@@ -42,7 +42,7 @@ public:
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 	typedef PsimagLite::Matrix<ComplexType> MatrixType;
 	typedef typename EvolutionType::NodeHelperType::NodeFactoryType NodeFactoryType;
-	using LinearTreeExecType = LinearTreeExecCPU<NodeType>;
+	using LinearTreeExecType = typename EvolutionType::NodeHelperType::LinearTreeExecType;
 
 	enum class FunctionEnum { FITNESS,
 		                  DIFFERENCE };
