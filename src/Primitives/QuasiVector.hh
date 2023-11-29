@@ -80,6 +80,12 @@ public:
 		return PsimagLite::norm(data_);
 	}
 
+	void swap(QuasiVector& other)
+	{
+		needsExp("swap");
+		data_.swap(other.data_);
+	}
+
 	void print(std::ostream& os) const
 	{
 		needsExp("print");

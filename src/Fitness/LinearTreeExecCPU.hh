@@ -28,6 +28,7 @@ public:
 	using AnglesType = typename NodeType::AnglesType;
 	using NodeFactoryType = NodeFactory<NodeType>;
 	using ValueType = typename NodeType::ValueType;
+	using VectorValueType = typename std::vector<ValueType>;
 	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using HamiltonianType = Hamiltonian<ComplexType>;
@@ -44,7 +45,7 @@ public:
 		static const ValueType value;
 		constexpr bool isCell = false;
 		SizeType ngates = circuit.size();
-		ValueType v = initVector;
+		VectorValueType v(1, initVector);
 		ValueType w;
 		// here we could use commutation relations, order by site, etc TODO FIXME
 		for (SizeType i = 0; i < ngates; ++i) {
@@ -53,10 +54,10 @@ public:
 			                                                     isCell,
 			                                                     threadNum);
 			w = node.exec(v);
-			v.swap(w);
+			v[0].swap(w);
 		}
 
-		return HandleType(v, threadNum);
+		return HandleType(v[0], threadNum);
 	}
 
 	RealType energy(const HandleType& handle,
