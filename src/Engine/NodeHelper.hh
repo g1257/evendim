@@ -16,7 +16,7 @@ public:
 	using VectorSizeType = std::vector<SizeType>;
 	using VectorStringType = std::vector<std::string>;
 	using VectorValueType = std::vector<ValueType>;
-	using ComplexType = typename ValueType::value_type;
+	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using LinearTreeExecType = LinearTreeExecCPU<NodeType>;
 

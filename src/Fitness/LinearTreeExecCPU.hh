@@ -39,7 +39,7 @@ public:
 	{
 	}
 
-	HandleType getHandle(const ValueType& initVector,
+	HandleType getHandle(const ValueType& initVector, // input has already been set
 	                     const VectorStringType& circuit,
 	                     SizeType threadNum) const
 	{
@@ -50,6 +50,7 @@ public:
 		ValueType w;
 		// here we could use commutation relations, order by site, etc TODO FIXME
 		for (SizeType i = 0; i < ngates; ++i) {
+			if (circuit[i] == "0") break;
 			const NodeType& node = nodeFactory_.findNodeFromCode(circuit[i],
 			                                                     value,
 			                                                     isCell,
