@@ -4,7 +4,7 @@
 #ifdef USE_XACC
 #include "../xacc/LinearTreeExecXacc.hh"
 #else
-#include "LinearTreeExecDummy.hh"
+#include "LinearTreeExecCPU.hh"
 #endif
 
 #endif // LINEARTREEEXEC_HH

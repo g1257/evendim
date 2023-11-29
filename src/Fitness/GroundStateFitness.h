@@ -127,9 +127,10 @@ public:
 		RealType e = 0;
 		if (chromosome->params().options.isSet("useLinearTreeIfPossible")
 		    && chromosome->isLinearTree()) {
-			LinearTreeExecType linearTreeExec(chromosome->vecString(), threadNum_);
-			//  TODO: FIXME: Consider Hamiltonian and initial state
-			e = linearTreeExec.energy();
+			const LinearTreeExecType& linearTreeExec = evolution_.linearTree();
+			const LinearTreeExecType::Handle& handle =
+			    linearTreeExec.getHandle(groundStateParams_.inVector, chromosome->vecString(), threadNum_);
+			e = linearTreeExec.energy(handle, groundStateParams_.hamiltonian);
 		}
 		else {
 			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
