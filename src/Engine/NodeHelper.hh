@@ -1,6 +1,6 @@
 #ifndef NODEHELPER_HH
 #define NODEHELPER_HH
-#include "../Fitness/LinearTreeExecCPU.hh"
+#include "../Fitness/LinearTreeExec.hh"
 #include "NodeFactory.h"
 
 namespace Gep {
@@ -19,7 +19,7 @@ public:
 	using VectorValueType = std::vector<ValueType>;
 	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
-	using LinearTreeExecType = LinearTreeExecCPU<ValueType, AnglesType>;
+	using LinearTreeExecType = LinearTreeExec<ValueType, AnglesType>;
 
 	NodeHelper(const VectorNodeType& nodes)
 	    : nodeFactory_(nodes)

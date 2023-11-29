@@ -20,7 +20,7 @@ struct UnderlyingType<QuasiVector<T>> {
 };
 
 template <typename ValueType, typename AnglesType_>
-class LinearTreeExecCPU {
+class LinearTreeExec {
 
 public:
 
@@ -34,7 +34,7 @@ public:
 	using HamiltonianType = Hamiltonian<ComplexType>;
 	using HandleType = std::pair<ValueType, SizeType>;
 
-	explicit LinearTreeExecCPU(const NodeFactoryType& nodeFactory)
+	explicit LinearTreeExec(const NodeFactoryType& nodeFactory)
 	    : nodeFactory_(nodeFactory)
 	{
 	}
@@ -71,9 +71,9 @@ public:
 
 private:
 
-	LinearTreeExecCPU(const LinearTreeExecCPU&) = delete;
+	LinearTreeExec(const LinearTreeExec&) = delete;
 
-	LinearTreeExecCPU& operator=(const LinearTreeExecCPU&) = delete;
+	LinearTreeExec& operator=(const LinearTreeExec&) = delete;
 
 	const NodeFactoryType& nodeFactory_;
 };

@@ -26,7 +26,7 @@ public:
 	using ComplexType = typename VectorComplexType::value_type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 
-	void bogus(EnforceTypesEqual<RealType, RealType_>::Type x) { }
+	void bogus(typename EnforceTypesEqual<RealType, RealType_>::Type x) { }
 
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
