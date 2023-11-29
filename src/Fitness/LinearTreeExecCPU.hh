@@ -1,25 +1,25 @@
 #ifndef LINEARTREEEXEC_CPU_HH
 #define LINEARTREEEXEC_CPU_HH
-#include <vector>
-#include <string>
-#include <complex>
 #include "AST/Node.h"
-#include "NodeFactory.h"
 #include "Hamiltonian.h"
+#include "NodeFactory.h"
+#include <complex>
+#include <string>
+#include <vector>
 
 namespace Gep {
 
-template<typename T>
+template <typename T>
 struct UnderlyingType {
 	using Type = T;
 };
 
-template<typename T>
-struct UnderlyingType<QuasiVector<T> > {
+template <typename T>
+struct UnderlyingType<QuasiVector<T>> {
 	using Type = T;
 };
 
-template<typename NodeType>
+template <typename NodeType>
 class LinearTreeExecCPU {
 
 public:
@@ -36,7 +36,8 @@ public:
 
 	explicit LinearTreeExecCPU(const NodeFactoryType& nodeFactory)
 	    : nodeFactory_(nodeFactory)
-	{}
+	{
+	}
 
 	HandleType getHandle(const ValueType& initVector,
 	                     const VectorStringType& circuit,

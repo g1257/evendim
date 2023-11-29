@@ -1,11 +1,11 @@
 #ifndef NODEHELPER_HH
 #define NODEHELPER_HH
-#include "NodeFactory.h"
 #include "../Fitness/LinearTreeExecCPU.hh"
+#include "NodeFactory.h"
 
 namespace Gep {
 
-template<typename NodeType>
+template <typename NodeType>
 class NodeHelper {
 
 public:
@@ -21,10 +21,12 @@ public:
 	using LinearTreeExecType = LinearTreeExecCPU<NodeType>;
 
 	NodeHelper(const VectorNodeType& nodes)
-	    : nodeFactory_(nodes), linearTreeExec_(nodeFactory_)
-	{}
+	    : nodeFactory_(nodes)
+	    , linearTreeExec_(nodeFactory_)
+	{
+	}
 
-	const LinearTreeExecType& linearTreeExec() const {return linearTreeExec_; }
+	const LinearTreeExecType& linearTreeExec() const { return linearTreeExec_; }
 
 	void setInput(SizeType ind, ValueType x, SizeType threadNum)
 	{
@@ -94,6 +96,7 @@ public:
 	NodeFactoryType& nodeFactory() { return nodeFactory_; }
 
 private:
+
 	NodeFactoryType nodeFactory_;
 	VectorSizeType inputs_;
 	LinearTreeExecType linearTreeExec_;

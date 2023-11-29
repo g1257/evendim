@@ -124,9 +124,9 @@ private:
 		for (SizeType i = 0; i < effectiveSize; i++) {
 			PsimagLite::String cStr = vecStr[i];
 			const NodeType& node = evolution.nodeHelper().nodeFactory().findNodeFromCode(cStr,
-			                                                                dcValue,
-			                                                                isCell,
-			                                                                threadNum);
+			                                                                             dcValue,
+			                                                                             isCell,
+			                                                                             threadNum);
 			if (cStr == "?") {
 				assert(dcLength > 0);
 				dcIndex++;

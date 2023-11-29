@@ -288,7 +288,6 @@ private:
 		return ret;
 	}
 
-
 	PrimitivesType& primitives_;
 	bool verbose_;
 	SizeType maxArity_;

@@ -128,8 +128,7 @@ public:
 		if (chromosome->params().options.isSet("useLinearTreeIfPossible")
 		    && chromosome->isLinearTree()) {
 			const LinearTreeExecType& linearTreeExec = evolution_.nodeHelper().linearTreeExec();
-			const typename LinearTreeExecType::HandleType& handle =
-			    linearTreeExec.getHandle(groundStateParams_.inVector, chromosome->vecString(), threadNum_);
+			const typename LinearTreeExecType::HandleType& handle = linearTreeExec.getHandle(groundStateParams_.inVector, chromosome->vecString(), threadNum_);
 			e = linearTreeExec.energy(handle, groundStateParams_.hamiltonian);
 		}
 		else {
