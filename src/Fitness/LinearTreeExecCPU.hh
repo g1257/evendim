@@ -3,21 +3,12 @@
 #include "AST/Node.h"
 #include "Hamiltonian.h"
 #include "NodeFactory.h"
+#include "UnderlyingType.hh"
 #include <complex>
 #include <string>
 #include <vector>
 
 namespace Gep {
-
-template <typename T>
-struct UnderlyingType {
-	using Type = T;
-};
-
-template <typename T>
-struct UnderlyingType<QuasiVector<T>> {
-	using Type = T;
-};
 
 template <typename ValueType, typename AnglesType_>
 class LinearTreeExec {

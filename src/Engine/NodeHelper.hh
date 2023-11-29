@@ -2,6 +2,7 @@
 #define NODEHELPER_HH
 #include "../Fitness/LinearTreeExec.hh"
 #include "NodeFactory.h"
+#include "UnderlyingType.hh"
 
 namespace Gep {
 
