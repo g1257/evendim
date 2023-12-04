@@ -1,7 +1,7 @@
 #ifndef GRAPH_HH
 #define GRAPH_HH
+#include "../Engine/InputCheck.h"
 #include "BitManip.h"
-#include "InputCheck.h"
 #include "InputNg.h"
 #include "PsimagLite.h"
 

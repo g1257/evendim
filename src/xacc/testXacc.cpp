@@ -1,3 +1,4 @@
+#include "../Engine/NodeFactory.h"
 #include "LinearTreeExecXacc.hh"
 #include "XaccBackendActual.hh"
 #include <iterator>
@@ -19,15 +20,25 @@ int main(int argc, char** argv)
 	// This call xacc::init in its ctor and xacc:fin in its dtor
 	Gep::XaccBackend xaccBackend(argc, argv);
 
-	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double>;
+	using DummyUnusedType = int;
+	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double, DummyUnusedType>;
+	using HandleType = LinearTreeExecType::HandleType;
 
+	// here is the circuit
 	typename LinearTreeExecType::VecStringType mycircuit { "Sx0" };
 
+	// here is the initial state
+	std::vector<std::complex<double>> initVector(4);
+
+	DummyUnusedType dummy = 0;
+	LinearTreeExecType linearTreeExec(dummy);
+
+	// create xacc program and store in handle
 	constexpr int threadNum = 0; // no parallelization for now
-	LinearTreeExecType linearTreeXacc(mycircuit, threadNum);
+	HandleType handle = linearTreeExec.getHandle(initVector, mycircuit, threadNum);
 
 	// Does energy = <0|C H C |0>, with H = Z_0
-	double energy = linearTreeXacc.energy();
+	double energy = linearTreeExec.energy(handle, hamiltonian);
 	std::cout << "Circuit is " << implodeVecString(mycircuit) << "\n";
 	std::cout << "Energy is " << energy << "\n";
 }

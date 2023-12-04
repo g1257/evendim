@@ -10,7 +10,7 @@
 
 namespace Gep {
 
-template <typename ValueType, typename AnglesType_>
+template <typename ValueType, typename AnglesType_, typename>
 class LinearTreeExec {
 
 public:

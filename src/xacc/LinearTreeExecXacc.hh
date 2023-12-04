@@ -1,6 +1,8 @@
 #ifndef EVENDIM_QUANTUMGEPXACC_H_
 #define EVENDIM_QUANTUMGEPXACC_H_
 
+#include "../Engine/UnderlyingType.hh"
+#include "../Fitness/Hamiltonian.h"
 #include "AllocatorCpu.h"
 #include "Complex.h"
 #include "QuantumGEPGate.hh"
@@ -10,38 +12,39 @@
 
 namespace Gep {
 
-template <typename T1, typename T2>
-struct EnforceTypesEqual { };
-
-template <typename T>
-struct EnforceTypesEqual<T, T> {
-	using Type = int;
-};
-
-template <typename VectorComplexType, typename RealType_>
+template <typename VecComplexType, typename AnglesType, typename CtorParamType>
 class LinearTreeExec {
 
 public:
 
-	using ComplexType = typename VectorComplexType::value_type;
+	using ComplexType = typename UnderlyingType<VecComplexType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
-
-	void bogus(typename EnforceTypesEqual<RealType, RealType_>::Type x) { }
-
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
+	using HandleType = std::pair<ProgramType, SizeType>;
+	using HamiltonianType = Hamiltonian<ComplexType>;
 
-	LinearTreeExec(const VecStringType& vecStr, SizeType /* threadNum */)
+	// Ctor not needed in the xacc version of LinearTreeExec
+	LinearTreeExec(const CtorParamType& ctorParam)
 	{
-		program_ = createProgram(vecStr);
 	}
 
-	RealType energy() const
+	HandleType getHandle(const VecComplexType& initVector, // xacc init vector?
+	                     const VecStringType& circuit,
+	                     SizeType threadNum) const
+	{
+		ProgramType program = createProgram(circuit);
+		return HandleType(program, threadNum);
+	}
+
+	// Ignore hamiltonian for now and assume it's Z_0
+	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian) const
 	{
 		auto buffer = xacc::qalloc(2);
 		double angle = 0.;
-		auto evaled = program_->operator()({ angle });
+		// handle.first contains the program
+		auto evaled = handle.first->operator()({ angle });
 		auto accelerator = xacc::getAccelerator("tnqvm");
 		accelerator->execute(buffer, evaled);
 		return buffer->getExpectationValueZ();
@@ -49,7 +52,7 @@ public:
 
 private:
 
-	ProgramType createProgram(const VecStringType& circuit)
+	static ProgramType createProgram(const VecStringType& circuit)
 	{
 		// Get the IRProvider and create an
 		// empty CompositeInstruction
@@ -80,8 +83,6 @@ private:
 		program->addInstructions(instructions);
 		return program;
 	}
-
-	ProgramType program_;
 };
 }
 #endif // LINEARTREEEXEC_DUMMY_HH

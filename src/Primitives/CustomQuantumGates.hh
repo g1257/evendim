@@ -1,8 +1,8 @@
 #ifndef CUSTOMQUANTUMGATES_HH
 #define CUSTOMQUANTUMGATES_HH
+#include "../Engine/InputCheck.h"
 #include "AST/ExpressionForAST.h"
 #include "AST/PlusMinusMultiplyDivide.h"
-#include "InputCheck.h"
 #include "InputNg.h"
 #include "PsimagLite.h"
 #include "Sort.h"

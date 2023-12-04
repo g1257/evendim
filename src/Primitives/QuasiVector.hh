@@ -1,6 +1,7 @@
 #ifndef QUASIVECTOR_HH
 #define QUASIVECTOR_HH
-#include "ProgramGlobals.h"
+#include "../Engine/ProgramGlobals.h"
+#include "Matrix.h"
 #include "Vector.h"
 #include <string>
 

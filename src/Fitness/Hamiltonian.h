@@ -1,9 +1,9 @@
 #ifndef EVENDIM_HAMILTONIAN_H
 #define EVENDIM_HAMILTONIAN_H
+#include "../Engine/InputCheck.h"
 #include "../Primitives/QuasiVector.hh"
 #include "CrsMatrix.h"
 #include "HamiltonianFromExpression.h"
-#include "InputCheck.h"
 #include "InputNg.h"
 #include "IsingGraph.hh"
 #include "PsimagLite.h"

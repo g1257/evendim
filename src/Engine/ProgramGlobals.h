@@ -1,5 +1,6 @@
 #ifndef PROGRAMGLOBALS_H
 #define PROGRAMGLOBALS_H
+#include "PsimagLite.h"
 #include "Vector.h"
 
 namespace Gep {

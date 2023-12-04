@@ -1,7 +1,7 @@
 include xacc.make
 
 CXX = g++ 
-CPPFLAGS += -Wall  -pedantic -I../../../PsimagLite/src #-std=c++11
+CPPFLAGS += -Wall  -pedantic -I../../../PsimagLite/src -I../../../PsimagLite  #-std=c++11
 
 all: testXacc 
 #QuantumGEPXacc libQuantumGEP.so

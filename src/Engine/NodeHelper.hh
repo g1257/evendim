@@ -20,7 +20,7 @@ public:
 	using VectorValueType = std::vector<ValueType>;
 	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
-	using LinearTreeExecType = LinearTreeExec<ValueType, AnglesType>;
+	using LinearTreeExecType = LinearTreeExec<ValueType, AnglesType, NodeFactoryType>;
 
 	NodeHelper(const VectorNodeType& nodes)
 	    : nodeFactory_(nodes)
