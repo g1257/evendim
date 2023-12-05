@@ -152,25 +152,6 @@ public:
 		}
 	}
 
-	// should be private
-	static PsimagLite::String info(const QuasiVectorType& v, double epsilon)
-	{
-		const SizeType n = v.size();
-		PsimagLite::String buffer;
-		for (SizeType i = 0; i < n; ++i) {
-			if (v.hasWeight(i, epsilon))
-				buffer += ttos(i) + " ";
-		}
-
-		return buffer;
-	}
-
-	template <typename SomeChromosomeType>
-	PsimagLite::String info(const SomeChromosomeType& chromosome) const
-	{
-		return info(chromosome.exec(0), 1e-4);
-	}
-
 private:
 
 	void fillHxx(RealType coupling)

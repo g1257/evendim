@@ -323,6 +323,7 @@ public:
 	typedef Hamiltonian<ComplexType> HamiltonianType;
 	typedef GroundStateParams<HamiltonianType, ComplexType> GroundStateParamsType;
 	typedef typename GroundStateParamsType::MinimizerParamsType MinimizerParamsType;
+	using  QuasiVectorType = QuasiVector<ComplexType>;
 
 	typedef GroundStateParamsType FitnessParamsType;
 
@@ -435,11 +436,28 @@ public:
 	{
 		SizeType threadNum = 0;
 		evolution_.nodeHelper().setInput(0, fitParams_.inVector, threadNum);
-		return fitParams_.hamiltonian.info(chromosome);
+		return info(chromosome);
 	}
 
 private:
 
+	template <typename SomeChromosomeType>
+	static PsimagLite::String info(const SomeChromosomeType& chromosome)
+	{
+		return info_(chromosome.exec(0), 1e-4);
+	}
+
+	static PsimagLite::String info_(const QuasiVectorType& v, double epsilon)
+	{
+		const SizeType n = v.size();
+		PsimagLite::String buffer;
+		for (SizeType i = 0; i < n; ++i) {
+			if (v.hasWeight(i, epsilon))
+				buffer += ttos(i) + " ";
+		}
+
+		return buffer;
+	}
 	static PsimagLite::String toString(const VectorRealType& angles)
 	{
 		const SizeType n = angles.size();
