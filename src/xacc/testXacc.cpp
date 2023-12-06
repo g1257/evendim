@@ -1,5 +1,5 @@
 #include "../Engine/NodeFactory.h"
-#include "HamiltonianDummy.hh"
+#include "HamiltonianXacc.hh"
 #include "LinearTreeExecXacc.hh"
 #include "XaccBackendActual.hh"
 #include <iterator>
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	Gep::XaccBackend xaccBackend(argc, argv);
 
 	using DummyUnusedType = int;
-	using HamiltonianType = Gep::HamiltonianDummy<std::complex<double>>;
+	using HamiltonianType = Gep::HamiltonianXacc<std::complex<double>>;
 	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double, DummyUnusedType, HamiltonianType>;
 	using HandleType = LinearTreeExecType::HandleType;
 

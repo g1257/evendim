@@ -1,12 +1,12 @@
-#ifndef HAMILTONIANDUMMY_HH
-#define HAMILTONIANDUMMY_HH
+#ifndef HAMILTONIAN_XACC_H
+#define HAMILTONIAN_XACC_H
 
 #include "../Fitness/HamiltonianBase.hh"
 
 namespace Gep {
 
 template <typename ComplexType>
-class HamiltonianDummy : public HamiltonianBase<std::vector<ComplexType>> {
+class HamiltonianXacc : public HamiltonianBase<std::vector<ComplexType>> {
 
 	using VectorType = std::vector<ComplexType>;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
@@ -18,4 +18,4 @@ class HamiltonianDummy : public HamiltonianBase<std::vector<ComplexType>> {
 };
 
 }
-#endif // HAMILTONIANDUMMY_HH
+#endif // HAMILTONIAN_XACC_H
