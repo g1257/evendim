@@ -3,6 +3,7 @@
 #include "../Engine/InputCheck.h"
 #include "../Primitives/QuasiVector.hh"
 #include "CrsMatrix.h"
+#include "HamiltonianBase.hh"
 #include "HamiltonianFromExpression.h"
 #include "InputNg.h"
 #include "IsingGraph.hh"
@@ -12,7 +13,7 @@ namespace Gep {
 
 // H = coupling*\sum_{i} sigma^x_i sigma^x_{i + 1}
 template <typename ComplexType>
-class Hamiltonian {
+class Hamiltonian : public HamiltonianBase<QuasiVector<ComplexType> >{
 
 public:
 
