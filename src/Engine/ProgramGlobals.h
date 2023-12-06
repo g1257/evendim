@@ -41,22 +41,22 @@ namespace ProgramGlobals {
 		os << "\n";
 	}
 
-	static void pushVector(PsimagLite::Vector<PsimagLite::String>::Type& dest,
-	                       const PsimagLite::Vector<PsimagLite::String>::Type& src,
-	                       SizeType upTo = 0)
+	void pushVector(PsimagLite::Vector<PsimagLite::String>::Type& dest,
+	                const PsimagLite::Vector<PsimagLite::String>::Type& src,
+	                SizeType upTo = 0)
 	{
 		const SizeType total = src.size();
 		if (upTo == 0)
 			upTo = total;
 		if (upTo > total)
-			err("pushVector\n");
+			throw std::runtime_error("pushVector\n");
 
 		for (SizeType j = 0; j < upTo; ++j)
 			dest.push_back(src[j]);
 	}
 
-	static PsimagLite::String vecStrToStr(const PsimagLite::Vector<PsimagLite::String>::Type& vecStr,
-	                                      PsimagLite::String sep)
+	PsimagLite::String vecStrToStr(const PsimagLite::Vector<PsimagLite::String>::Type& vecStr,
+	                               PsimagLite::String sep)
 	{
 		PsimagLite::String ret;
 		const SizeType n = vecStr.size();

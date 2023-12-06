@@ -8,9 +8,17 @@
 #include <string>
 #include <vector>
 
+template <typename T1, typename T2>
+struct TypesMustBeEqual { };
+
+template <typename T>
+struct TypesMustBeEqual<T, T> {
+	using Type = int;
+};
+
 namespace Gep {
 
-template <typename ValueType, typename AnglesType_, typename>
+template <typename ValueType, typename AnglesType_, typename NodeFactoryType_, typename HamiltonianType_>
 class LinearTreeExec {
 
 public:
@@ -25,7 +33,9 @@ public:
 	using HamiltonianType = Hamiltonian<ComplexType>;
 	using HandleType = std::pair<ValueType, SizeType>;
 
-	explicit LinearTreeExec(const NodeFactoryType& nodeFactory)
+	explicit LinearTreeExec(const NodeFactoryType& nodeFactory,
+	                        const typename TypesMustBeEqual<NodeFactoryType_, NodeFactoryType>::Type = 0,
+	                        const typename TypesMustBeEqual<HamiltonianType_, HamiltonianType>::Type = 0)
 	    : nodeFactory_(nodeFactory)
 	{
 	}

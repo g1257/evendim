@@ -1,5 +1,6 @@
 #ifndef NODEHELPER_HH
 #define NODEHELPER_HH
+#include "../Fitness/Hamiltonian.h"
 #include "../Fitness/LinearTreeExec.hh"
 #include "NodeFactory.h"
 #include "UnderlyingType.hh"
@@ -20,7 +21,8 @@ public:
 	using VectorValueType = std::vector<ValueType>;
 	using ComplexType = typename UnderlyingType<ValueType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
-	using LinearTreeExecType = LinearTreeExec<ValueType, AnglesType, NodeFactoryType>;
+	using HamiltonianType = Hamiltonian<ComplexType>;
+	using LinearTreeExecType = LinearTreeExec<ValueType, AnglesType, NodeFactoryType, HamiltonianType>;
 
 	NodeHelper(const VectorNodeType& nodes)
 	    : nodeFactory_(nodes)

@@ -24,13 +24,13 @@ public:
 	{
 	}
 
-	QuasiVector(SizeType size)
+	explicit QuasiVector(SizeType size)
 	    : size_(size)
 	    , isExp_(false)
 	{
 	}
 
-	QuasiVector(const std::string& filename) { fromFile(filename); }
+	explicit QuasiVector(const std::string& filename) { fromFile(filename); }
 
 	void fromFile(const std::string& filename)
 	{

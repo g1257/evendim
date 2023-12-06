@@ -12,7 +12,7 @@
 
 namespace Gep {
 
-template <typename VecComplexType, typename AnglesType, typename CtorParamType>
+template <typename VecComplexType, typename AnglesType, typename CtorParamType, typename HamiltonianType>
 class LinearTreeExec {
 
 public:
@@ -23,7 +23,6 @@ public:
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
 	using HandleType = std::pair<ProgramType, SizeType>;
-	using HamiltonianType = Hamiltonian<ComplexType>;
 
 	// Ctor not needed in the xacc version of LinearTreeExec
 	LinearTreeExec(const CtorParamType& ctorParam)

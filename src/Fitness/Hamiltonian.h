@@ -13,7 +13,7 @@ namespace Gep {
 
 // H = coupling*\sum_{i} sigma^x_i sigma^x_{i + 1}
 template <typename ComplexType>
-class Hamiltonian : public HamiltonianBase<QuasiVector<ComplexType> >{
+class Hamiltonian : public HamiltonianBase<QuasiVector<ComplexType>> {
 
 public:
 

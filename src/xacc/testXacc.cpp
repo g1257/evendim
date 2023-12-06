@@ -1,4 +1,5 @@
 #include "../Engine/NodeFactory.h"
+#include "HamiltonianDummy.hh"
 #include "LinearTreeExecXacc.hh"
 #include "XaccBackendActual.hh"
 #include <iterator>
@@ -21,7 +22,8 @@ int main(int argc, char** argv)
 	Gep::XaccBackend xaccBackend(argc, argv);
 
 	using DummyUnusedType = int;
-	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double, DummyUnusedType>;
+	using HamiltonianType = Gep::HamiltonianDummy<std::complex<double>>;
+	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double, DummyUnusedType, HamiltonianType>;
 	using HandleType = LinearTreeExecType::HandleType;
 
 	// here is the circuit
@@ -38,6 +40,7 @@ int main(int argc, char** argv)
 	HandleType handle = linearTreeExec.getHandle(initVector, mycircuit, threadNum);
 
 	// Does energy = <0|C H C |0>, with H = Z_0
+	HamiltonianType hamiltonian; // ignored for now
 	double energy = linearTreeExec.energy(handle, hamiltonian);
 	std::cout << "Circuit is " << implodeVecString(mycircuit) << "\n";
 	std::cout << "Energy is " << energy << "\n";
