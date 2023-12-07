@@ -19,7 +19,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #define EVENDIM_GROUND_STATE_FITNESS_H
 #include "BaseFitness.h"
 #include "GroundStateParams.h"
-#include "Hamiltonian.h"
+#include "Hamiltonian.hh"
 #include "LinearTreeExec.hh"
 #include "MersenneTwister.h"
 #include "Minimizer.h"

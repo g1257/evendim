@@ -1,7 +1,7 @@
 #ifndef LINEARTREEEXEC_CPU_HH
 #define LINEARTREEEXEC_CPU_HH
 #include "AST/Node.h"
-#include "Hamiltonian.h"
+#include "Hamiltonian.hh"
 #include "NodeFactory.h"
 #include "UnderlyingType.hh"
 #include <complex>

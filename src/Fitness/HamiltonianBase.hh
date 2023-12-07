@@ -13,6 +13,8 @@ public:
 	using RealType = typename PsimagLite::Real<ComplexOrRealType>::Type;
 
 	virtual RealType energy(const QuasiVectorType& y, SizeType threadNum) const = 0;
+
+	virtual SizeType numberOfSites() const = 0;
 };
 }
 #endif // EVENDIM_HAMILTONIAN_BASE_H

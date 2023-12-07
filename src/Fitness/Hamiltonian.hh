@@ -153,6 +153,8 @@ public:
 		}
 	}
 
+	SizeType numberOfSites() const { return bits_; }
+
 private:
 
 	void fillHxx(RealType coupling)

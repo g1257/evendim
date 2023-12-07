@@ -1,6 +1,6 @@
 #ifndef NODEHELPER_HH
 #define NODEHELPER_HH
-#include "../Fitness/Hamiltonian.h"
+#include "../Fitness/Hamiltonian.hh"
 #include "../Fitness/LinearTreeExec.hh"
 #include "NodeFactory.h"
 #include "UnderlyingType.hh"
