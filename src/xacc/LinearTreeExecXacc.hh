@@ -22,7 +22,12 @@ public:
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
-	using HandleType = std::pair<ProgramType, SizeType>;
+
+	struct HandleType {
+		ProgramType program;
+		SizeType numberOfBits;
+		SizeType threadNum;
+	};
 
 	// Ctor not needed in the xacc version of LinearTreeExec
 	LinearTreeExec(const CtorParamType& ctorParam)
@@ -34,16 +39,16 @@ public:
 	                     SizeType threadNum) const
 	{
 		ProgramType program = createProgram(circuit);
-		return HandleType(program, threadNum);
+		SizeType numberOfBits = log2Exact(initVector.size());
+		return HandleType{program, numberOfBits, threadNum};
 	}
 
 	// Ignore hamiltonian for now and assume it's Z_0
 	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian) const
 	{
-		auto buffer = xacc::qalloc(2);
+		auto buffer = xacc::qalloc(handle.numberOfBits);
 		double angle = 0.;
-		// handle.first contains the program
-		auto evaled = handle.first->operator()({ angle });
+		auto evaled = handle.program->operator()({ angle });
 		auto accelerator = xacc::getAccelerator("tnqvm");
 		accelerator->execute(buffer, evaled);
 		return buffer->getExpectationValueZ();
@@ -61,7 +66,7 @@ private:
 		SizeType ngates = circuit.size();
 		for (SizeType i = 0; i < ngates; ++i) {
 			QuantumGEPGate gate(circuit[i]);
-			if (gate.isParametric()) {
+			if (!gate.isParametric()) {
 				auto someGate = provider->createInstruction(gate.name(), gate.bits());
 				instructions.push_back(someGate);
 			}
@@ -81,6 +86,29 @@ private:
 		// Add them to the CompositeInstruction
 		program->addInstructions(instructions);
 		return program;
+	}
+
+	// If n is 2^x, this function returns x
+	// Else it throws
+	static SizeType log2Exact(SizeType n)
+	{
+		SizeType x = 0;
+		while (n > 0) {
+			if (n & 1) {
+				break;
+			}
+
+			n >>= 1;
+			++x;
+		}
+
+		SizeType mustBeN = (1 << x);
+		if (mustBeN != n) {
+			throw std::runtime_error("n is not a power of 2\n");
+		}
+
+
+		return x;
 	}
 };
 }
