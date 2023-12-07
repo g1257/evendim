@@ -34,10 +34,15 @@ public:
 	{
 	}
 
-	HandleType getHandle(const VecComplexType& initVector, // xacc init vector?
+	HandleType getHandle(const VecComplexType& initVector,
 	                     const VecStringType& circuit,
 	                     SizeType threadNum) const
 	{
+		VecStringType circuit2;
+		pureVectorToXgates(circuit2, initVector);
+
+		circuit2 += circuit;
+
 		ProgramType program = createProgram(circuit);
 		SizeType numberOfBits = log2Exact(initVector.size());
 		return HandleType{program, numberOfBits, threadNum};
@@ -46,6 +51,10 @@ public:
 	// Ignore hamiltonian for now and assume it's Z_0
 	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian) const
 	{
+		if (handle.numberOfBits != hamiltonian.numberOfSites()) {
+			throw std::runtime_error("Hamiltonian size incorrect\n");
+		}
+
 		auto buffer = xacc::qalloc(handle.numberOfBits);
 		double angle = 0.;
 		auto evaled = handle.program->operator()({ angle });
@@ -57,7 +66,7 @@ public:
 private:
 
 	static ProgramType createProgram(const VecStringType& circuit)
-	{
+	{		
 		// Get the IRProvider and create an
 		// empty CompositeInstruction
 		auto provider = xacc::getIRProvider("quantum");
@@ -88,6 +97,53 @@ private:
 		return program;
 	}
 
+	static SizeType findPureState(const VecComplexType& initVector)
+	{
+		SizeType n = initVector.size();
+		bool hasSeenNonZero = false;
+		SizeType x = 0;
+		for (SizeType i = 0; i < n; ++i) {
+			if (std::norm(initVector[i]) > 0) {
+				if (hasSeenNonZero) {
+					dieVectorNotPure(initVector);
+				}
+
+				hasSeenNonZero = true;
+				if (std::imag(initVector[i]) != 0) {
+					dieVectorNotPure(initVector);
+				}
+
+				if (std::abs(std::real(initVector[i]) - 1) < 1e-4) {
+					dieVectorNotPure(initVector);
+				}
+
+				x = i;
+			}
+		}
+
+		if (!hasSeenNonZero) {
+			throw std::runtime_error("initVector is zero\n");
+		}
+
+		return x;
+	}
+
+	void pureVectorToXgates(VecStringType& circuit,
+	                     const VecComplexType& initVector)
+
+	{
+		SizeType x = findPureState(initVector);
+		SizeType i = 0;
+		while (x > 0) {
+			if (x & 1) {
+				circuit.push_back("Sx" + ttos(i));
+			}
+
+			x >>= 1;
+			++i;
+		}
+	}
+
 	// If n is 2^x, this function returns x
 	// Else it throws
 	static SizeType log2Exact(SizeType n)
@@ -109,6 +165,11 @@ private:
 
 
 		return x;
+	}
+
+	static dieVectorNotPure(const VecComplexType&)
+	{
+		throw std::runtime_error("initVector must be pure\n");
 	}
 };
 }
