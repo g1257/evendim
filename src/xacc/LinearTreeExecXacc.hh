@@ -63,9 +63,9 @@ public:
 		VecStringType circuit2;
 		pureVectorToXgates(circuit2, initVector);
 
-		circuit2 += circuit;
+		circuit2.insert(circuit2.end(), circuit.begin(), circuit.end());
 
-		ProgramType program = createProgram(circuit);
+		ProgramType program = createProgram(circuit2);
 		SizeType numberOfBits = log2Exact(initVector.size());
 		return HandleType { program, numberOfBits, threadNum };
 	}
@@ -134,16 +134,16 @@ private:
 		for (SizeType i = 0; i < n; ++i) {
 			if (std::norm(initVector[i]) > 0.0) {
 				if (hasSeenNonZero) {
-					dieVectorNotPure(initVector);
+					dieVectorNotPure(initVector, "1");
 				}
 
 				hasSeenNonZero = true;
 				if (std::imag(initVector[i]) != 0) {
-					dieVectorNotPure(initVector);
+					dieVectorNotPure(initVector, "2");
 				}
 
-				if (std::abs(std::real(initVector[i]) - 1) < 1e-4) {
-					dieVectorNotPure(initVector);
+				if (std::abs(std::real(initVector[i]) - 1) > 1e-4) {
+					dieVectorNotPure(initVector, "3");
 				}
 
 				x = i;
@@ -196,9 +196,9 @@ private:
 		return x;
 	}
 
-	static void dieVectorNotPure(const std::vector<ComplexType>&)
+	static void dieVectorNotPure(const std::vector<ComplexType>&, const std::string& msg)
 	{
-		throw std::runtime_error("initVector must be pure\n");
+		throw std::runtime_error("initVector must be pure " + msg + "\n");
 	}
 };
 }
