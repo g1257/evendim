@@ -467,7 +467,7 @@ private:
 	}
 
 	EvolutionType& evolution_;
-	const GroundStateParamsType fitParams_;
+	const GroundStateParamsType& fitParams_;
 }; // class QuantumOracle
 } // namespace Gep
 

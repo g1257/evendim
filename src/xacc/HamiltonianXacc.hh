@@ -1,8 +1,10 @@
 #ifndef HAMILTONIAN_XACC_H
 #define HAMILTONIAN_XACC_H
 
-#include "../Fitness/HamiltonianBase.hh"
+#include "../Engine/InputCheck.h"
 #include "InputNg.h"
+#include "PauliOperator.hpp"
+#include "xacc.hpp"
 
 namespace Gep {
 
@@ -14,36 +16,41 @@ public:
 	using VectorType = std::vector<ComplexType>;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using PauliOperatorType = xacc::quantum::PauliOperator;
+	using InputNgType = PsimagLite::InputNg<InputCheck>;
 
-	Hamiltonian(typename InputNgType::Readable& io, SizeType /* numberOfThreads */ )
-	    : pauliOperator_(nullptr)
+	Hamiltonian(typename InputNgType::Readable& io, SizeType /* numberOfThreads */)
+	    : bits_(0)
+	    , pauliOperator_(nullptr)
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
-		io.readline(ham, "Hamiltonian=");
-		if (ham.substr(0, 5) == "file:") {
+		io.readline(ham_, "Hamiltonian=");
+		if (ham_.substr(0, 5) == "file:") {
 			unimplemented("Hamiltonian=file:\n");
 		}
 
-		if (ham == "IsingGraph" || ham == "zz") {
+		if (ham_ == "IsingGraph" || ham_ == "zz") {
 			throw std::runtime_error("Hamiltonian=IsingGraph or zz\n");
 		}
 
-		if (ham == "zxz" || ham == "xx") {
+		if (ham_ == "zxz" || ham_ == "xx") {
 			throw std::runtime_error("Hamiltonian=zxz or xx\n");
 		}
 
-		fromExpression(str);;
+		fromExpression(ham_);
 	}
 
-	HamiltonianXacc(const std::string& expression, SizeType /* numberOfThreads */ )
-	: pauliOperator_(nullptr)
+	Hamiltonian(const std::string& expression, SizeType bits, SizeType /* numberOfThreads */)
+	    : bits_(bits)
+	    , ham_(expression)
+	    , pauliOperator_(nullptr)
 	{
-		fromExpression(str);
+		fromExpression(expression);
 	}
 
-	RealType energy(const VectorType& y, SizeType threadNum) const
+	template <typename SomeType>
+	RealType energy(const SomeType& y, SizeType threadNum) const
 	{
-		return 0;
+		throw std::runtime_error("energy(y, thread) must not be called from XACC\n");
 	}
 
 	SizeType numberOfSites() const
@@ -53,14 +60,14 @@ public:
 
 private:
 
-	HamiltonianXacc(const HamiltonianXacc&) = delete;
+	Hamiltonian(const Hamiltonian&) = delete;
 
-	HamiltonianXacc& operator=(const HamiltonianXacc&) = delete;
+	Hamiltonian& operator=(const Hamiltonian&) = delete;
 
 	void fromExpression(const std::string& str)
 	{
 		std::cerr << "Asumming Hamiltonian Expression (XACC)\n";
-		pauliOperator_ = new PauliOperatorType(ham);
+		pauliOperator_ = new PauliOperatorType(str);
 	}
 
 	static void unimplemented(const std::string& msg)
@@ -69,6 +76,7 @@ private:
 	}
 
 	SizeType bits_;
+	std::string ham_;
 	PauliOperatorType* pauliOperator_;
 };
 

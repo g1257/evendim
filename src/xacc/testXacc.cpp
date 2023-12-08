@@ -22,8 +22,8 @@ int main(int argc, char** argv)
 	Gep::XaccBackend xaccBackend(argc, argv);
 
 	using DummyUnusedType = int;
-	using HamiltonianType = Gep::HamiltonianXacc<std::complex<double>>;
-	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double, DummyUnusedType, HamiltonianType>;
+	using HamiltonianType = Gep::Hamiltonian<std::complex<double>>;
+	using LinearTreeExecType = Gep::LinearTreeExec<std::vector<std::complex<double>>, double, DummyUnusedType>;
 	using HandleType = LinearTreeExecType::HandleType;
 
 	// here is the circuit
@@ -31,6 +31,7 @@ int main(int argc, char** argv)
 
 	// here is the initial state
 	std::vector<std::complex<double>> initVector(4);
+	initVector[0] = 1;
 
 	DummyUnusedType dummy = 0;
 	LinearTreeExecType linearTreeExec(dummy);
@@ -40,7 +41,9 @@ int main(int argc, char** argv)
 	HandleType handle = linearTreeExec.getHandle(initVector, mycircuit, threadNum);
 
 	// Does energy = <0|C H C |0>, with H = Z_0
-	HamiltonianType hamiltonian; // ignored for now
+	constexpr SizeType numberOfThreads = 1;
+	constexpr SizeType sites = 2;
+	HamiltonianType hamiltonian("X0Z1", sites, numberOfThreads);
 	double energy = linearTreeExec.energy(handle, hamiltonian);
 	std::cout << "Circuit is " << implodeVecString(mycircuit) << "\n";
 	std::cout << "Energy is " << energy << "\n";

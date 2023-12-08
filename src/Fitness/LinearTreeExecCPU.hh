@@ -34,7 +34,8 @@ public:
 	using HandleType = std::pair<ValueType, SizeType>;
 
 	explicit LinearTreeExec(const NodeFactoryType& nodeFactory,
-	                        const typename TypesMustBeEqual<NodeFactoryType_, NodeFactoryType>::Type = 0)	    : nodeFactory_(nodeFactory)
+	                        const typename TypesMustBeEqual<NodeFactoryType_, NodeFactoryType>::Type = 0)
+	    : nodeFactory_(nodeFactory)
 	{
 	}
 

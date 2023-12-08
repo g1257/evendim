@@ -2,9 +2,9 @@
 #define EVENDIM_QUANTUMGEPXACC_H_
 
 #include "../Engine/UnderlyingType.hh"
-#include "HamiltonianXacc.hh"
 #include "AllocatorCpu.h"
 #include "Complex.h"
+#include "HamiltonianXacc.hh"
 #include "QuantumGEPGate.hh"
 #include "xacc.hpp"
 #include <string>
@@ -44,7 +44,7 @@ public:
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
 	using BogusFirstType = typename FirstOrSecondType<TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
 	using BogusSecondType = typename FirstOrSecondType<!TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
-	using HamiltonianType = HamiltonianXacc<ComplexType>;
+	using HamiltonianType = Hamiltonian<ComplexType>;
 
 	struct HandleType {
 		ProgramType program;
@@ -177,8 +177,9 @@ private:
 
 	// If n is 2^x, this function returns x
 	// Else it throws
-	static SizeType log2Exact(SizeType n)
+	static SizeType log2Exact(SizeType nn)
 	{
+		SizeType n = nn;
 		SizeType x = 0;
 		while (n > 0) {
 			if (n & 1) {
@@ -190,7 +191,7 @@ private:
 		}
 
 		SizeType mustBeN = (1 << x);
-		if (mustBeN != n) {
+		if (mustBeN != nn) {
 			throw std::runtime_error("n is not a power of 2\n");
 		}
 
