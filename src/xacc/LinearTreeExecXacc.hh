@@ -2,7 +2,7 @@
 #define EVENDIM_QUANTUMGEPXACC_H_
 
 #include "../Engine/UnderlyingType.hh"
-#include "../Fitness/Hamiltonian.hh"
+#include "HamiltonianXacc.hh"
 #include "AllocatorCpu.h"
 #include "Complex.h"
 #include "QuantumGEPGate.hh"
@@ -32,7 +32,7 @@ struct FirstOrSecondType<true, T1, T2> {
 	using type = T1;
 };
 
-template <typename VecComplexType, typename AnglesType, typename CtorParamType, typename HamiltonianType>
+template <typename VecComplexType, typename AnglesType, typename CtorParamType>
 class LinearTreeExec {
 
 public:
@@ -44,6 +44,7 @@ public:
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
 	using BogusFirstType = typename FirstOrSecondType<TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
 	using BogusSecondType = typename FirstOrSecondType<!TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
+	using HamiltonianType = HamiltonianXacc<ComplexType>;
 
 	struct HandleType {
 		ProgramType program;

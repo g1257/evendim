@@ -18,7 +18,6 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Engine.h"
 #include "Evolution.h"
 #include "Fitness/GroundStateFitness.h"
-#include "Fitness/Hamiltonian.hh"
 #include "Fitness/QuantumFitness.h"
 #include "FloatingPoint.h"
 #include "InputCheck.h"

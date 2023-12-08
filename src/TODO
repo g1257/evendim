@@ -4,3 +4,33 @@ Hadamard needs to be OneBitGate
 
 Implement TwoBitGate
 
+#include "xacc.hpp"
+#include "PauliOperator.hpp"
+
+int main(int argc, char **argv) {
+  xacc::Initialize(argc, argv);
+  xacc::set_verbose(true);
+
+  // H = 0.30794 * II + 0.3555426 * IZ - 0.485486 * ZI
+  //      0.581232 * ZZ + 0.089500 * (XX + YY)
+
+  //      using some of the constructor overloads and the += operator
+  xacc::quantum::PauliOperator H;
+  H += xacc::quantum::PauliOperator(0.30794);
+  H += xacc::quantum::PauliOperator({{1, "Z"}}, 0.3555426);
+  H += xacc::quantum::PauliOperator({{0, "Z"}}, -0.485486);
+  H += xacc::quantum::PauliOperator({{0, "Z"}, {1, "Z"}}, 0.581232);
+  H += xacc::quantum::PauliOperator({{0, "X"}, {1, "X"}}, 0.089500);
+  H += xacc::quantum::PauliOperator({{0, "Y"}, {1, "Y"}}, 0.089500);
+  std::cout << H.toString() << "\n";
+
+  // if you have Hamiltonians in a file, you can use the
+  // constructor overload that constructs PauliOperator from a string
+  // or call PauliOperator::fromString()
+  std::string H_str = "0.30794 + 0.0895 X0 X1 + 0.0895 Y0 Y1 - 0.485486 Z0 + 0.581232 Z0 Z1 + 0.3555426 Z1";
+  xacc::quantum::PauliOperator HfromStr(H_str);
+  std::cout << HfromStr.toString() << "\n";
+  xacc::Finalize();
+  return 0;
+}
+

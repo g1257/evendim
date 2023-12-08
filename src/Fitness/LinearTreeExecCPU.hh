@@ -1,7 +1,7 @@
 #ifndef LINEARTREEEXEC_CPU_HH
 #define LINEARTREEEXEC_CPU_HH
 #include "AST/Node.h"
-#include "Hamiltonian.hh"
+#include "HamiltonianCPU.hh"
 #include "NodeFactory.h"
 #include "UnderlyingType.hh"
 #include <complex>
@@ -18,7 +18,7 @@ struct TypesMustBeEqual<T, T> {
 
 namespace Gep {
 
-template <typename ValueType, typename AnglesType_, typename NodeFactoryType_, typename HamiltonianType_>
+template <typename ValueType, typename AnglesType_, typename NodeFactoryType_>
 class LinearTreeExec {
 
 public:
@@ -34,9 +34,7 @@ public:
 	using HandleType = std::pair<ValueType, SizeType>;
 
 	explicit LinearTreeExec(const NodeFactoryType& nodeFactory,
-	                        const typename TypesMustBeEqual<NodeFactoryType_, NodeFactoryType>::Type = 0,
-	                        const typename TypesMustBeEqual<HamiltonianType_, HamiltonianType>::Type = 0)
-	    : nodeFactory_(nodeFactory)
+	                        const typename TypesMustBeEqual<NodeFactoryType_, NodeFactoryType>::Type = 0)	    : nodeFactory_(nodeFactory)
 	{
 	}
 

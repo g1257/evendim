@@ -19,7 +19,6 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #define EVENDIM_GROUND_STATE_FITNESS_H
 #include "BaseFitness.h"
 #include "GroundStateParams.h"
-#include "Hamiltonian.hh"
 #include "LinearTreeExec.hh"
 #include "MersenneTwister.h"
 #include "Minimizer.h"
@@ -42,8 +41,7 @@ public:
 	typedef typename ChromosomeType::VectorStringType VectorStringType;
 	typedef PsimagLite::Matrix<ComplexType> MatrixType;
 	typedef typename EvolutionType::NodeHelperType::NodeFactoryType NodeFactoryType;
-	using HamiltonianType = Hamiltonian<ComplexType>;
-	using LinearTreeExecType = LinearTreeExec<typename NodeType::ValueType, typename NodeType::AnglesType, NodeFactoryType, HamiltonianType>;
+	using LinearTreeExecType = LinearTreeExec<typename NodeType::ValueType, typename NodeType::AnglesType, NodeFactoryType>;
 
 	enum class FunctionEnum { FITNESS,
 		                  DIFFERENCE };
