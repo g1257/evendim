@@ -2,7 +2,7 @@
 #define EVENDIM_QUANTUMGEPXACC_H_
 
 #include "../Engine/UnderlyingType.hh"
-#include "../Fitness/Hamiltonian.h"
+#include "../Fitness/Hamiltonian.hh"
 #include "AllocatorCpu.h"
 #include "Complex.h"
 #include "QuantumGEPGate.hh"
@@ -11,6 +11,26 @@
 #include <vector>
 
 namespace Gep {
+
+template <typename T1, typename T2>
+struct TypesEqual {
+	static const bool value = false;
+};
+
+template <typename T>
+struct TypesEqual<T, T> {
+	static const bool value = true;
+};
+
+template <bool b, typename T1, typename T2>
+struct FirstOrSecondType {
+	using type = T2;
+};
+
+template <typename T1, typename T2>
+struct FirstOrSecondType<true, T1, T2> {
+	using type = T1;
+};
 
 template <typename VecComplexType, typename AnglesType, typename CtorParamType, typename HamiltonianType>
 class LinearTreeExec {
@@ -22,6 +42,8 @@ public:
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
+	using BogusFirstType = typename FirstOrSecondType<TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
+	using BogusSecondType = typename FirstOrSecondType<!TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
 
 	struct HandleType {
 		ProgramType program;
@@ -45,7 +67,7 @@ public:
 
 		ProgramType program = createProgram(circuit);
 		SizeType numberOfBits = log2Exact(initVector.size());
-		return HandleType{program, numberOfBits, threadNum};
+		return HandleType { program, numberOfBits, threadNum };
 	}
 
 	// Ignore hamiltonian for now and assume it's Z_0
@@ -66,7 +88,7 @@ public:
 private:
 
 	static ProgramType createProgram(const VecStringType& circuit)
-	{		
+	{
 		// Get the IRProvider and create an
 		// empty CompositeInstruction
 		auto provider = xacc::getIRProvider("quantum");
@@ -97,13 +119,20 @@ private:
 		return program;
 	}
 
-	static SizeType findPureState(const VecComplexType& initVector)
+	// Avoid overload if second function exists
+
+	static SizeType findPureState(const VecComplexType& initVector, BogusFirstType = 0)
+	{
+		return findPureState(initVector.toVector());
+	}
+
+	static SizeType findPureState(const std::vector<ComplexType>& initVector, BogusSecondType = 0)
 	{
 		SizeType n = initVector.size();
 		bool hasSeenNonZero = false;
 		SizeType x = 0;
 		for (SizeType i = 0; i < n; ++i) {
-			if (std::norm(initVector[i]) > 0) {
+			if (std::norm(initVector[i]) > 0.0) {
 				if (hasSeenNonZero) {
 					dieVectorNotPure(initVector);
 				}
@@ -128,11 +157,12 @@ private:
 		return x;
 	}
 
-	void pureVectorToXgates(VecStringType& circuit,
-	                     const VecComplexType& initVector)
+	static void pureVectorToXgates(VecStringType& circuit,
+	                               const VecComplexType& initVector)
 
 	{
-		SizeType x = findPureState(initVector);
+		typename FirstOrSecondType<!TypesEqual<VecComplexType, std::vector<ComplexType>>::value, BogusFirstType, BogusSecondType>::type bogus = 0;
+		SizeType x = findPureState(initVector, bogus);
 		SizeType i = 0;
 		while (x > 0) {
 			if (x & 1) {
@@ -163,11 +193,10 @@ private:
 			throw std::runtime_error("n is not a power of 2\n");
 		}
 
-
 		return x;
 	}
 
-	static dieVectorNotPure(const VecComplexType&)
+	static void dieVectorNotPure(const std::vector<ComplexType>&)
 	{
 		throw std::runtime_error("initVector must be pure\n");
 	}
