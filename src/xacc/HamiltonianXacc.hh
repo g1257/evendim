@@ -82,8 +82,20 @@ private:
 	void fromExpression(const std::string& str)
 	{
 		std::cerr << "Asumming Hamiltonian Expression (XACC) " << str << "\n";
-		std::string paulis = toPaulis(str);
+		std::string paulis = toPaulis(removeAllSpaces(str));
 		pauliOperator_ = new PauliOperatorType(paulis);
+	}
+
+	static std::string removeAllSpaces(const std::string& str)
+	{
+		std::string str2;
+		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+			if (*it == ' ' || *it == '\t')
+				continue;
+			str2 += *it;
+		}
+
+		return str2;
 	}
 
 	static void unimplemented(const std::string& msg)
