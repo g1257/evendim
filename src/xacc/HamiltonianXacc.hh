@@ -87,7 +87,7 @@ private:
 
 		std::string paulis;
 		for (SizeType i = 0; i < terms.size(); ++i) {
-			std::string term = termToPauli(term[i]);
+			std::string term = termToPauli(terms[i]);
 			paulis += term;
 		}
 
@@ -136,7 +136,7 @@ private:
 		std::string name = gate.name();
 		ToPauliMatrices toPauliMatrices(name);
 		// name and bits <=== FIXME bits need adjustment
-		return toPauliMatrices() + gate.bits();
+		return toPauliMatrices() + ttos(gate.bits());
 	}
 
 	SizeType bits_;
