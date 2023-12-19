@@ -82,11 +82,9 @@ public:
 		auto evaled = handle.program->operator()({ angle });
 		auto accelerator = xacc::getAccelerator("tnqvm");
 
-		// TODO: implement Hamiltonian::observe()
 		auto rotatedCircuits = hamiltonian.observe(evaled);
 		accelerator->execute(buffer, rotatedCircuits);
 
-		// TODO: implement Hamiltonian::postProcess()
 		auto energy = hamiltonian.postProcess(buffer);
 		return energy;
 	}

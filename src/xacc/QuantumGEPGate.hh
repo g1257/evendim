@@ -65,6 +65,8 @@ private:
 	void setMapOfGates()
 	{
 		gepToXaccGates_["Sx"] = PairStringSizeType("X", 1);
+		gepToXaccGates_["Sy"] = PairStringSizeType("Y", 1);
+		gepToXaccGates_["Sz"] = PairStringSizeType("Z", 1);
 	}
 
 	static std::string stripPreviousAngleIfAny(const std::string& str)

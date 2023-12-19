@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 	// Does energy = <0|C H C |0>, with H = Z_0
 	constexpr SizeType numberOfThreads = 1;
 	constexpr SizeType sites = 2;
-	HamiltonianType hamiltonian("X0Z1", sites, numberOfThreads);
+	HamiltonianType hamiltonian("Sx0 * Sx0", sites, numberOfThreads);
 	double energy = linearTreeExec.energy(handle, hamiltonian);
 	std::cout << "Circuit is " << implodeVecString(mycircuit) << "\n";
 	std::cout << "Energy is " << energy << "\n";
