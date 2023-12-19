@@ -20,6 +20,7 @@ public:
 	using PauliOperatorType = xacc::quantum::PauliOperator;
 	using InputNgType = PsimagLite::InputNg<InputCheck>;
 	using VectorStringType = std::vector<std::string>;
+	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 
 	Hamiltonian(typename InputNgType::Readable& io, SizeType /* numberOfThreads */)
 	    : bits_(0)
@@ -48,6 +49,17 @@ public:
 	    , pauliOperator_(nullptr)
 	{
 		fromExpression(expression);
+	}
+
+	std::vector<ProgramType> observe(ProgramType function) const
+	{
+		return pauliOperator_->observe(function);
+	}
+
+	double postProcess(std::shared_ptr<xacc::AcceleratorBuffer> buffer) const
+	{
+		xacc::HeterogeneousMap extra_data;
+		return pauliOperator_->postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
 	}
 
 	template <typename SomeType>

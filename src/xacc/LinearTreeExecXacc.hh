@@ -71,7 +71,6 @@ public:
 		return HandleType { program, numberOfBits, threadNum };
 	}
 
-	// Ignore hamiltonian for now and assume it's Z_0
 	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian) const
 	{
 		if (handle.numberOfBits != hamiltonian.numberOfSites()) {
@@ -82,8 +81,14 @@ public:
 		double angle = 0.;
 		auto evaled = handle.program->operator()({ angle });
 		auto accelerator = xacc::getAccelerator("tnqvm");
-		accelerator->execute(buffer, evaled);
-		return buffer->getExpectationValueZ();
+
+		// TODO: implement Hamiltonian::observe()
+		auto rotatedCircuits = hamiltonian.observe(evaled);
+		accelerator->execute(buffer, rotatedCircuits);
+
+		// TODO: implement Hamiltonian::postProcess()
+		auto energy = hamiltonian.postProcess(buffer);
+		return energy;
 	}
 
 private:
