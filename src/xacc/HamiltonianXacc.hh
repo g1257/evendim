@@ -4,9 +4,9 @@
 #include "../Engine/InputCheck.h"
 #include "InputNg.h"
 #include "PauliOperator.hpp"
-#include "xacc.hpp"
 #include "QuantumGEPGate.hh"
 #include "ToPauliMatrices.hh"
+#include "xacc.hpp"
 
 namespace Gep {
 
@@ -69,8 +69,8 @@ private:
 
 	void fromExpression(const std::string& str)
 	{
-		std::cerr << "Asumming Hamiltonian Expression (XACC) "<<str<<"\n";
-		std::string paulis =toPaulis(str);
+		std::cerr << "Asumming Hamiltonian Expression (XACC) " << str << "\n";
+		std::string paulis = toPaulis(str);
 		pauliOperator_ = new PauliOperatorType(paulis);
 	}
 
@@ -110,7 +110,8 @@ private:
 
 	static std::string factorToPauli(const std::string& factor)
 	{
-		if (isNumeric(factor)) return factor;
+		if (isNumeric(factor))
+			return factor;
 
 		return pauliExpansion(factor);
 	}
@@ -119,8 +120,10 @@ private:
 	static bool isNumeric(const std::string& str)
 	{
 		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
-			if (*it == '.' || *it == '+' || *it == '-') continue;
-			if (std::isdigit(*it)) continue;
+			if (*it == '.' || *it == '+' || *it == '-')
+				continue;
+			if (std::isdigit(*it))
+				continue;
 			return false;
 		}
 

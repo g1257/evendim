@@ -43,7 +43,7 @@ quantumIndividual: quantumIndividual.o
 testPauliMatrixExpand: testPauliMatrixExpand.o
 	$(CXX) -o testPauliMatrixExpand testPauliMatrixExpand.o $(LDFLAGS)
 
-testPauliMatrixExpand.o: testPauliMatrixExpand.cpp ToPauliMatrices.hh
+testPauliMatrixExpand.o: testPauliMatrixExpand.cpp xacc/ToPauliMatrices.hh
 	$(CXX) $(CPPFLAGS) -c  testPauliMatrixExpand.cpp
 
 ../../PsimagLite/lib/libpsimaglite.a:

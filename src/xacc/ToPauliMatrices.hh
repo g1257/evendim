@@ -1,14 +1,15 @@
 #ifndef TOPAULIMATRICES_HH
 #define TOPAULIMATRICES_HH
+#include <stdexcept>
 #include <string>
-#include <exception>
 
 namespace Gep {
 
 class ToPauliMatrices {
 public:
 
-	ToPauliMatrices(const std::string& name) : name_(name)
+	ToPauliMatrices(const std::string& name)
+	    : name_(name)
 	{
 		expansion_ = expandIntoPaulis(name);
 	}
@@ -23,8 +24,7 @@ private:
 			return name;
 		}
 
-		throw std::runtime_error("I don't know how to exand " + name +
-		                         " into Pauli matrices\n");
+		throw std::runtime_error("I don't know how to exand " + name + " into Pauli matrices\n");
 	}
 
 	std::string name_;
