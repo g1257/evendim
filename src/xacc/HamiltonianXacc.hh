@@ -5,6 +5,8 @@
 #include "InputNg.h"
 #include "PauliOperator.hpp"
 #include "xacc.hpp"
+#include "QuantumGEPGate.hh"
+#include "ToPauliMatrices.hh"
 
 namespace Gep {
 
@@ -17,6 +19,7 @@ public:
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using PauliOperatorType = xacc::quantum::PauliOperator;
 	using InputNgType = PsimagLite::InputNg<InputCheck>;
+	using VectorStringType = std::vector<std::string>;
 
 	Hamiltonian(typename InputNgType::Readable& io, SizeType /* numberOfThreads */)
 	    : bits_(0)
@@ -66,13 +69,71 @@ private:
 
 	void fromExpression(const std::string& str)
 	{
-		std::cerr << "Asumming Hamiltonian Expression (XACC)\n";
-		pauliOperator_ = new PauliOperatorType(str);
+		std::cerr << "Asumming Hamiltonian Expression (XACC) "<<str<<"\n";
+		std::string paulis =toPaulis(str);
+		pauliOperator_ = new PauliOperatorType(paulis);
 	}
 
 	static void unimplemented(const std::string& msg)
 	{
 		throw std::runtime_error("XACC Backend: unimplemented: " + msg + "\n");
+	}
+
+	static std::string toPaulis(const std::string& str)
+	{
+		// split +
+		VectorStringType terms;
+		PsimagLite::split(terms, str, "+");
+
+		std::string paulis;
+		for (SizeType i = 0; i < terms.size(); ++i) {
+			std::string term = termToPauli(term[i]);
+			paulis += term;
+		}
+
+		return paulis;
+	}
+
+	static std::string termToPauli(const std::string& term)
+	{
+		// split *
+		VectorStringType factors;
+		PsimagLite::split(factors, term, "*");
+		std::string paulis;
+		for (SizeType i = 0; i < factors.size(); ++i) {
+			std::string factor = factorToPauli(factors[i]);
+			paulis += factor;
+		}
+
+		return paulis;
+	}
+
+	static std::string factorToPauli(const std::string& factor)
+	{
+		if (isNumeric(factor)) return factor;
+
+		return pauliExpansion(factor);
+	}
+
+	// All characters are digits or .
+	static bool isNumeric(const std::string& str)
+	{
+		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
+			if (*it == '.' || *it == '+' || *it == '-') continue;
+			if (std::isdigit(*it)) continue;
+			return false;
+		}
+
+		return true;
+	}
+
+	static std::string pauliExpansion(const std::string& str)
+	{
+		QuantumGEPGate gate(str);
+		std::string name = gate.name();
+		ToPauliMatrices toPauliMatrices(name);
+		// name and bits <=== FIXME bits need adjustment
+		return toPauliMatrices() + gate.bits();
 	}
 
 	SizeType bits_;
