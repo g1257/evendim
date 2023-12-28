@@ -5,11 +5,14 @@ CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src -IEngine
 
 all: gep2 quantumGep quantumIndividual graphGen isGraphConnected testPauliMatrixExpand
 
+quantumStatics.o: quantumStatics.cpp  Makefile   Config.make
+	$(CXX) $(CPPFLAGS) -c quantumStatics.cpp
+
 quantumGep.o: quantumGep.cpp  Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c quantumGep.cpp
 
-quantumGep: quantumGep.o
-	$(CXX) -o  quantumGep quantumGep.o $(LDFLAGS) $(CPPFLAGS)
+quantumGep: quantumGep.o quantumStatics.o
+	$(CXX) -o  quantumGep quantumGep.o quantumStatics.o $(LDFLAGS) $(CPPFLAGS)
 	$(STRIP_COMMAND) quantumGep
 
 gep2.o: gep2.cpp  Makefile   Config.make
@@ -36,8 +39,8 @@ isGraphConnected.o: isGraphConnected.cpp Makefile   Config.make
 quantumIndividual.o: quantumIndividual.cpp Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c  quantumIndividual.cpp
 
-quantumIndividual: quantumIndividual.o
-	$(CXX) -o quantumIndividual quantumIndividual.o $(LDFLAGS) $(CPPFLAGS)
+quantumIndividual: quantumIndividual.o quantumStatics.o
+	$(CXX) -o quantumIndividual quantumIndividual.o quantumStatics.o $(LDFLAGS) $(CPPFLAGS)
 	$(STRIP_COMMAND) quantumIndividual
 
 testPauliMatrixExpand: testPauliMatrixExpand.o

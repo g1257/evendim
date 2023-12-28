@@ -38,7 +38,16 @@ public:
 	    : originalStr_(s)
 	    , isParametric_(false)
 	{
-		setMapOfGates();
+		if (s == "0") {
+			xaccName_ = "Measure";
+			bits_ = { 0 };
+			return;
+		}
+
+		if (gepToXaccGates_.size() == 0) {
+			setMapOfGates();
+		}
+
 		// strip angle if any (we'll ignore the angle here for now)
 		std::string str = stripPreviousAngleIfAny(originalStr_);
 
@@ -63,7 +72,7 @@ public:
 private:
 
 	// Taken from XACC's xacc/quantum/gate/ir/CommonGates.hpp
-	void setMapOfGates()
+	static void setMapOfGates()
 	{
 		gepToXaccGates_["Sx"] = PairStringSizeType("X", 1);
 		gepToXaccGates_["Sy"] = PairStringSizeType("Y", 1);
@@ -83,7 +92,7 @@ private:
 		gepToXaccGates_["H"] = PairStringSizeType("H", 1);
 
 		// CNOT 2
-		gepToXaccGates_["C"] = PairStringSizeType("C", 2);
+		gepToXaccGates_["C"] = PairStringSizeType("CNOT", 2);
 
 		// AnnealingInstruction variable
 		// U1 1
@@ -91,7 +100,9 @@ private:
 		// U 1
 		// Rphi 1
 		// XX 2
-		// Measure 1
+
+		// Measure 0 ==> dealt with elsewhere
+
 		// CZ 2
 		// Cphase 2
 		// XY 2
@@ -148,7 +159,9 @@ private:
 		bits_.push_back(bit1);
 
 		// is there an underscore
-		if (str[counter] == '_') {
+		assert(counter < str.length());
+		SizeType location = str.length() - counter - 1;
+		if (str[location] == '_') {
 			++counter; // step over underscore
 			SizeType bit2 = readNumberFromTheEnd(counter, str);
 			bits_.push_back(bit2);
@@ -190,7 +203,7 @@ private:
 		return gepToXaccGates_.at(name).first;
 	}
 
-	std::map<std::string, PairStringSizeType> gepToXaccGates_;
+	static std::map<std::string, PairStringSizeType> gepToXaccGates_;
 	std::string originalStr_;
 	bool isParametric_;
 	std::string xaccName_;

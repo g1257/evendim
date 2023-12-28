@@ -115,8 +115,8 @@ private:
 		// auto x = provider->createInstruction("X", { 0 });
 		// auto ry = provider->createInstruction("Ry", { 1 }, { "t" });
 		// auto cx = provider->createInstruction("CNOT", { 1, 0 });
-		auto m0 = provider->createInstruction("Measure", { 0 });
-		instructions.push_back(m0);
+		// auto m0 = provider->createInstruction("Measure", { 0 });
+		// instructions.push_back(m0);
 
 		// Add them to the CompositeInstruction
 		program->addInstructions(instructions);
