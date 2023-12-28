@@ -62,11 +62,48 @@ public:
 
 private:
 
+	// Taken from XACC's xacc/quantum/gate/ir/CommonGates.hpp
 	void setMapOfGates()
 	{
 		gepToXaccGates_["Sx"] = PairStringSizeType("X", 1);
 		gepToXaccGates_["Sy"] = PairStringSizeType("Y", 1);
 		gepToXaccGates_["Sz"] = PairStringSizeType("Z", 1);
+
+		// gates with the same names and one bit
+		std::vector<std::string> sameNames { "Rx", "Ry", "Rz", "T", "H" };
+		for (std::vector<std::string>::const_iterator it = sameNames.begin(); it != sameNames.end(); ++it) {
+			gepToXaccGates_[*it] = PairStringSizeType(*it, 1);
+		}
+
+		// iSwap 2
+		// fSim 2
+		// I 1
+
+		// H 1
+		gepToXaccGates_["H"] = PairStringSizeType("H", 1);
+
+		// CNOT 2
+		gepToXaccGates_["C"] = PairStringSizeType("C", 2);
+
+		// AnnealingInstruction variable
+		// U1 1
+		// Swap 2
+		// U 1
+		// Rphi 1
+		// XX 2
+		// Measure 1
+		// CZ 2
+		// Cphase 2
+		// XY 2
+		// S 1
+		// Sdg 1
+		// T 1
+		// Tdg 1
+		// CY 2
+		// CH 2
+		// CRZ 2
+		// Reset 1
+		// RZZ 2
 	}
 
 	static std::string stripPreviousAngleIfAny(const std::string& str)
