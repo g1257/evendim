@@ -37,6 +37,7 @@ public:
 	QuantumGEPGate(const std::string& s)
 	    : originalStr_(s)
 	    , isParametric_(false)
+	    , nparams_(0)
 	{
 		if (s == "0") {
 			xaccName_ = "Measure";
@@ -59,6 +60,13 @@ public:
 
 		// convert GEP name to XACC name
 		xaccName_ = gepToXaccName(gepName);
+
+		isParametric_ = isGateParametric(gepName);
+		// set number of params, for now all parametric
+		// gates have all one param
+		if (isParametric_) {
+			nparams_ = 1;
+		}
 	}
 
 	const std::string& name() { return xaccName_; }
@@ -67,7 +75,7 @@ public:
 
 	bool isParametric() const { return isParametric_; }
 
-	const VectorParamType& params() { return params_; }
+	SizeType numberOfParams() { return nparams_; }
 
 private:
 
@@ -115,6 +123,11 @@ private:
 		// CRZ 2
 		// Reset 1
 		// RZZ 2
+	}
+
+	static bool isGateParametric(const std::string& gep_name)
+	{
+		return (gep_name == "Rx" || gep_name == "Ry" || gep_name == "Rz");
 	}
 
 	static std::string stripPreviousAngleIfAny(const std::string& str)
@@ -208,7 +221,7 @@ private:
 	bool isParametric_;
 	std::string xaccName_;
 	VectorSizeType bits_;
-	VectorParamType params_;
+	SizeType nparams_;
 };
 }
 

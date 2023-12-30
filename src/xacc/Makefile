@@ -10,8 +10,11 @@ all: testXacc
 testXacc.o: testXacc.cpp
 	$(CXX) $(CPPFLAGS) -c testXacc.cpp
 
-testXacc: testXacc.o
-	$(CXX) testXacc.o -o testXacc $(LDFLAGS)
+testXacc: testXacc.o quantumStatics.o
+	$(CXX) testXacc.o quantumStatics.o -o testXacc $(LDFLAGS)
+
+quantumStatics.o: ../quantumStatics.cpp  Makefile
+	        $(CXX) $(CPPFLAGS) -c ../quantumStatics.cpp
 
 QuantumGEPXacc.o: QuantumGEPXacc.cpp
 	$(CXX) $(CPPFLAGS) -c QuantumGEPXacc.cpp
