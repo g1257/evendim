@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	using HandleType = LinearTreeExecType::HandleType;
 
 	// here is the circuit
-	typename LinearTreeExecType::VecStringType mycircuit { "Sx0" };
+	typename LinearTreeExecType::VecStringType mycircuit { "Sx0", "Ry1" };
 
 	// here is the initial state
 	std::vector<std::complex<double>> initVector(4);

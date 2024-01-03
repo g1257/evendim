@@ -78,23 +78,7 @@ public:
 			throw std::runtime_error("Hamiltonian size incorrect\n");
 		}
 
-		auto buffer = xacc::qalloc(handle.numberOfBits);
-		std::vector<double> vector_of_params;
-
-		if (handle.number_of_params > 0) {
-			// set all angles to zero
-			vector_of_params.resize(handle.number_of_params, 0.0);
-			std::cerr << "NumberOfParams= " << handle.number_of_params << "\n";
-		}
-
-		auto evaled = handle.program->operator()(vector_of_params);
-		auto accelerator = xacc::getAccelerator("tnqvm");
-
-		auto rotatedCircuits = hamiltonian.observe(evaled);
-		accelerator->execute(buffer, rotatedCircuits);
-
-		auto energy = hamiltonian.postProcess(buffer);
-		return energy;
+		return hamiltonian.energy(handle.program);
 	}
 
 private:

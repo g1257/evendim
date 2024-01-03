@@ -2,11 +2,14 @@
 #define HAMILTONIAN_XACC_H
 
 #include "../Engine/InputCheck.h"
+#include "Algorithm.hpp"
 #include "InputNg.h"
+#include "Optimizer.hpp"
 #include "PauliOperator.hpp"
 #include "QuantumGEPGate.hh"
 #include "ToPauliMatrices.hh"
 #include "xacc.hpp"
+#include "xacc_service.hpp"
 
 namespace Gep {
 
@@ -56,10 +59,21 @@ public:
 		return pauliOperator_->observe(function);
 	}
 
-	double postProcess(std::shared_ptr<xacc::AcceleratorBuffer> buffer) const
+	double energy(ProgramType program) const
 	{
-		xacc::HeterogeneousMap extra_data;
-		return pauliOperator_->postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
+
+		auto buffer = xacc::qalloc(bits_);
+		auto accelerator = xacc::getAccelerator("tnqvm");
+		auto optimizer = xacc::getOptimizer("nlopt");
+
+		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
+		vqe->initialize({ { "ansatz", program },
+		                  { "accelerator", accelerator },
+		                  { "observable", pauliOperator_ },
+		                  { "optimizer", optimizer } });
+		vqe->execute(buffer);
+
+		return this->postProcess(buffer);
 	}
 
 	template <typename SomeType>
@@ -78,6 +92,12 @@ private:
 	Hamiltonian(const Hamiltonian&) = delete;
 
 	Hamiltonian& operator=(const Hamiltonian&) = delete;
+
+	double postProcess(std::shared_ptr<xacc::AcceleratorBuffer> buffer) const
+	{
+		xacc::HeterogeneousMap extra_data;
+		return pauliOperator_->postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
+	}
 
 	void fromExpression(const std::string& str)
 	{
