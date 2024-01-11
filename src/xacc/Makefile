@@ -4,9 +4,14 @@ CXX = g++
 CPPFLAGS += -Wall  -pedantic -I../../../PsimagLite/src -I../../../PsimagLite  #-std=c++11
 LDFLAGS += -L ../../../PsimagLite/lib -lpsimaglite
 
-all: testXacc 
+all: testXacc mweOptimizer
 #QuantumGEPXacc libQuantumGEP.so
 
+mweOptimizer.o: mweOptimizer.cpp
+	$(CXX) $(CPPFLAGS) -c mweOptimizer.cpp
+
+mweOptimizer: mweOptimizer.o
+	$(CXX) $(LDFLAGS) -o mweOptimizer mweOptimizer.o
 testXacc.o: testXacc.cpp
 	$(CXX) $(CPPFLAGS) -c testXacc.cpp
 
