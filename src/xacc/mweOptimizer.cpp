@@ -11,6 +11,7 @@
 int main(int argc, char** argv)
 {
 
+	xacc::set_verbose(true);
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
 	using PauliOperatorType = xacc::quantum::PauliOperator;
@@ -28,6 +29,8 @@ int main(int argc, char** argv)
 	instructions.push_back(cx);
 	auto m0 = provider->createInstruction("Measure", { 0 });
 	instructions.push_back(m0);
+	auto m1 = provider->createInstruction("Measure", { 1 });
+	instructions.push_back(m1);
 
 	// create program
 	std::vector<std::string> total_params = { "t0" };
@@ -37,21 +40,21 @@ int main(int argc, char** argv)
 	program->addInstructions(instructions);
 
 	auto buffer = xacc::qalloc(2);
-	auto accelerator = xacc::getAccelerator("tnqvm");
+	auto accelerator = xacc::getAccelerator("qsim");
+	// auto accelerator = xacc::getAccelerator("tnqvm");
 	auto optimizer = xacc::getOptimizer("nlopt");
 
-	PauliOperatorType pauliOperator("X0 X1");
+	xacc::Observable* pauliOperator = new PauliOperatorType("X0 X1");
 	auto vqe = xacc::getService<xacc::Algorithm>("vqe");
 	vqe->initialize({ { "ansatz", program },
-	    { "accelerator", accelerator },
-	    { "observable", pauliOperator },
-	    { "optimizer", optimizer } });
+	                  { "accelerator", accelerator },
+	                  { "observable", pauliOperator },
+	                  { "optimizer", optimizer } });
 	vqe->execute(buffer);
 
 	xacc::HeterogeneousMap extra_data;
-	double energy = pauliOperator.postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
+	double energy = pauliOperator->postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
 
 	std::cout << "Energy is " << energy << "\n";
-
 	xacc::Finalize();
 }
