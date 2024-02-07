@@ -42,6 +42,7 @@ public:
 	using VecStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
 	using InstructionType = std::shared_ptr<xacc::Instruction>;
+	using ProviderType = std::shared_ptr<xacc::IRProvider>;
 	using BogusFirstType = typename FirstOrSecondType<TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
 	using BogusSecondType = typename FirstOrSecondType<!TypesEqual<VecComplexType, std::vector<ComplexType>>::value, int*, double*>::type;
 	using HamiltonianType = Hamiltonian<ComplexType>;
@@ -67,8 +68,11 @@ public:
 
 		circuit2.insert(circuit2.end(), circuit.begin(), circuit.end());
 
-		std::pair<ProgramType, SizeType> programAndNparams = createProgram(circuit2);
 		SizeType numberOfBits = log2Exact(initVector.size());
+
+		auto provider = xacc::getIRProvider("quantum");
+		addMeasureForAllBits(circuit2, provider, numberOfBits);
+		std::pair<ProgramType, SizeType> programAndNparams = createProgram(circuit2, provider);
 		return HandleType { programAndNparams.first, numberOfBits, threadNum, programAndNparams.second };
 	}
 
@@ -83,11 +87,18 @@ public:
 
 private:
 
-	static std::pair<ProgramType, SizeType> createProgram(const VecStringType& circuit)
+	// this seems to be necessary
+	void addMeasureForAllBits(VecStringType& circuit, const ProviderType& provider, unsigned int numberOfBits) const
+	{
+		for (unsigned int i = 0; i < numberOfBits; ++i) {
+			circuit.push_back("Measure" + ttos(i));
+		}
+	}
+
+	static std::pair<ProgramType, SizeType> createProgram(const VecStringType& circuit, const ProviderType& provider)
 	{
 		// Get the IRProvider and create an
 		// empty CompositeInstruction
-		auto provider = xacc::getIRProvider("quantum");
 		std::vector<InstructionType> instructions;
 		SizeType ngates = circuit.size();
 		SizeType param_counter = 0;

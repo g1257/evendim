@@ -54,6 +54,12 @@ public:
 		fromExpression(expression);
 	}
 
+	~Hamiltonian()
+	{
+		delete pauliOperator_;
+		pauliOperator_ = nullptr;
+	}
+
 	std::vector<ProgramType> observe(ProgramType function) const
 	{
 		return pauliOperator_->observe(function);
@@ -63,6 +69,7 @@ public:
 	{
 
 		auto buffer = xacc::qalloc(bits_);
+		// auto accelerator = xacc::getAccelerator("qsim");
 		auto accelerator = xacc::getAccelerator("tnqvm");
 		auto optimizer = xacc::getOptimizer("nlopt");
 
@@ -185,7 +192,7 @@ private:
 
 	SizeType bits_;
 	std::string ham_;
-	PauliOperatorType* pauliOperator_;
+	xacc::Observable* pauliOperator_;
 };
 
 }

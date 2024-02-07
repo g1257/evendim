@@ -45,6 +45,17 @@ public:
 			return;
 		}
 
+		std::string measure = "Measure";
+		unsigned int lmeasure = measure.length();
+		if (s.substr(0, lmeasure) == measure) {
+			xaccName_ = "Measure";
+			SizeType counter = 0;
+			unsigned int bit = readNumberFromTheEnd(counter, s);
+			bits_ = { bit };
+			std::cerr << "QuantumGEPGate Measure with bit " << bit << "\n";
+			return;
+		}
+
 		if (gepToXaccGates_.size() == 0) {
 			setMapOfGates();
 		}
@@ -161,7 +172,7 @@ private:
 		}
 
 		std::reverse(buffer.begin(), buffer.end());
-		std::cout << buffer << "\n";
+		// std::cout << buffer << "\n";
 		return std::stoi(buffer);
 	}
 
