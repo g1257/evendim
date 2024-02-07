@@ -2,6 +2,7 @@ include xacc.make
 
 CXX = g++ 
 CPPFLAGS += -Wall  -pedantic -I../../../PsimagLite/src -I../../../PsimagLite  #-std=c++11
+CPPFLAGS += -I/usr/include/hdf5/serial
 LDFLAGS += -L ../../../PsimagLite/lib -lpsimaglite
 
 all: testXacc mweOptimizer
@@ -11,7 +12,8 @@ mweOptimizer.o: mweOptimizer.cpp
 	$(CXX) $(CPPFLAGS) -c mweOptimizer.cpp
 
 mweOptimizer: mweOptimizer.o
-	$(CXX) $(LDFLAGS) -o mweOptimizer mweOptimizer.o
+	$(CXX)  -o mweOptimizer mweOptimizer.o $(LDFLAGS)
+
 testXacc.o: testXacc.cpp
 	$(CXX) $(CPPFLAGS) -c testXacc.cpp
 
