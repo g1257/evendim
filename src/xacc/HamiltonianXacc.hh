@@ -21,6 +21,8 @@ public:
 	using VectorType = std::vector<ComplexType>;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using PauliOperatorType = xacc::quantum::PauliOperator;
+	using BufferType = std::shared_ptr<xacc::AcceleratorBuffer>;
+	using AcceleratorType = std::shared_ptr<xacc::Accelerator>;
 	using InputNgType = PsimagLite::InputNg<InputCheck>;
 	using VectorStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
@@ -31,6 +33,7 @@ public:
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 		io.readline(ham_, "Hamiltonian=");
+		io.readline(accel_, "Accelerator=");
 		if (ham_.substr(0, 5) == "file:") {
 			unimplemented("Hamiltonian=file:\n");
 		}
@@ -65,26 +68,16 @@ public:
 		return pauliOperator_->observe(function);
 	}
 
-	double energy(ProgramType program) const
+	double energyXACC(ProgramType program, unsigned int number_of_params) const
 	{
-
 		auto buffer = xacc::qalloc(bits_);
-		// auto accelerator = xacc::getAccelerator("qsim");
-		auto accelerator = xacc::getAccelerator("tnqvm");
-		auto optimizer = xacc::getOptimizer("nlopt");
-
-		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
-		vqe->initialize({ { "ansatz", program },
-		                  { "accelerator", accelerator },
-		                  { "observable", pauliOperator_ },
-		                  { "optimizer", optimizer } });
-		vqe->execute(buffer);
-
-		return this->postProcess(buffer);
+		auto accelerator = xacc::getAccelerator(accel_);
+		return (number_of_params == 0) ? energyNoAngles(buffer, program, accelerator)
+		                               : energyOptimizeAngles(buffer, program, accelerator);
 	}
 
 	template <typename SomeType>
-	RealType energy(const SomeType& y, SizeType threadNum) const
+	double energy(const SomeType& y, SizeType threadNum) const
 	{
 		throw std::runtime_error("energy(y, thread) must not be called from XACC\n");
 	}
@@ -99,6 +92,27 @@ private:
 	Hamiltonian(const Hamiltonian&) = delete;
 
 	Hamiltonian& operator=(const Hamiltonian&) = delete;
+
+	double energyNoAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
+	{
+		accelerator->execute(buffer, program);
+
+		return this->postProcess(buffer);
+	}
+
+	double energyOptimizeAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
+	{
+		auto optimizer = xacc::getOptimizer("nlopt");
+
+		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
+		vqe->initialize({ { "ansatz", program },
+		                  { "accelerator", accelerator },
+		                  { "observable", pauliOperator_ },
+		                  { "optimizer", optimizer } });
+		vqe->execute(buffer);
+
+		return this->postProcess(buffer);
+	}
 
 	double postProcess(std::shared_ptr<xacc::AcceleratorBuffer> buffer) const
 	{
@@ -192,6 +206,7 @@ private:
 
 	SizeType bits_;
 	std::string ham_;
+	std::string accel_;
 	xacc::Observable* pauliOperator_;
 };
 

@@ -71,7 +71,6 @@ public:
 		SizeType numberOfBits = log2Exact(initVector.size());
 
 		auto provider = xacc::getIRProvider("quantum");
-		addMeasureForAllBits(circuit2, provider, numberOfBits);
 		std::pair<ProgramType, SizeType> programAndNparams = createProgram(circuit2, provider);
 		return HandleType { programAndNparams.first, numberOfBits, threadNum, programAndNparams.second };
 	}
@@ -82,18 +81,10 @@ public:
 			throw std::runtime_error("Hamiltonian size incorrect\n");
 		}
 
-		return hamiltonian.energy(handle.program);
+		return hamiltonian.energyXACC(handle.program, handle.number_of_params);
 	}
 
 private:
-
-	// this seems to be necessary
-	void addMeasureForAllBits(VecStringType& circuit, const ProviderType& provider, unsigned int numberOfBits) const
-	{
-		for (unsigned int i = 0; i < numberOfBits; ++i) {
-			circuit.push_back("Measure" + ttos(i));
-		}
-	}
 
 	static std::pair<ProgramType, SizeType> createProgram(const VecStringType& circuit, const ProviderType& provider)
 	{
@@ -104,6 +95,8 @@ private:
 		SizeType param_counter = 0;
 		std::vector<std::string> total_params;
 		for (SizeType i = 0; i < ngates; ++i) {
+			if (circuit[i] == "0")
+				break;
 			QuantumGEPGate gate(circuit[i]);
 			if (!gate.isParametric()) {
 				auto someGate = provider->createInstruction(gate.name(), gate.bits());
@@ -133,6 +126,7 @@ private:
 		// create program
 		auto program = provider->createComposite("foo", total_params);
 
+		assert(total_params.size() == param_counter);
 		// Add them to the CompositeInstruction
 		program->addInstructions(instructions);
 		return std::pair<ProgramType, SizeType>(program, param_counter);

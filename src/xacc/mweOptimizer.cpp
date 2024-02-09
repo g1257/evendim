@@ -41,7 +41,6 @@ int main(int argc, char** argv)
 
 	auto buffer = xacc::qalloc(2);
 	auto accelerator = xacc::getAccelerator("qsim");
-	// auto accelerator = xacc::getAccelerator("tnqvm");
 	auto optimizer = xacc::getOptimizer("nlopt");
 
 	xacc::Observable* pauliOperator = new PauliOperatorType("X0 X1");
