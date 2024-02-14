@@ -18,4 +18,5 @@ Hamiltonian="xx";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector10.txt";
+string Accelerator=qsim;
 #

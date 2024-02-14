@@ -66,12 +66,19 @@ public:
 		VecStringType circuit2;
 		pureVectorToXgates(circuit2, initVector);
 
-		circuit2.insert(circuit2.end(), circuit.begin(), circuit.end());
+		// Carefully insert incoming circuit but not its junk DNA (if any)
+		unsigned int ncircuit = circuit.size();
+		for (unsigned int i = 0; i < ncircuit; ++i) {
+			if (circuit[i] == "0")
+				break;
+			circuit2.push_back(circuit[i]);
+		}
 
 		SizeType numberOfBits = log2Exact(initVector.size());
 
 		auto provider = xacc::getIRProvider("quantum");
 		std::pair<ProgramType, SizeType> programAndNparams = createProgram(circuit2, provider);
+		printCircuit(circuit2, std::cout);
 		return HandleType { programAndNparams.first, numberOfBits, threadNum, programAndNparams.second };
 	}
 
@@ -213,6 +220,17 @@ private:
 	static void dieVectorNotPure(const std::vector<ComplexType>&, const std::string& msg)
 	{
 		throw std::runtime_error("initVector must be pure " + msg + "\n");
+	}
+
+	static void printCircuit(const VecStringType& circuit, std::ostream& os)
+	{
+		os << "-----------------------\n";
+		unsigned int n = circuit.size();
+		for (unsigned int i = 0; i < n; ++i) {
+			os << circuit[i] << " ";
+		}
+
+		os << "-----------------------\n\n";
 	}
 };
 }
