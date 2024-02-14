@@ -36,8 +36,6 @@ public:
 	//
 	QuantumGEPGate(const std::string& s)
 	    : originalStr_(s)
-	    , isParametric_(false)
-	    , nparams_(0)
 	{
 		if (s == "0") {
 			xaccName_ = "Measure";
@@ -61,22 +59,22 @@ public:
 		}
 
 		// strip angle if any (we'll ignore the angle here for now)
-		std::string str = stripPreviousAngleIfAny(originalStr_);
+		std::pair<std::string, double> strPair = stripPreviousAngleIfAny(originalStr_);
 
 		// set bits (at least one must be present)
-		SizeType counter = setBits(str);
+		SizeType counter = setBits(strPair.first);
 
 		// get the GEP name
-		std::string gepName = getGEPName(counter, str);
+		std::string gepName = getGEPName(counter, strPair.first);
 
 		// convert GEP name to XACC name
 		xaccName_ = gepToXaccName(gepName);
 
-		isParametric_ = isGateParametric(gepName);
+		bool isParametric = isGateParametric(gepName);
 		// set number of params, for now all parametric
 		// gates have all one param
-		if (isParametric_) {
-			nparams_ = 1;
+		if (isParametric) {
+			angles_.resize(1, strPair.second);
 		}
 	}
 
@@ -84,9 +82,13 @@ public:
 
 	const VectorSizeType& bits() { return bits_; }
 
-	bool isParametric() const { return isParametric_; }
+	SizeType numberOfParams() { return angles_.size(); }
 
-	SizeType numberOfParams() { return nparams_; }
+	double param(SizeType ind) const
+	{
+		assert(ind < angles_.size());
+		return angles_[ind];
+	}
 
 private:
 
@@ -141,15 +143,18 @@ private:
 		return (gep_name == "Rx" || gep_name == "Ry" || gep_name == "Rz");
 	}
 
-	static std::string stripPreviousAngleIfAny(const std::string& str)
+	static std::pair<std::string, double> stripPreviousAngleIfAny(const std::string& str)
 	{
 		typename PsimagLite::String::const_iterator it = std::find(str.begin(),
 		                                                           str.end(),
 		                                                           ':');
-		if (it == str.end())
-			return str; // no angle found
+		if (it == str.end()) {
+			return std::pair<std::string, double>(str, 0.); // no angle found
+		}
 
-		return str.substr(0, it - str.begin());
+		std::string first = str.substr(0, it - str.begin());
+		std::string angle = str.substr(it + 1 - str.begin(), str.end() - it - 1);
+		return std::pair<std::string, double>(first, std::stod(angle));
 	}
 
 	static SizeType readNumberFromTheEnd(SizeType& counter, const std::string& str)
@@ -229,10 +234,9 @@ private:
 
 	static std::map<std::string, PairStringSizeType> gepToXaccGates_;
 	std::string originalStr_;
-	bool isParametric_;
 	std::string xaccName_;
 	VectorSizeType bits_;
-	SizeType nparams_;
+	std::vector<double> angles_;
 };
 }
 

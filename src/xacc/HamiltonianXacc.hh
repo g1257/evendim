@@ -49,9 +49,10 @@ public:
 		fromExpression(ham_);
 	}
 
-	Hamiltonian(const std::string& expression, SizeType bits, SizeType /* numberOfThreads */)
+	Hamiltonian(const std::string& expression, SizeType bits, SizeType /* numberOfThreads */, const std::string& accel)
 	    : bits_(bits)
 	    , ham_(expression)
+	    , accel_(accel)
 	    , pauliOperator_(nullptr)
 	{
 		fromExpression(expression);
@@ -68,12 +69,11 @@ public:
 		return pauliOperator_->observe(function);
 	}
 
-	double energyXACC(ProgramType program, unsigned int number_of_params) const
+	double energyXACC(ProgramType program, const std::vector<double>& angles) const
 	{
 		auto buffer = xacc::qalloc(bits_);
 		auto accelerator = xacc::getAccelerator(accel_);
-		return (number_of_params == 0) ? energyNoAngles(buffer, program, accelerator)
-		                               : energyOptimizeAngles(buffer, program, accelerator);
+		return energyFixedAngles(buffer, program, accelerator, angles);
 	}
 
 	template <typename SomeType>
@@ -93,6 +93,17 @@ private:
 
 	Hamiltonian& operator=(const Hamiltonian&) = delete;
 
+	double energyFixedAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator, const std::vector<double>& angles) const
+	{
+		if (angles.size() == 0) {
+			return energyNoAngles(buffer, program, accelerator);
+		}
+
+		auto evaled = program->operator()(angles);
+		accelerator->execute(buffer, evaled);
+		return this->postProcess(buffer);
+	}
+
 	double energyNoAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
 	{
 		accelerator->execute(buffer, program);
@@ -100,6 +111,7 @@ private:
 		return this->postProcess(buffer);
 	}
 
+	// unused now
 	double energyOptimizeAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
 	{
 		auto optimizer = xacc::getOptimizer("nlopt");

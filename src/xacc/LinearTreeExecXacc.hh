@@ -49,9 +49,9 @@ public:
 
 	struct HandleType {
 		ProgramType program;
+		std::vector<double> angles;
 		SizeType numberOfBits = 0;
 		SizeType threadNum = 0;
-		SizeType number_of_params = 0;
 	};
 
 	// Ctor not needed in the xacc version of LinearTreeExec
@@ -77,9 +77,9 @@ public:
 		SizeType numberOfBits = log2Exact(initVector.size());
 
 		auto provider = xacc::getIRProvider("quantum");
-		std::pair<ProgramType, SizeType> programAndNparams = createProgram(circuit2, provider);
-		printCircuit(circuit2, std::cout);
-		return HandleType { programAndNparams.first, numberOfBits, threadNum, programAndNparams.second };
+		std::pair<ProgramType, std::vector<double>> programAndNparams = createProgram(circuit2, provider);
+		// printCircuit(circuit2, std::cout);
+		return HandleType { programAndNparams.first, programAndNparams.second, numberOfBits, threadNum };
 	}
 
 	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian) const
@@ -88,38 +88,40 @@ public:
 			throw std::runtime_error("Hamiltonian size incorrect\n");
 		}
 
-		return hamiltonian.energyXACC(handle.program, handle.number_of_params);
+		return hamiltonian.energyXACC(handle.program, handle.angles);
 	}
 
 private:
 
-	static std::pair<ProgramType, SizeType> createProgram(const VecStringType& circuit, const ProviderType& provider)
+	static std::pair<ProgramType, std::vector<double>> createProgram(const VecStringType& circuit, const ProviderType& provider)
 	{
 		// Get the IRProvider and create an
 		// empty CompositeInstruction
 		std::vector<InstructionType> instructions;
 		SizeType ngates = circuit.size();
-		SizeType param_counter = 0;
+		std::vector<double> angles;
 		std::vector<std::string> total_params;
 		for (SizeType i = 0; i < ngates; ++i) {
 			if (circuit[i] == "0")
 				break;
 			QuantumGEPGate gate(circuit[i]);
-			if (!gate.isParametric()) {
+
+			SizeType nparams = gate.numberOfParams();
+			if (nparams == 0) {
 				auto someGate = provider->createInstruction(gate.name(), gate.bits());
 				instructions.push_back(someGate);
 			}
 			else {
-				SizeType nparams = gate.numberOfParams();
 				if (nparams != 1) {
 					throw std::runtime_error(std::string(__FILE__) + " I can only deal with 1 param for now\n");
 				}
 
-				std::cerr << "parametric " << gate.name() << "\n";
-				std::string params = "t" + ttos(param_counter++);
+				// std::cerr << "parametric " << gate.name() << "\n";
+				std::string params = "t" + ttos(angles.size());
 				total_params.push_back(params);
 				auto someGate = provider->createInstruction(gate.name(), gate.bits(), { params });
 				instructions.push_back(someGate);
+				angles.push_back(gate.param(0));
 			}
 		}
 
@@ -133,10 +135,10 @@ private:
 		// create program
 		auto program = provider->createComposite("foo", total_params);
 
-		assert(total_params.size() == param_counter);
+		assert(total_params.size() == angles.size());
 		// Add them to the CompositeInstruction
 		program->addInstructions(instructions);
-		return std::pair<ProgramType, SizeType>(program, param_counter);
+		return std::pair<ProgramType, std::vector<double>>(program, angles);
 	}
 
 	// Avoid overload if second function exists
@@ -222,6 +224,7 @@ private:
 		throw std::runtime_error("initVector must be pure " + msg + "\n");
 	}
 
+	// unused for now
 	static void printCircuit(const VecStringType& circuit, std::ostream& os)
 	{
 		os << "-----------------------\n";

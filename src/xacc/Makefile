@@ -1,6 +1,6 @@
 include xacc.make
 
-CXX = g++ 
+CXX = g++ -g3
 CPPFLAGS += -Wall  -pedantic -I../../../PsimagLite/src -I../../../PsimagLite  #-std=c++11
 CPPFLAGS += -I/usr/include/hdf5/serial
 LDFLAGS += -L ../../../PsimagLite/lib -lpsimaglite

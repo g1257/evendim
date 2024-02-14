@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 	using HandleType = LinearTreeExecType::HandleType;
 
 	// here is the circuit
-	typename LinearTreeExecType::VecStringType mycircuit { "Sx0", "Ry1" };
+	typename LinearTreeExecType::VecStringType mycircuit { "Sx0", "Ry1:0" };
 
 	// here is the initial state
 	std::vector<std::complex<double>> initVector(4);
@@ -43,7 +43,7 @@ int main(int argc, char** argv)
 	// Does energy = <0|C H C |0>, with H = Z_0
 	constexpr SizeType numberOfThreads = 1;
 	constexpr SizeType sites = 2;
-	HamiltonianType hamiltonian("Sx0 * Sx0", sites, numberOfThreads);
+	HamiltonianType hamiltonian("Sx0 * Sx0", sites, numberOfThreads, "tnqvm");
 	double energy = linearTreeExec.energy(handle, hamiltonian);
 	std::cout << "Circuit is " << implodeVecString(mycircuit) << "\n";
 	std::cout << "Energy is " << energy << "\n";
