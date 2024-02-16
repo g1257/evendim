@@ -3,7 +3,7 @@ CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src -IEngine
 # Comment out below in order to run with XACC
 # include xacc/xacc.make
 
-all: gep2 quantumGep quantumIndividual graphGen isGraphConnected testPauliMatrixExpand
+all: gep2 quantumGep quantumIndividual graphGen isGraphConnected testPauliMatrixExpand testSchwinger
 
 quantumStatics.o: quantumStatics.cpp  Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c quantumStatics.cpp
@@ -21,6 +21,12 @@ gep2.o: gep2.cpp  Makefile   Config.make
 gep2: gep2.o
 	$(CXX) -o  gep2 gep2.o $(LDFLAGS) $(CPPFLAGS)
 	$(STRIP_COMMAND) gep2
+
+testSchwinger.o: testSchwinger.cpp Makefile   Config.make
+	$(CXX) $(CPPFLAGS) -c testSchwinger.cpp
+
+testSchwinger: testSchwinger.o
+	$(CXX) -o  testSchwinger testSchwinger.o $(LDFLAGS) 
 
 graphGen: graphGen.o
 	$(CXX) -o  graphGen graphGen.o $(LDFLAGS) $(CPPFLAGS)
