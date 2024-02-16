@@ -7,6 +7,7 @@
 #include "InputNg.h"
 #include "IsingGraph.hh"
 #include "PsimagLite.h"
+#include "SchwingerModel.hh"
 
 namespace Gep {
 
@@ -126,6 +127,19 @@ public:
 			io.readline(h2, "Hamiltonianh2=");
 			addMatrixWithWeight(matrix_, h2, matrixXx);
 		}
+		else if (ham == "schwinger") {
+			RealType m_param = 0;
+			io.readline(m_param, "Hamiltonianm=");
+
+			RealType g_param = 0;
+			io.readline(g_param, "Hamiltoniang=");
+
+			SchwingerModel<ComplexType> schwinger_model(bits_, m_param, g_param);
+			matrix_ = schwinger_model.matrix();
+
+			PsimagLite::Matrix<ComplexType> a = matrix_.toDense();
+			printGs(a);
+		}
 		else {
 			std::cerr << "Asumming Hamiltonian Expression\n";
 			HamiltonianFromExpressionType hamExpression(ham, bits_);
@@ -191,10 +205,8 @@ private:
 		matrix_.setRow(hilbertSpace, counter);
 		matrix_.checkValidity();
 
-		VectorRealType eigs(hilbertSpace);
 		PsimagLite::Matrix<ComplexType> a = matrix_.toDense();
-		diag(a, eigs, 'V');
-		std::cout << "Ground State Energy=" << eigs[0] << "\n";
+		printGs(a);
 	}
 
 	SizeType fillThisRow(VectorRealType& v, VectorBoolType& bcols)
