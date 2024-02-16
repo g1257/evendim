@@ -134,7 +134,7 @@ public:
 			RealType g_param = 0;
 			io.readline(g_param, "Hamiltoniang=");
 
-			SchwingerModel<ComplexType> schwinger_model(bits_, m_param, g_param);
+			SchwingerModel<ComplexType> schwinger_model(bits_, periodic_, m_param, g_param);
 			matrix_ = schwinger_model.matrix();
 
 			PsimagLite::Matrix<ComplexType> a = matrix_.toDense();
