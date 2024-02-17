@@ -1,13 +1,13 @@
 ##Ainur1.0
 
 #This tests GroundState for the Schwinger model on a chain
-HeadSize=4;
+HeadSize=20;
 #Seed=12345;
-Population=60;
-Generations=40;
-NumberOfBits=4;
+Population=80;
+Generations=200;
+NumberOfBits=8;
 MinimizerTolerance=0.1;
-Primitives="Ry,P";
+Primitives="Ry,P,C,Sx,Sy,Sz";
 MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
 MinimizerVerbose=0;
@@ -15,9 +15,9 @@ ProgressBar=1;
 MinimizerAlgorithm="Simplex";
 RunType="GroundState";
 Hamiltonian="schwinger";
-real Hamiltonianm=1.;
-real Hamiltoniang=1.;
+real Hamiltonianm=0.5;
+real Hamiltoniang=0.3;
 #HamiltonianIsPeriodic=1;
-InVectorFile="../TestSuite/inputs/vector10.txt";
+InVectorFile="../TestSuite/inputs/vector16.txt";
 string Accelerator=qsim;
 #
