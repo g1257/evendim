@@ -64,9 +64,7 @@ public:
 				++counter;
 			}
 
-			// off-diagonal terms
-			std::fill(v.begin(), v.end(), 0);
-			std::fill(bcol.begin(), bcol.end(), false);
+			// off-diagonal term
 			SizeType total = bits_;
 			for (SizeType site = 0; site < total; ++site) {
 				SizeType site2 = site + 1;
