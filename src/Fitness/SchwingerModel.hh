@@ -40,7 +40,7 @@ public:
 	    : bits_(bits)
 	    , periodic_(periodic)
 	{
-		constexpr double coupling = 0.5; // s+ s- coupling constant
+		constexpr double coupling = 1. / 2.; // s+ s- coupling constant
 
 		SizeType hilbertSpace = (1 << bits);
 		matrix_.resize(hilbertSpace, hilbertSpace);
@@ -49,6 +49,7 @@ public:
 		VectorBoolType bcol(hilbertSpace);
 
 		SizeType counter = 0;
+
 		for (SizeType i = 0; i < hilbertSpace; ++i) {
 			matrix_.setRow(i, counter);
 
@@ -66,21 +67,22 @@ public:
 			// off-diagonal terms
 			std::fill(v.begin(), v.end(), 0);
 			std::fill(bcol.begin(), bcol.end(), false);
-			for (SizeType site = 0; site < bits_; ++site) {
-
-				// Flip bit at site
-				SizeType maskSite = (1 << site);
-				SizeType j = i ^ maskSite;
+			SizeType total = bits_;
+			for (SizeType site = 0; site < total; ++site) {
 				SizeType site2 = site + 1;
-				if (site2 >= bits_ && !periodic_)
+				if (site2 >= total && !periodic_)
 					continue;
-				assert(site2 <= bits_);
-				if (site2 == bits_)
+				assert(site2 <= total);
+				if (site2 == total)
 					site2 = 0;
 
 				// up up and down down states do not contribute
 				if (state[site2] == state[site])
 					continue;
+
+				// Flip bit at site
+				SizeType maskSite = (1 << site);
+				SizeType j = i ^ maskSite;
 
 				// Flip bit at site2
 				SizeType maskSite2 = (1 << site2);
@@ -119,12 +121,12 @@ private:
 		SizeType twoL = bits_;
 		double g_term = 0.;
 		// FIXME: CHECK LIMIT OF THIS FOR LOOP
-		for (SizeType i = 0; i < twoL - 1; ++i) {
+		for (SizeType i = 0; i < twoL; ++i) {
 			double qterm = sumOfQs(state, i);
 			g_term += qterm * qterm;
 		}
 
-		g_term *= param_g * param_g;
+		g_term *= param_g * param_g * 0.5;
 		return g_term;
 	}
 

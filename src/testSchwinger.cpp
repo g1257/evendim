@@ -1,36 +1,58 @@
+#include "../../PsimagLite/src/LanczosSolver.h"
 #include "Fitness/SchwingerModel.hh"
 
-template <typename ComplexType>
-void printGs(PsimagLite::Matrix<ComplexType>& mat)
-{
-	assert(mat.rows() == mat.cols());
-	std::vector<double> eigs(mat.rows());
-	diag(mat, eigs, 'V');
-	std::cout << "Ground State Energy=" << eigs[0] << "\n";
-	std::cout << "Eigenvector------------\n";
-	ComplexType sum = 0;
-	for (SizeType i = 0; i < mat.rows(); ++i) {
-		ComplexType val = mat(i, 0);
-		sum += val * PsimagLite::conj(val);
-		if (std::norm(val) < 1e-8)
-			continue;
+using ComplexType = std::complex<double>;
 
-		std::cout << i << " " << mat(i, 0) << "\n";
+void solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
+{
+	using SparseMatrixType = PsimagLite::CrsMatrix<ComplexType>;
+	using VectorType = std::vector<ComplexType>;
+	using SolverParametersType = PsimagLite::ParametersForSolver<double>;
+	using LanczosSolverType = PsimagLite::LanczosSolver<SolverParametersType, SparseMatrixType, VectorType>;
+
+	int n = matrix.rows();
+
+	SolverParametersType params;
+	params.lotaMemory = true;
+
+	LanczosSolverType lanczos_solver(matrix, params);
+
+	double energy = 0.;
+	VectorType z(n);
+	VectorType init_vector(n);
+	PsimagLite::fillRandom(init_vector);
+	lanczos_solver.computeOneState(energy, z, init_vector, 0);
+	std::cout << "Energy= " << energy << "\n";
+}
+
+void solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix, double factor)
+{
+	PsimagLite::Matrix<ComplexType> a = matrix.toDense();
+	if (!isHermitian(a, true)) {
+		throw std::runtime_error("Not Hermitian\n");
 	}
 
-	std::cout << "-------- End eigenvector=" << sum << "\n\n";
+	using VectorRealType = std::vector<double>;
+	VectorRealType eigs(a.rows());
+	diag(a, eigs, 'N');
+	std::cout << "Energy= " << eigs[0] << " density= " << eigs[0] * factor << "\n";
+	// std::cout<<a;
 }
 
 int main(int argc, char* argv[])
 {
-	using ComplexType = std::complex<double>;
 
-	SizeType bits = 8;
+	if (argc != 2) {
+		std::cerr << "USAGE: " << argv[0] << " bits\n";
+		return 1;
+	}
+
+	SizeType bits = std::stoi(argv[1]);
 	bool periodic = false;
 	double m = 0.5;
 	double g = 0.3;
 
 	Gep::SchwingerModel<ComplexType> schwinger(bits, periodic, m, g);
-	PsimagLite::Matrix<ComplexType> a = schwinger.matrix().toDense();
-	printGs(a);
+	// solveSparse(schwinger.matrix());
+	solveDense(schwinger.matrix(), 2. / bits);
 }

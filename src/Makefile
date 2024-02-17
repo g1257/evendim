@@ -59,7 +59,7 @@ testPauliMatrixExpand.o: testPauliMatrixExpand.cpp xacc/ToPauliMatrices.hh
 	$(MAKE) -f Makefile -C ../../PsimagLite/lib/
 
 Makefile.dep: gep2.cpp
-	$(CXX) $(CPPFLAGS) -MM gep2.cpp  quantumGep.cpp quantumIndividual.cpp graphGen.cpp isGraphConnected.cpp > Makefile.dep
+	$(CXX) $(CPPFLAGS) -MM gep2.cpp  quantumGep.cpp quantumIndividual.cpp graphGen.cpp isGraphConnected.cpp testSchwinger.cpp > Makefile.dep
 
 clean: Makefile.dep
 	rm -f core* gep2 *.o *.dep
