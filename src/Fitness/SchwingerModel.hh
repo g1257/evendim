@@ -40,79 +40,15 @@ public:
 	    : bits_(bits)
 	    , periodic_(periodic)
 	{
-		constexpr double coupling = 1. / 2.; // s+ s- coupling constant
-
-		SizeType hilbertSpace = (1 << bits);
-		matrix_.resize(hilbertSpace, hilbertSpace);
-
-		VectorRealType v(hilbertSpace);
-		VectorBoolType bcol(hilbertSpace);
-
-		SizeType counter = 0;
-
-		for (SizeType i = 0; i < hilbertSpace; ++i) {
-			matrix_.setRow(i, counter);
-
-			State state(i);
-
-			// diagonal terms
-			ComplexType val = getMassTerm(state, param_m) + getGterm(state, param_g);
-			if (std::abs(val) != 0.) {
-
-				matrix_.pushCol(i);
-				matrix_.pushValue(val);
-				++counter;
-			}
-
-			// off-diagonal term
-			SizeType total = bits_;
-			for (SizeType site = 0; site < total; ++site) {
-				SizeType site2 = site + 1;
-				if (site2 >= total && !periodic_)
-					continue;
-				assert(site2 <= total);
-				if (site2 == total)
-					site2 = 0;
-
-				// up up and down down states do not contribute
-				if (state[site2] == state[site])
-					continue;
-
-				// Flip bit at site
-				SizeType maskSite = (1 << site);
-				SizeType j = i ^ maskSite;
-
-				// Flip bit at site2
-				SizeType maskSite2 = (1 << site2);
-				j ^= maskSite2;
-				v[j] += coupling;
-				bcol[j] = true;
-			}
-
-			counter += fillThisRow(v, bcol);
-		}
-
-		matrix_.setRow(hilbertSpace, counter);
-		matrix_.checkValidity();
+		computeXi();
+		computeH(param_m, param_g);
 	}
 
 	const SparseMatrixType& matrix() const { return matrix_; }
 
+	const VectorRealType& chi() const { return chi_; }
+
 private:
-
-	RealType getMassTerm(const State& state, RealType param_m) const
-	{
-		SizeType twoL = bits_;
-		double mass_term = twoL; // identity operator
-		for (SizeType i = 0; i < twoL; ++i) {
-			int sign = (i & 1) ? -1 : 1;
-			int z = (state[i] == Spin::UP) ? 1 : -1;
-			mass_term += sign * z;
-		}
-
-		mass_term *= param_m * 0.5;
-		return mass_term;
-	}
 
 	RealType getGterm(const State& state, RealType param_g) const
 	{
@@ -158,8 +94,91 @@ private:
 		return counter;
 	}
 
+	void computeH(double param_m, double param_g)
+	{
+		constexpr double coupling = 1. / 2.; // s+ s- coupling constant
+
+		SizeType hilbertSpace = (1 << bits_);
+		matrix_.resize(hilbertSpace, hilbertSpace);
+
+		VectorRealType v(hilbertSpace);
+		VectorBoolType bcol(hilbertSpace);
+
+		SizeType counter = 0;
+
+		assert(chi_.size() == hilbertSpace);
+		for (SizeType i = 0; i < hilbertSpace; ++i) {
+			matrix_.setRow(i, counter);
+
+			State state(i);
+
+			// diagonal terms
+			ComplexType val = param_m * bits_ * 0.5 * chi_[i] + getGterm(state, param_g);
+			if (std::abs(val) != 0.) {
+
+				matrix_.pushCol(i);
+				matrix_.pushValue(val);
+				++counter;
+			}
+
+			// off-diagonal term
+			SizeType total = bits_;
+			for (SizeType site = 0; site < total; ++site) {
+				SizeType site2 = site + 1;
+				if (site2 >= total && !periodic_)
+					continue;
+				assert(site2 <= total);
+				if (site2 == total)
+					site2 = 0;
+
+				// up up and down down states do not contribute
+				if (state[site2] == state[site])
+					continue;
+
+				// Flip bit at site
+				SizeType maskSite = (1 << site);
+				SizeType j = i ^ maskSite;
+
+				// Flip bit at site2
+				SizeType maskSite2 = (1 << site2);
+				j ^= maskSite2;
+				v[j] += coupling;
+				bcol[j] = true;
+			}
+
+			counter += fillThisRow(v, bcol);
+		}
+
+		matrix_.setRow(hilbertSpace, counter);
+		matrix_.checkValidity();
+	}
+
+	void computeXi()
+	{
+		SizeType hilbertSpace = (1 << bits_);
+		chi_.resize(hilbertSpace);
+		for (SizeType i = 0; i < hilbertSpace; ++i) {
+			State state(i);
+			chi_[i] = 1. + partChiForState(state);
+		}
+	}
+
+	RealType partChiForState(const State& state) const
+	{
+		SizeType twoL = bits_;
+		double sum = 0.;
+		for (SizeType i = 0; i < twoL; ++i) {
+			int sign = (i & 1) ? -1 : 1;
+			int z = (state[i] == Spin::UP) ? 1 : -1;
+			sum += sign * z;
+		}
+
+		return sum / bits_;
+	}
+
 	SizeType bits_;
 	bool periodic_;
+	VectorRealType chi_;
 	SparseMatrixType matrix_;
 };
 }

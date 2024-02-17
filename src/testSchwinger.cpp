@@ -2,8 +2,36 @@
 #include "Fitness/SchwingerModel.hh"
 
 using ComplexType = std::complex<double>;
+using VectorRealType = std::vector<double>;
+using VectorType = std::vector<ComplexType>;
 
-double solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
+double observable(const VectorType& v, const VectorRealType& obs)
+{
+	double sum = 0.;
+	SizeType n = v.size();
+	assert(n == obs.size());
+	for (SizeType i = 0; i < n; ++i) {
+		sum += std::real(std::conj(v[i]) * obs[i] * v[i]);
+	}
+
+	return sum;
+}
+
+double observable(const PsimagLite::Matrix<ComplexType>& a, const VectorRealType& obs)
+{
+	double sum = 0.;
+	SizeType n = a.rows();
+	assert(n == obs.size());
+	for (SizeType i = 0; i < n; ++i) {
+		sum += std::real(std::conj(a(i, 0)) * obs[i] * a(i, 0));
+	}
+
+	return sum;
+}
+
+void solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix,
+                 const VectorRealType& chi,
+                 double factor_for_density)
 {
 	using SparseMatrixType = PsimagLite::CrsMatrix<ComplexType>;
 	using VectorType = std::vector<ComplexType>;
@@ -23,10 +51,13 @@ double solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
 	VectorType init_vector(n);
 	PsimagLite::fillRandom(init_vector);
 	lanczos_solver.computeOneState(energy, z, init_vector, 0);
-	return energy;
+	std::cout << "Energy= " << energy << " density= " << energy * factor_for_density << "\n";
+	std::cout << "Chi = " << observable(z, chi) << "\n";
 }
 
-double solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix)
+void solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix,
+                const VectorRealType& chi,
+                double factor_for_density)
 {
 	PsimagLite::Matrix<ComplexType> a = matrix.toDense();
 	if (!isHermitian(a, true)) {
@@ -35,8 +66,10 @@ double solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix)
 
 	using VectorRealType = std::vector<double>;
 	VectorRealType eigs(a.rows());
-	diag(a, eigs, 'N');
-	return eigs[0];
+	diag(a, eigs, 'V');
+	double energy = eigs[0];
+	std::cout << "Energy= " << energy << " density= " << energy * factor_for_density << "\n";
+	std::cout << "Chi = " << observable(a, chi) << "\n";
 }
 
 int main(int argc, char* argv[])
@@ -55,12 +88,10 @@ int main(int argc, char* argv[])
 	Gep::SchwingerModel<ComplexType> schwinger(bits, periodic, m, g);
 	double factor_for_density = 2. / bits;
 	if (bits > 6) {
-		double energy = solveSparse(schwinger.matrix());
-		std::cout << "Energy= " << energy << " density= " << energy * factor_for_density << "\n";
+		solveSparse(schwinger.matrix(), schwinger.chi(), factor_for_density);
 	}
 
 	if (bits < 12) {
-		double energy = solveDense(schwinger.matrix());
-		std::cout << "Energy= " << energy << " density= " << energy * factor_for_density << "\n";
+		solveDense(schwinger.matrix(), schwinger.chi(), factor_for_density);
 	}
 }
