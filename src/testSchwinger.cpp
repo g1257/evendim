@@ -3,7 +3,7 @@
 
 using ComplexType = std::complex<double>;
 
-void solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
+double solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
 {
 	using SparseMatrixType = PsimagLite::CrsMatrix<ComplexType>;
 	using VectorType = std::vector<ComplexType>;
@@ -14,6 +14,7 @@ void solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
 
 	SolverParametersType params;
 	params.lotaMemory = true;
+	params.minSteps = std::min(n, 100);
 
 	LanczosSolverType lanczos_solver(matrix, params);
 
@@ -22,10 +23,10 @@ void solveSparse(const PsimagLite::CrsMatrix<ComplexType>& matrix)
 	VectorType init_vector(n);
 	PsimagLite::fillRandom(init_vector);
 	lanczos_solver.computeOneState(energy, z, init_vector, 0);
-	std::cout << "Energy= " << energy << "\n";
+	return energy;
 }
 
-void solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix, double factor)
+double solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix)
 {
 	PsimagLite::Matrix<ComplexType> a = matrix.toDense();
 	if (!isHermitian(a, true)) {
@@ -35,8 +36,7 @@ void solveDense(const PsimagLite::CrsMatrix<ComplexType>& matrix, double factor)
 	using VectorRealType = std::vector<double>;
 	VectorRealType eigs(a.rows());
 	diag(a, eigs, 'N');
-	std::cout << "Energy= " << eigs[0] << " density= " << eigs[0] * factor << "\n";
-	// std::cout<<a;
+	return eigs[0];
 }
 
 int main(int argc, char* argv[])
@@ -53,6 +53,14 @@ int main(int argc, char* argv[])
 	double g = 0.3;
 
 	Gep::SchwingerModel<ComplexType> schwinger(bits, periodic, m, g);
-	// solveSparse(schwinger.matrix());
-	solveDense(schwinger.matrix(), 2. / bits);
+	double factor_for_density = 2. / bits;
+	if (bits > 6) {
+		double energy = solveSparse(schwinger.matrix());
+		std::cout << "Energy= " << energy << " density= " << energy * factor_for_density << "\n";
+	}
+
+	if (bits < 12) {
+		double energy = solveDense(schwinger.matrix());
+		std::cout << "Energy= " << energy << " density= " << energy * factor_for_density << "\n";
+	}
 }
