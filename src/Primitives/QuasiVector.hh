@@ -173,14 +173,14 @@ public:
 		return PsimagLite::real(v1.toVector() * tmpVector);
 	}
 
-private:
-
 	void blowUp(SizeType size)
 	{
 		data_.resize(size);
 		isExp_ = true;
 		size_ = size;
 	}
+
+private:
 
 	void needsExp(const std::string& info) const
 	{

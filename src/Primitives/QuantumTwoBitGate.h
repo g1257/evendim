@@ -73,7 +73,7 @@ public:
 		assert(v.size() == 1);
 
 		const ValueType& vv = v[0];
-		assert(vv.size() == (1 << numberOfBits_)); // 2^N
+		assert(vv.size() == static_cast<SizeType>(1 << numberOfBits_)); // 2^N
 		return CNOT(vv, bitNumber1_, bitNumber2_);
 	}
 

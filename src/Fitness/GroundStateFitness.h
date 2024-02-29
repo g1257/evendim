@@ -56,6 +56,7 @@ public:
 	    , outVector_(groundStateParams_.inVector.size())
 	    , threadNum_(thread)
 	{
+		outVector_.blowUp(outVector_.size());
 		numberOfAngles_ = findNumberOfAngles(chromosome.effectiveVecString());
 	}
 
