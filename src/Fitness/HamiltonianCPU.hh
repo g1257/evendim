@@ -295,6 +295,9 @@ private:
 		VectorRealType eigs(mat.rows());
 		diag(mat, eigs, 'V');
 		std::cout << "Ground State Energy=" << eigs[0] << "\n";
+
+		if (eigs.size() > 100) return; // <<--- EARLY EXIT HERE
+					       //
 		std::cout << "Eigenvector------------\n";
 		ComplexType sum = 0;
 		for (SizeType i = 0; i < mat.rows(); ++i) {

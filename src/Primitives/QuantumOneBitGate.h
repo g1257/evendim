@@ -249,8 +249,7 @@ public:
 		assert(v.size() == 1);
 
 		const ValueType& vv = v[0];
-		const int n = vv.size();
-		assert(n == (1 << numberOfBits_)); // 2^N
+		assert(vv.size() == (1 << numberOfBits_)); // 2^N
 
 		return oneBitGate(vv, bitNumber_, gateMatrix_);
 	}

@@ -306,8 +306,7 @@ private:
 
 	void setInVector(SizeType jnd)
 	{
-		const SizeType n = vecVec_[jnd].size();
-		assert(inVector_.size() == n);
+		assert(vecVec_[jnd].size() == inVector_.size());
 		inVector_ = vecVec_[jnd];
 	}
 
