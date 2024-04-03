@@ -2,6 +2,7 @@
 LDFLAGS = -L../../PsimagLite/lib -lpsimaglite
 
 CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src
+CPPFLAGS += -I/usr/include/hdf5/serial
 
 # Compiler to use. If using MPI then say mpicxx here (or mpic++)
 # and also say -DUSE_MPI below
@@ -28,10 +29,10 @@ CPPFLAGS += -Wall -Werror -Wendif-labels
 #CPPFLAGS += -DNDEBUG
 
 # Optimization level here
-#CPPFLAGS += -O3
+CPPFLAGS += -O3
 
 # This enables partial debugging (make sure to comment out previous line)
-CPPFLAGS +=   -g3
+#CPPFLAGS +=   -g3
 
 # This enables additional debugging
 #CPPFLAGS += -D_GLIBCXX_DEBUG -D_GLIBCXX_PROFILE
