@@ -5,8 +5,15 @@ CPPFLAGS += -Wall  -pedantic -I../../../PsimagLite/src -I../../../PsimagLite  #-
 CPPFLAGS += -I/usr/include/hdf5/serial
 LDFLAGS += -L ../../../PsimagLite/lib -lpsimaglite
 
-all: testXacc mweOptimizer
+all: testXacc mweOptimizer mweNoAngles
+
 #QuantumGEPXacc libQuantumGEP.so
+
+mweNoAngles.o: mweNoAngles.cpp
+	$(CXX) $(CPPFLAGS) -c mweNoAngles.cpp
+
+mweNoAngles: mweNoAngles.o
+	$(CXX) -o mweNoAngles mweNoAngles.o $(LDFLAGS)
 
 mweOptimizer.o: mweOptimizer.cpp
 	$(CXX) $(CPPFLAGS) -c mweOptimizer.cpp

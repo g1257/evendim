@@ -259,8 +259,6 @@ private:
 		                           withProgressBar,
 		                           this](SizeType ind, SizeType threadNum) {
 			                          ChromosomeType chromosome(params_, evolution_, newChromosomes[ind], threadNum);
-			                          if (isVerbose)
-				                          std::cout << "About to exec chromosome= " << newChromosomes[ind] << "\n";
 			                          fitness[ind] = -fitness_.getFitness(chromosome, seeds[ind], threadNum);
 			                          newChromosomes[ind] = chromosome.vecString();
 			                          const int status = fitness_.status();

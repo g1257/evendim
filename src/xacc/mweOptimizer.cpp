@@ -52,7 +52,8 @@ int main(int argc, char** argv)
 	vqe->execute(buffer);
 
 	xacc::HeterogeneousMap extra_data;
-	double energy = pauliOperator->postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
+
+	double energy = buffer->getInformation("opt-val").as<double>();
 
 	std::cout << "Energy is " << energy << "\n";
 	xacc::Finalize();

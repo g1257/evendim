@@ -107,8 +107,13 @@ private:
 	double energyNoAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
 	{
 		accelerator->execute(buffer, program);
+		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
+		vqe->initialize({ { "ansatz", program },
+		                  { "accelerator", accelerator },
+		                  { "observable", pauliOperator_ } });
+		//{ "optimizer", optimizer } });
 
-		return this->postProcess(buffer);
+		return vqe->execute(buffer, {})[0];
 	}
 
 	// unused now
@@ -123,7 +128,7 @@ private:
 		                  { "optimizer", optimizer } });
 		vqe->execute(buffer);
 
-		return this->postProcess(buffer);
+		return buffer->getInformation("opt-val").as<double>();
 	}
 
 	double postProcess(std::shared_ptr<xacc::AcceleratorBuffer> buffer) const
