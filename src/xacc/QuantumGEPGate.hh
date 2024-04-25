@@ -177,7 +177,7 @@ private:
 		}
 
 		std::reverse(buffer.begin(), buffer.end());
-		// std::cout << buffer << "\n";
+		// std::cout << " str = "<< str <<" and buffer = "<< buffer << "\n";
 		return std::stoi(buffer);
 	}
 

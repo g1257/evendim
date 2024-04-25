@@ -124,8 +124,9 @@ private:
 
 	void fromExpression(const std::string& str)
 	{
-		std::cerr << "Asumming Hamiltonian Expression (XACC) " << str << "\n";
 		std::string paulis = toPaulis(removeAllSpaces(str));
+
+		std::cerr << "Asumming Hamiltonian Expression (XACC) " << paulis << "\n";
 		pauliOperator_ = new PauliOperatorType(paulis);
 	}
 
@@ -201,9 +202,11 @@ private:
 	{
 		QuantumGEPGate gate(str);
 		std::string name = gate.name();
-		ToPauliMatrices toPauliMatrices(name);
-		// name and bits <=== FIXME bits need adjustment
-		return toPauliMatrices() + ttos(gate.bits());
+		if (gate.bits().size() != 1) {
+			err("pauliExpansion: Only one-bit gates supported here\n");
+		}
+
+		return name + ttos(gate.bits()[0]);
 	}
 
 	SizeType bits_;
