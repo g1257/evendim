@@ -155,6 +155,9 @@ private:
 
 		std::string paulis;
 		for (SizeType i = 0; i < terms.size(); ++i) {
+			if (i > 0) {
+				paulis += " + ";
+			}
 			std::string term = termToPauli(terms[i]);
 			paulis += term;
 		}
@@ -170,6 +173,7 @@ private:
 		std::string paulis;
 		for (SizeType i = 0; i < factors.size(); ++i) {
 			std::string factor = factorToPauli(factors[i]);
+			paulis += std::string(" ");
 			paulis += factor;
 		}
 
