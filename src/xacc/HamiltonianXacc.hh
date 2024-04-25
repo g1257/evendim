@@ -95,47 +95,32 @@ private:
 
 	double energyFixedAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator, const std::vector<double>& angles) const
 	{
-		if (angles.size() == 0) {
-			return energyNoAngles(buffer, program, accelerator);
-		}
-
-		auto evaled = program->operator()(angles);
-		accelerator->execute(buffer, evaled);
-		return this->postProcess(buffer);
-	}
-
-	double energyNoAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
-	{
-		accelerator->execute(buffer, program);
 		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
-		vqe->initialize({ { "ansatz", program },
-		                  { "accelerator", accelerator },
-		                  { "observable", pauliOperator_ } });
-		//{ "optimizer", optimizer } });
-
-		return vqe->execute(buffer, {})[0];
+		vqe->initialize({
+		    { "ansatz", program },
+		    { "accelerator", accelerator },
+		    { "observable", pauliOperator_ },
+		});
+		auto tmpVec = vqe->execute(buffer, angles);
+		assert(tmpVec.size() != 0);
+		return tmpVec[0];
 	}
 
 	// unused now
+	/*
 	double energyOptimizeAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
 	{
-		auto optimizer = xacc::getOptimizer("nlopt");
+	        auto optimizer = xacc::getOptimizer("nlopt");
 
-		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
-		vqe->initialize({ { "ansatz", program },
-		                  { "accelerator", accelerator },
-		                  { "observable", pauliOperator_ },
-		                  { "optimizer", optimizer } });
-		vqe->execute(buffer);
+	        auto vqe = xacc::getService<xacc::Algorithm>("vqe");
+	        vqe->initialize({ { "ansatz", program },
+	                          { "accelerator", accelerator },
+	                          { "observable", pauliOperator_ },
+	                          { "optimizer", optimizer } });
+	        vqe->execute(buffer);
 
-		return buffer->getInformation("opt-val").as<double>();
-	}
-
-	double postProcess(std::shared_ptr<xacc::AcceleratorBuffer> buffer) const
-	{
-		xacc::HeterogeneousMap extra_data;
-		return pauliOperator_->postProcess(buffer, xacc::Observable::PostProcessingTask::EXP_VAL_CALC, extra_data);
-	}
+	        return buffer->getInformation("opt-val").as<double>();
+	}*/
 
 	void fromExpression(const std::string& str)
 	{
