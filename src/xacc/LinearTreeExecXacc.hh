@@ -74,6 +74,11 @@ public:
 			circuit2.push_back(circuit[i]);
 		}
 
+		// Add identity gate if circuit is empty
+		if (circuit2.size() == 0) {
+			circuit2.push_back("I0");
+		}
+
 		SizeType numberOfBits = log2Exact(initVector.size());
 
 		auto provider = xacc::getIRProvider("quantum");
@@ -229,11 +234,12 @@ private:
 	{
 		os << "-----------------------\n";
 		unsigned int n = circuit.size();
+		os << n << "\n";
 		for (unsigned int i = 0; i < n; ++i) {
 			os << circuit[i] << " ";
 		}
 
-		os << "-----------------------\n\n";
+		os << "\n-----------------------\n\n";
 	}
 };
 }

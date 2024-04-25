@@ -100,7 +100,7 @@ private:
 		gepToXaccGates_["Sz"] = PairStringSizeType("Z", 1);
 
 		// gates with the same names and one bit
-		std::vector<std::string> sameNames { "Rx", "Ry", "Rz", "T", "H" };
+		std::vector<std::string> sameNames { "Rx", "Ry", "Rz", "T", "H", "I" };
 		for (std::vector<std::string>::const_iterator it = sameNames.begin(); it != sameNames.end(); ++it) {
 			gepToXaccGates_[*it] = PairStringSizeType(*it, 1);
 		}
