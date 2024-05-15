@@ -5,23 +5,23 @@
 # entered by expression.
 HeadSize=10;
 #Seed=12345;
-Population=100;
+Population=10;
 Generations=200;
 NumberOfBits=4;
 MinimizerTolerance=0.01;
-Primitives="Ry,Rx,Rz,P,H,C";
+Primitives="H,C,Sx,Ry,Rx";
 MinimizerDelta=0.01;
 MinimizerDelta2=0.01;
 MinimizerVerbose=0;
 ProgressBar=1;
 MinimizerAlgorithm="Simplex";
 RunType="GroundState";
-Hamiltonian="4.2*P3*H1+-0.42*Rx0:1.57*H2";
+Hamiltonian="Sx0*Sx1+Sx1*Sx2+Sx2*Sx3";
 HamiltonianCoupling=1;
 #HamiltonianIsPeriodic=1;
 InVectorFile="../TestSuite/inputs/vector24.txt";
-#string EngineOptions="noncanonical";
-
+EngineOptions="uselineartreeifpossible";
+string Accelerator="tnqvm";
 #CHeadSize=0;
 #AdfsSize=0;
 #StopEarly=false;
