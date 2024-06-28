@@ -37,6 +37,10 @@ public:
 		str += "integer Chead;\n";
 		str += "string EngineOptions;\n";
 		str += "vector Basis;\n";
+
+		str += "integer Descendants;\n";
+		str += "integer Mutations;\n";
+		str += "integer Inversions;\n";
 		return str;
 	}
 

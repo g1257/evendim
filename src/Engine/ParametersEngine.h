@@ -44,6 +44,9 @@ struct ParametersInput {
 	    , genes(g)
 	    , chead(ch)
 	    , adfs(adfs1)
+	    , descendants(2 * p)
+	    , mutation(0.5 * p)
+	    , inversion(0.5 * p)
 	    , samples(samples1)
 	    , threads(threads1)
 	    , options(new Options(options1))
@@ -91,14 +94,13 @@ struct ParametersInput {
 
 		io.readline(population, "Population=");
 
+		descendants = 2 * population;
+		inversion = 0.5 * population;
+		mutation = 0.5 * population;
+
 		io.readline(head, "HeadSize=");
 
-		try {
-			io.readline(genes, "Genes=");
-		}
-		catch (std::exception&) {
-		}
-
+		tryToRead(genes, "Genes=", io);
 		if (genes > 1) {
 			PsimagLite::String str("Automatically Setting ADFS to 1\n");
 			std::cout << str;
@@ -106,27 +108,17 @@ struct ParametersInput {
 			adfs = 1;
 		}
 
-		try {
-			io.readline(chead, "Chead=");
-		}
-		catch (std::exception&) {
-		}
+		tryToRead(descendants, "Descendants=", io);
+		tryToRead(inversion, "Inversions=", io);
+		tryToRead(mutation, "Mutations=", io);
 
+		tryToRead(chead, "Chead=", io);
 		if (genes > 1 && chead == 0) {
 			throw PsimagLite::RuntimeError("genes > 1 but chead == 0\n");
 		}
 
-		try {
-			io.readline(samples, "Samples=");
-		}
-		catch (std::exception&) {
-		}
-
-		try {
-			io.readline(threads, "Threads=");
-		}
-		catch (std::exception&) {
-		}
+		tryToRead(samples, "Samples=", io);
+		tryToRead(threads, "Threads=", io);
 
 		try {
 			io.readline(primitives, "Primitives=");
@@ -160,10 +152,24 @@ struct ParametersInput {
 	SizeType genes;
 	SizeType chead;
 	SizeType adfs;
+	SizeType descendants;
+	SizeType mutation;
+	SizeType inversion;
 	SizeType samples;
 	SizeType threads;
 	Options* options;
 	PsimagLite::String primitives; // comma-separated list of primitives
+
+private:
+
+	static void tryToRead(SizeType& what, const std::string& label, InputNgType::Readable& io)
+	{
+		try {
+			io.readline(what, label);
+		}
+		catch (std::exception&) {
+		}
+	}
 };
 
 template <typename RealType>
@@ -171,19 +177,16 @@ class ParametersEngine {
 
 public:
 
-	ParametersEngine(const ParametersInput& op,
-	                 RealType d = 2.0,
-	                 RealType m = 0.5,
-	                 RealType i = 0.5)
+	ParametersEngine(const ParametersInput& op)
 	    : generations(op.generations)
 	    , population(op.population)
 	    , head(op.head)
 	    , genes(op.genes)
 	    , chead(op.chead)
 	    , adfs(op.adfs)
-	    , descendants(static_cast<SizeType>(op.population * d))
-	    , mutation(static_cast<SizeType>(op.population * m))
-	    , inversion(static_cast<SizeType>(op.population * i))
+	    , descendants(op.descendants)
+	    , mutation(op.mutation)
+	    , inversion(op.inversion)
 	    , samples(op.samples)
 	    , threads(op.threads)
 	    , options(*op.options)

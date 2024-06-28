@@ -95,14 +95,13 @@ fitness, where p is the population number set from the input file or the command
 		PairVectorVectorStringType newChromosomes;
 		VectorRealType parentFitness(chromosomes_.size());
 		SizeType totalChromosomes = chromosomes_.size();
+
 		for (SizeType i = 0; i < totalChromosomes; i++) {
 			const VectorStringType vecStr = chromosomes_[i]->vecString();
 
 			const VectorStringType& effectiveVec = chromosomes_[i]->effectiveVecString();
-			if (notAdded(newChromosomes.second, effectiveVec)) {
-				newChromosomes.first.push_back(vecStr);
-				newChromosomes.second.push_back(effectiveVec);
-			}
+			newChromosomes.first.push_back(vecStr);
+			newChromosomes.second.push_back(effectiveVec);
 		}
 
 		PsimagLite::CodeSectionParams codeParams = PsimagLite::Concurrency::codeSectionParams;
@@ -169,9 +168,10 @@ private:
 	                   const VectorRealType& parentFitness,
 	                   SizeType points) const
 	{
+		SizeType population = chromosomes_.size();
 		for (SizeType i = 0; i < params_.descendants; i++) {
-			SizeType index1 = selectAccordingToFitness(parentFitness);
-			SizeType index2 = selectAccordingToFitness(parentFitness);
+			SizeType index1 = static_cast<SizeType>(fitness_.rng() * population);
+			SizeType index2 = static_cast<SizeType>(fitness_.rng() * population);
 			PairVectorStringType newStrings = chromosomes_[index1]->recombine(*chromosomes_[index2],
 			                                                                  points);
 
@@ -179,38 +179,6 @@ private:
 
 			addWithCare(newChromosomes, newStrings.second);
 		}
-	}
-
-	SizeType selectAccordingToFitness(const VectorRealType& parentFitness) const
-	{
-		RealType minFitness = -1e50;
-		for (SizeType i = 0; i < parentFitness.size(); i++)
-			if (minFitness < parentFitness[i])
-				minFitness = parentFitness[i];
-
-		minFitness = -minFitness;
-
-		RealType totalFitness = 0;
-		for (SizeType i = 0; i < parentFitness.size(); i++)
-			totalFitness += (-parentFitness[i] - minFitness);
-
-		if (totalFitness < 0)
-			throw PsimagLite::RuntimeError("totalFitness<=0");
-
-		if (totalFitness == 0)
-			return static_cast<SizeType>(evolution_.rng() * parentFitness.size());
-
-		RealType r = evolution_.rng() * totalFitness;
-		RealType min = 0;
-		RealType max = 0;
-		for (SizeType i = 0; i < parentFitness.size(); i++) {
-			max += (-parentFitness[i] - minFitness);
-			if (r <= max && r >= min)
-				return i;
-			min = max;
-		}
-
-		throw PsimagLite::RuntimeError("selectAccordingToFitness\n");
 	}
 
 	void evolve(PairVectorVectorStringType& newChromosomes,
