@@ -150,7 +150,7 @@ public:
 		HamiltonianFromExpressionType::solveIt(matrix_);
 	}
 
-	RealType energy(const QuasiVectorType& y, SizeType threadNum) const
+	RealType energy(const QuasiVectorType& y, SizeType /* threadNum */) const
 	{
 		switch (hamTipo) {
 		case TypeEnum::ISING_GRAPH: {

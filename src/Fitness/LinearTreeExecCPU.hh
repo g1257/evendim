@@ -66,8 +66,10 @@ public:
 	}
 
 	RealType energy(const HandleType& handle,
-	                const HamiltonianType& hamiltonian) const
+	                const HamiltonianType& hamiltonian,
+	                bool useXaccOptimizer) const
 	{
+		assert(!useXaccOptimizer);
 		return hamiltonian.energy(handle.first, handle.second);
 	}
 

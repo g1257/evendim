@@ -89,13 +89,13 @@ public:
 		return HandleType { programAndNparams.first, programAndNparams.second, numberOfBits, threadNum };
 	}
 
-	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian) const
+	RealType energy(const HandleType& handle, const HamiltonianType& hamiltonian, bool useXaccOptimizer) const
 	{
 		if (handle.numberOfBits != hamiltonian.numberOfSites()) {
 			throw std::runtime_error("Hamiltonian size incorrect\n");
 		}
 
-		return hamiltonian.energyXACC(handle.program, handle.angles);
+		return hamiltonian.energyXACC(handle.program, handle.angles, useXaccOptimizer);
 	}
 
 private:

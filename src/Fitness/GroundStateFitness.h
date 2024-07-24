@@ -129,7 +129,7 @@ public:
 		    && chromosome->isLinearTree()) {
 			const LinearTreeExecType& linearTreeExec = evolution_.nodeHelper().linearTreeExec();
 			const typename LinearTreeExecType::HandleType& handle = linearTreeExec.getHandle(groundStateParams_.inVector, chromosome->vecString(), threadNum_);
-			e = linearTreeExec.energy(handle, groundStateParams_.hamiltonian);
+			e = linearTreeExec.energy(handle, groundStateParams_.hamiltonian, groundStateParams_.useXaccOptimizer);
 		}
 		else {
 			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);

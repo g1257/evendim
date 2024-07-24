@@ -69,11 +69,18 @@ public:
 		return pauliOperator_->observe(function);
 	}
 
-	double energyXACC(ProgramType program, const std::vector<double>& angles) const
+	double energyXACC(ProgramType program,
+	                  const std::vector<double>& angles,
+	                  bool useXaccOptimizer) const
 	{
 		auto buffer = xacc::qalloc(bits_);
 		auto accelerator = xacc::getAccelerator(accel_);
-		return energyFixedAngles(buffer, program, accelerator, angles);
+		if (useXaccOptimizer) {
+			return energyOptimizeAngles(angles, buffer, program, accelerator);
+		}
+		else {
+			return energyFixedAngles(angles, buffer, program, accelerator);
+		}
 	}
 
 	template <typename SomeType>
@@ -93,34 +100,37 @@ private:
 
 	Hamiltonian& operator=(const Hamiltonian&) = delete;
 
-	double energyFixedAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator, const std::vector<double>& angles) const
+	double energyFixedAngles(BufferType buffer,
+	                         ProgramType program,
+	                         AcceleratorType accelerator,
+	                         const std::vector<double>& angles) const
 	{
 		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
-		vqe->initialize({
-		    { "ansatz", program },
-		    { "accelerator", accelerator },
-		    { "observable", pauliOperator_ },
-		});
-		auto tmpVec = vqe->execute(buffer, angles);
-		assert(tmpVec.size() != 0);
-		return tmpVec[0];
+		vqe->initialize({ { "ansatz", program },
+		                  { "accelerator", accelerator },
+		                  { "observable", pauliOperator_ } });
+		vqe->execute(buffer, angles);
+		return buffer->getInformation("opt-val").as<double>();
 	}
 
-	// unused now
-	/*
-	double energyOptimizeAngles(BufferType buffer, ProgramType program, AcceleratorType accelerator) const
+	double energyOptimizeAngles(const std::vector<double>& angles,
+	                            BufferType buffer,
+	                            ProgramType program,
+	                            AcceleratorType accelerator) const
 	{
-	        auto optimizer = xacc::getOptimizer("nlopt");
+		auto optimizer = xacc::getOptimizer("nlopt");
 
-	        auto vqe = xacc::getService<xacc::Algorithm>("vqe");
-	        vqe->initialize({ { "ansatz", program },
-	                          { "accelerator", accelerator },
-	                          { "observable", pauliOperator_ },
-	                          { "optimizer", optimizer } });
-	        vqe->execute(buffer);
+		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
+		vqe->initialize({ { "ansatz", program },
+   { "accelerator", accelerator },
+   { "observable", pauliOperator_ },
+		                  { "cache-measurement-basis", true },
+   { "optimizer", optimizer } });
 
-	        return buffer->getInformation("opt-val").as<double>();
-	}*/
+		vqe->execute(buffer, angles);
+
+		return buffer->getInformation("opt-val").as<double>();
+	}
 
 	void fromExpression(const std::string& str)
 	{

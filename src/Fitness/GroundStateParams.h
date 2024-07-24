@@ -37,12 +37,13 @@ struct GroundStateParams {
 			io.readline(tmp, "UseXaccOptimizer=");
 			if (tmp == "yes" || tmp == "true") {
 				useXaccOptimizer = true;
-				if (!HAS_XACC) {
-					err("UseXaccOptimizer cannot be true without XACC support\n");
-				}
 			}
 		}
 		catch (std::exception&) {
+		}
+
+		if (!HAS_XACC && useXaccOptimizer) {
+			err("UseXaccOptimizer cannot be true without XACC support\n");
 		}
 	}
 
