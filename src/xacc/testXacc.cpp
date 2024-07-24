@@ -44,7 +44,8 @@ int main(int argc, char** argv)
 	constexpr SizeType numberOfThreads = 1;
 	constexpr SizeType sites = 2;
 	HamiltonianType hamiltonian("Sx0 * Sx0", sites, numberOfThreads, "tnqvm");
-	double energy = linearTreeExec.energy(handle, hamiltonian);
+	constexpr bool useXaccOptimizer = true;
+	double energy = linearTreeExec.energy(handle, hamiltonian, useXaccOptimizer);
 	std::cout << "Circuit is " << implodeVecString(mycircuit) << "\n";
 	std::cout << "Energy is " << energy << "\n";
 }
