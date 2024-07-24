@@ -321,11 +321,18 @@ public:
 	typedef typename PsimagLite::Real<ComplexType>::Type RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef Hamiltonian<ComplexType> HamiltonianType;
-	typedef GroundStateParams<HamiltonianType, ComplexType> GroundStateParamsType;
-	typedef typename GroundStateParamsType::MinimizerParamsType MinimizerParamsType;
-	using QuasiVectorType = QuasiVector<ComplexType>;
 
-	typedef GroundStateParamsType FitnessParamsType;
+	using QuasiVectorType = QuasiVector<ComplexType>;
+	using NodeType = typename PrimitivesType::NodeType;
+	using NodeFactoryType = typename EvolutionType::NodeHelperType::NodeFactoryType;
+	using LinearTreeExecType = LinearTreeExec<typename NodeType::ValueType, typename NodeType::AnglesType, NodeFactoryType>;
+
+	enum { HAS_XACC = LinearTreeExecType::HAS_XACC };
+
+	using GroundStateParamsType = GroundStateParams<HamiltonianType, ComplexType, HAS_XACC>;
+	using MinimizerParamsType = typename GroundStateParamsType::MinimizerParamsType;
+	using FunctionToMinimizeType = FunctionToMinimize2<ChromosomeType, EvolutionType, GroundStateParamsType>;
+	using FitnessParamsType = GroundStateParamsType;
 
 	GroundStateFitness(SizeType samples,
 	                   EvolutionType& evolution,
@@ -346,11 +353,6 @@ public:
 	                    long unsigned int seed,
 	                    SizeType threadNum)
 	{
-		typedef FunctionToMinimize2<ChromosomeType, EvolutionType, GroundStateParamsType>
-		    FunctionToMinimizeType;
-		typedef typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType> MinimizerType;
-		typedef typename ChromosomeType::VectorStringType VectorStringType;
-
 		evolution_.nodeHelper().setInput(0, fitParams_.inVector, threadNum);
 
 		RealType norma = fitParams_.inVector.norm();
@@ -360,17 +362,41 @@ public:
 		FunctionToMinimizeType f(evolution_, chromosome, fitParams_, threadNum);
 
 		if (f.size() == 0) {
+			// if no angles
 			return f.fitness(nullptr,
 			                 FunctionToMinimizeType::FunctionEnum::FITNESS,
 			                 evolution_.verbose());
 		}
+		else {
+			// there are angles so we can ...
+			VectorRealType angles(f.size());
+			FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), seed);
+
+			// ... use XACC optimizer
+			if (fitParams_.useXaccOptimizer) {
+
+				return f.fitness(&angles,
+				                 FunctionToMinimizeType::FunctionEnum::FITNESS,
+				                 evolution_.verbose());
+			}
+			else { // ... or use QuantumGEP's internal optimizer
+				return optimizeAndReturnFitness(angles, f, chromosome, threadNum);
+			}
+		}
+	}
+
+	RealType optimizeAndReturnFitness(VectorRealType& angles,
+	                                  FunctionToMinimizeType& f,
+	                                  const ChromosomeType& chromosome,
+	                                  SizeType threadNum)
+	{
+		using MinimizerType = typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType>;
+		using VectorStringType = typename ChromosomeType::VectorStringType;
 
 		const MinimizerParamsType& minParams = fitParams_.minParams;
 		MinimizerType min(f, minParams.maxIter, minParams.verbose);
 
 		int used = 0;
-		VectorRealType angles(f.size());
-		FunctionToMinimizeType::initAngles(angles, chromosome.effectiveVecString(), seed);
 		if (minParams.algo == MinimizerParamsType::SIMPLEX) {
 			used = min.simplex(angles,
 			                   minParams.delta,

@@ -37,6 +37,8 @@ class LinearTreeExec {
 
 public:
 
+	static constexpr bool HAS_XACC = true;
+
 	using ComplexType = typename UnderlyingType<VecComplexType>::Type;
 	using RealType = typename PsimagLite::Real<ComplexType>::Type;
 	using VecStringType = std::vector<std::string>;

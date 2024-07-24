@@ -23,6 +23,8 @@ class LinearTreeExec {
 
 public:
 
+	static constexpr bool HAS_XACC = false;
+
 	using VectorValueType = typename std::vector<ValueType>;
 	using VectorStringType = std::vector<std::string>;
 	using AnglesType = AnglesType_;
