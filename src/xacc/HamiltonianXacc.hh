@@ -70,12 +70,12 @@ public:
 	}
 
 	double energyXACC(ProgramType program,
-	                  const std::vector<double>& angles,
+	                  std::vector<double>& angles,
 	                  bool useXaccOptimizer) const
 	{
 		auto buffer = xacc::qalloc(bits_);
 		auto accelerator = xacc::getAccelerator(accel_);
-		if (useXaccOptimizer) {
+		if (useXaccOptimizer && angles.size() > 0) {
 			return energyOptimizeAngles(angles, buffer, program, accelerator);
 		}
 		else {
@@ -100,17 +100,20 @@ private:
 
 	Hamiltonian& operator=(const Hamiltonian&) = delete;
 
-	double energyFixedAngles(BufferType buffer,
+	double energyFixedAngles(const std::vector<double>& angles,
+	                         BufferType buffer,
 	                         ProgramType program,
-	                         AcceleratorType accelerator,
-	                         const std::vector<double>& angles) const
+	                         AcceleratorType accelerator) const
+
 	{
 		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
 		vqe->initialize({ { "ansatz", program },
 		                  { "accelerator", accelerator },
 		                  { "observable", pauliOperator_ } });
-		vqe->execute(buffer, angles);
-		return buffer->getInformation("opt-val").as<double>();
+		auto vec = vqe->execute(buffer, angles);
+		// return buffer->getInformation("opt-val").as<double>();
+		assert(vec.size() > 0);
+		return vec[0];
 	}
 
 	double energyOptimizeAngles(const std::vector<double>& angles,
@@ -121,14 +124,11 @@ private:
 		auto optimizer = xacc::getOptimizer("nlopt");
 
 		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
-		vqe->initialize({ { "ansatz", program },
-   { "accelerator", accelerator },
-   { "observable", pauliOperator_ },
-		                  { "cache-measurement-basis", true },
-   { "optimizer", optimizer } });
+		vqe->initialize({ { "ansatz", program }, { "accelerator", accelerator }, { "observable", pauliOperator_ }, { "cache-measurement-basis", true }, { "optimizer", optimizer } });
 
-		vqe->execute(buffer, angles);
-
+		vqe->execute(buffer);
+		// assert(vec.size() > 0);
+		// return vec[0];
 		return buffer->getInformation("opt-val").as<double>();
 	}
 
