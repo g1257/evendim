@@ -41,6 +41,8 @@ public:
 		str += "integer Descendants;\n";
 		str += "integer Mutations;\n";
 		str += "integer Inversions;\n";
+		str += "string UseXaccOptimizer;";
+		str += "string XaccVerbosityLevel;";
 		return str;
 	}
 
