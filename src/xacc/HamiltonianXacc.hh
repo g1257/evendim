@@ -130,6 +130,7 @@ private:
 		return vec[0];
 	}
 
+	/* Here the initial angles for the optimizer are zero */
 	double energyOptimizeAngles(std::vector<double>& angles,
 	                            BufferType buffer,
 	                            ProgramType program,
