@@ -30,6 +30,7 @@ public:
 	Hamiltonian(typename InputNgType::Readable& io, SizeType /* numberOfThreads */)
 	    : bits_(0)
 	    , pauliOperator_(nullptr)
+	    , verbose_("false")
 	{
 		io.readline(bits_, "NumberOfBits="); // == number of "sites"
 		io.readline(ham_, "Hamiltonian=");
@@ -44,6 +45,12 @@ public:
 
 		if (ham_ == "zxz" || ham_ == "xx") {
 			throw std::runtime_error("Hamiltonian=zxz or xx\n");
+		}
+
+		try {
+			io.readline(verbose_, "XaccVerbosityLevel=");
+		}
+		catch (...) {
 		}
 
 		fromExpression(ham_);
@@ -112,11 +119,18 @@ private:
 		                  { "observable", pauliOperator_ } });
 		auto vec = vqe->execute(buffer, angles);
 		// return buffer->getInformation("opt-val").as<double>();
+
+		bool flag = (verbose_ == "full" || verbose_ == "debug");
+
+		if (flag) {
+			std::cerr << "Fixed angles for program\n";
+		}
+
 		assert(vec.size() > 0);
 		return vec[0];
 	}
 
-	double energyOptimizeAngles(const std::vector<double>& angles,
+	double energyOptimizeAngles(std::vector<double>& angles,
 	                            BufferType buffer,
 	                            ProgramType program,
 	                            AcceleratorType accelerator) const
@@ -126,9 +140,23 @@ private:
 		auto vqe = xacc::getService<xacc::Algorithm>("vqe");
 		vqe->initialize({ { "ansatz", program }, { "accelerator", accelerator }, { "observable", pauliOperator_ }, { "cache-measurement-basis", true }, { "optimizer", optimizer } });
 
+		bool flag = (verbose_ == "debug");
+		if (verbose_ == "full") {
+			xacc::set_verbose(true);
+			flag = true;
+		}
+
+		if (flag) {
+			std::cerr << "Non fixed angles for program " << program->toString() << "\n";
+		}
+
 		vqe->execute(buffer);
-		// assert(vec.size() > 0);
-		// return vec[0];
+		angles = buffer->getInformation("opt-params").as<std::vector<double>>();
+
+		if (flag) {
+			std::cout << "angles=" << angles << "\n";
+		}
+
 		return buffer->getInformation("opt-val").as<double>();
 	}
 
@@ -226,6 +254,7 @@ private:
 	SizeType bits_;
 	std::string ham_;
 	std::string accel_;
+	std::string verbose_;
 	xacc::Observable* pauliOperator_;
 };
 
