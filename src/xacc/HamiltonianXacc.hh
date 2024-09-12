@@ -1,13 +1,17 @@
 #ifndef HAMILTONIAN_XACC_H
 #define HAMILTONIAN_XACC_H
 
+#include <type_traits>
+
 #include "../Engine/InputCheck.h"
 #include "Algorithm.hpp"
 #include "InputNg.h"
 #include "Optimizer.hpp"
 #include "PauliOperator.hpp"
 #include "QuantumGEPGate.hh"
+#include "Stream.hpp"
 #include "ToPauliMatrices.hh"
+#include "Vector.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
 
@@ -155,7 +159,9 @@ private:
 		angles = buffer->getInformation("opt-params").as<std::vector<double>>();
 
 		if (flag) {
-			std::cout << "angles=" << angles << "\n";
+			std::cout << "angles=";
+			xacc::operator<<(std::cout, angles);
+			std::cout << "\n";
 		}
 
 		return buffer->getInformation("opt-val").as<double>();
