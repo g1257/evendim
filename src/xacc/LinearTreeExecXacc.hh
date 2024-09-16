@@ -98,6 +98,11 @@ public:
 		return hamiltonian.energyXACC(handle.program, handle.angles, useXaccOptimizer);
 	}
 
+	void fillAngles(std::vector<double>& angles, const HandleType& handle) const
+	{
+		angles = handle.angles;
+	}
+
 private:
 
 	static std::pair<ProgramType, std::vector<double>> createProgram(const VecStringType& circuit, const ProviderType& provider)

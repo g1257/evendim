@@ -8,6 +8,7 @@
 #include "InputNg.h"
 #include "Optimizer.hpp"
 #include "PauliOperator.hpp"
+#include "PsimagLite.h"
 #include "QuantumGEPGate.hh"
 #include "Stream.hpp"
 #include "ToPauliMatrices.hh"
@@ -152,16 +153,18 @@ private:
 		}
 
 		if (flag) {
-			std::cerr << "Non fixed angles for program " << program->toString() << "\n";
 		}
 
 		vqe->execute(buffer);
 		angles = buffer->getInformation("opt-params").as<std::vector<double>>();
 
+		const std::string& program_as_string = program->toString();
 		if (flag) {
-			std::cout << "angles=";
-			xacc::operator<<(std::cout, angles);
-			std::cout << "\n";
+			std::cerr << "Non fixed angles for the following program\n";
+			std::cerr << program_as_string << "\n";
+			std::cerr << "angles=";
+			xacc::operator<<(std::cerr, angles);
+			std::cerr << "\n";
 		}
 
 		return buffer->getInformation("opt-val").as<double>();

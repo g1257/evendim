@@ -73,6 +73,11 @@ public:
 		return hamiltonian.energy(handle.first, handle.second);
 	}
 
+	void fillAngles(std::vector<double>&, const HandleType&) const
+	{
+		err("fillAngles should not be called unless XACC is used\n");
+	}
+
 private:
 
 	LinearTreeExec(const LinearTreeExec&) = delete;

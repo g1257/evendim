@@ -62,7 +62,7 @@ public:
 
 	SizeType size() const { return numberOfAngles_; }
 
-	RealType operator()(const VectorRealType& angles)
+	RealType operator()(VectorRealType& angles)
 	{
 		// the case without angles is handled elsewhere
 		// if it reaches here, it's an internal error
@@ -71,7 +71,7 @@ public:
 		assert(angles.size() == numberOfAngles_);
 
 		// false means don't be verbose here
-		return fitness(&angles, FunctionEnum::DIFFERENCE, false);
+		return fitness(&angles, FunctionEnum::DIFFERENCE, false, false);
 	}
 
 	void df(VectorRealType& dest, const VectorRealType& angles)
@@ -101,7 +101,10 @@ public:
 		}
 	}
 
-	RealType fitness(const VectorRealType* angles, FunctionEnum functionEnum, bool verbose)
+	RealType fitness(VectorRealType* angles,
+	                 FunctionEnum functionEnum,
+	                 bool useXaccOptimizer,
+	                 bool verbose)
 	{
 		const ChromosomeType* chromosome = nullptr;
 		VectorStringType vecStr = chromosome_.vecString();
@@ -130,6 +133,9 @@ public:
 			const LinearTreeExecType& linearTreeExec = evolution_.nodeHelper().linearTreeExec();
 			typename LinearTreeExecType::HandleType handle = linearTreeExec.getHandle(groundStateParams_.inVector, chromosome->vecString(), threadNum_);
 			e = linearTreeExec.energy(handle, groundStateParams_.hamiltonian, groundStateParams_.useXaccOptimizer);
+			if (useXaccOptimizer && angles) {
+				linearTreeExec.fillAngles(*angles, handle);
+			}
 		}
 		else {
 			e = groundStateParams_.hamiltonian.energy(chromosome->exec(0), threadNum_);
@@ -365,6 +371,7 @@ public:
 			// if no angles
 			return f.fitness(nullptr,
 			                 FunctionToMinimizeType::FunctionEnum::FITNESS,
+			                 fitParams_.useXaccOptimizer,
 			                 evolution_.verbose());
 		}
 		else {
@@ -377,6 +384,7 @@ public:
 
 				return f.fitness(&angles,
 				                 FunctionToMinimizeType::FunctionEnum::FITNESS,
+				                 fitParams_.useXaccOptimizer,
 				                 evolution_.verbose());
 			}
 			else { // ... or use QuantumGEP's internal optimizer
@@ -435,8 +443,10 @@ public:
 		const bool printFooter = minParams.verbose;
 		// const int returnStatus = (used > 0) ? 0 : 1;
 
+		assert(!fitParams_.useXaccOptimizer);
 		RealType value = f.fitness(&angles,
 		                           FunctionToMinimizeType::FunctionEnum::FITNESS,
+		                           fitParams_.useXaccOptimizer,
 		                           evolution_.verbose());
 
 		if (!printFooter)
