@@ -67,9 +67,8 @@ public:
 
 	void sync()
 	{
-		std::cerr << "FINAL-->" << nodes_.size() << " vs. " << newNodes_.size() << "\n";
+		// std::cerr << "FINAL-->" << nodes_.size() << " vs. " << newNodes_.size() << "\n";
 		clearNewNodes();
-		// throw PsimagLite::RuntimeError("testing sync\n");
 	}
 
 	static PsimagLite::String stripPreviousAngleIfAny(PsimagLite::String str)

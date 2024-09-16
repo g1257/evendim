@@ -152,9 +152,6 @@ private:
 			flag = true;
 		}
 
-		if (flag) {
-		}
-
 		vqe->execute(buffer);
 		angles = buffer->getInformation("opt-params").as<std::vector<double>>();
 
