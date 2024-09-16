@@ -382,10 +382,13 @@ public:
 			// ... use XACC optimizer
 			if (fitParams_.useXaccOptimizer) {
 
-				return f.fitness(&angles,
-				                 FunctionToMinimizeType::FunctionEnum::FITNESS,
-				                 fitParams_.useXaccOptimizer,
-				                 evolution_.verbose());
+				double value = f.fitness(&angles,
+				                         FunctionToMinimizeType::FunctionEnum::FITNESS,
+				                         fitParams_.useXaccOptimizer,
+				                         evolution_.verbose());
+				ChromosomeType* chromosomeNonconst = const_cast<ChromosomeType*>(&chromosome);
+				setAnglesIntoChromosome(*chromosomeNonconst, angles, threadNum);
+				return value;
 			}
 			else { // ... or use QuantumGEP's internal optimizer
 				return optimizeAndReturnFitness(angles, f, chromosome, threadNum);
@@ -399,7 +402,6 @@ public:
 	                                  SizeType threadNum)
 	{
 		using MinimizerType = typename PsimagLite::Minimizer<RealType, FunctionToMinimizeType>;
-		using VectorStringType = typename ChromosomeType::VectorStringType;
 
 		const MinimizerParamsType& minParams = fitParams_.minParams;
 		MinimizerType min(f, minParams.maxIter, minParams.verbose);
@@ -423,21 +425,10 @@ public:
 
 		int status = (min.status() == MinimizerType::GSL_SUCCESS) ? 0 : 1;
 
+		// set angles if successful
 		if (status == 0) {
-			VectorStringType vecStr = chromosome.vecString();
-			const SizeType numberOfGenes = chromosome.size();
-			const SizeType geneLength = chromosome.geneLength();
-			FunctionToMinimizeType::encodeAngles(vecStr, angles, geneLength, numberOfGenes);
-			const ChromosomeType* chromosome2 = new ChromosomeType(chromosome.params(),
-			                                                       evolution_,
-			                                                       vecStr,
-			                                                       threadNum);
-
 			ChromosomeType* chromosomeNonconst = const_cast<ChromosomeType*>(&chromosome);
-			*chromosomeNonconst = *chromosome2;
-
-			delete chromosome2;
-			chromosome2 = nullptr;
+			setAnglesIntoChromosome(*chromosomeNonconst, angles, threadNum);
 		}
 
 		const bool printFooter = minParams.verbose;
@@ -476,6 +467,26 @@ public:
 	}
 
 private:
+
+	void setAnglesIntoChromosome(ChromosomeType& chromosome, const VectorRealType& angles, SizeType threadNum)
+
+	{
+		using VectorStringType = typename ChromosomeType::VectorStringType;
+
+		VectorStringType vecStr = chromosome.vecString();
+		const SizeType numberOfGenes = chromosome.size();
+		const SizeType geneLength = chromosome.geneLength();
+		FunctionToMinimizeType::encodeAngles(vecStr, angles, geneLength, numberOfGenes);
+		const ChromosomeType* chromosome2 = new ChromosomeType(chromosome.params(),
+		                                                       evolution_,
+		                                                       vecStr,
+		                                                       threadNum);
+
+		chromosome = *chromosome2;
+
+		delete chromosome2;
+		chromosome2 = nullptr;
+	}
 
 	template <typename SomeChromosomeType>
 	static PsimagLite::String infoInternal(const SomeChromosomeType& chromosome)
