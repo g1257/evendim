@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "../Engine/InputCheck.h"
+#include "../Fitness/IsingGraph.hh"
 #include "Algorithm.hpp"
 #include "InputNg.h"
 #include "Optimizer.hpp"
@@ -15,7 +16,6 @@
 #include "Vector.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
-#include "../Fitness/IsingGraph.hh"
 
 namespace Gep {
 
