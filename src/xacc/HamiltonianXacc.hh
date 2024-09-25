@@ -15,6 +15,7 @@
 #include "Vector.h"
 #include "xacc.hpp"
 #include "xacc_service.hpp"
+#include "../Fitness/IsingGraph.hh"
 
 namespace Gep {
 
@@ -31,6 +32,7 @@ public:
 	using InputNgType = PsimagLite::InputNg<InputCheck>;
 	using VectorStringType = std::vector<std::string>;
 	using ProgramType = std::shared_ptr<xacc::CompositeInstruction>;
+	using IsingGraphType = IsingGraph<ComplexType>;
 
 	Hamiltonian(typename InputNgType::Readable& io, SizeType /* numberOfThreads */)
 	    : bits_(0)
@@ -44,12 +46,38 @@ public:
 			unimplemented("Hamiltonian=file:\n");
 		}
 
-		if (ham_ == "IsingGraph" || ham_ == "zz") {
-			throw std::runtime_error("Hamiltonian=IsingGraph or zz\n");
+		if (ham_ == "zxz" || ham_ == "xx") {
+			throw std::runtime_error("Hamiltonian=zxz or xx unsupported in XACC mode\n");
 		}
 
-		if (ham_ == "zxz" || ham_ == "xx") {
-			throw std::runtime_error("Hamiltonian=zxz or xx\n");
+		if (ham_ == "IsingGraph" || ham_ == "zz") {
+			PsimagLite::String graphFile = "zz";
+			if (ham_ == "IsingGraph") {
+				io.readline(graphFile, "GraphFile=");
+				graphFile = "file:" + graphFile;
+			}
+
+			bool hasPeriodic = false;
+			try {
+				int tmp = 0;
+				io.readline(tmp, "HamiltonianIsPeriodic=");
+				hasPeriodic = true;
+			}
+			catch (std::exception&) {
+			}
+			if (hasPeriodic) {
+				err("IsingGraph: HamiltonianIsPeriodic= line unsupported\n");
+			}
+
+			RealType coupling = 1;
+			try {
+				io.readline(coupling, "HamiltonianCoupling=");
+			}
+			catch (std::exception&) {
+			}
+
+			IsingGraphType ising_graph(bits_, coupling, false, graphFile);
+			ham_ = ising_graph.buildExpression();
 		}
 
 		try {

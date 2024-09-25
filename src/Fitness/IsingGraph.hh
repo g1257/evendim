@@ -58,6 +58,33 @@ public:
 		return e * coupling_;
 	}
 
+	// Needed by XACC
+	std::string buildExpression() const
+	{
+		const std::string coupling_str = (coupling_ == 1) ? "" : ttos(coupling_) + "*";
+		std::string str;
+		bool firstCall = true;
+		assert(bits_ > 1);
+		for (SizeType site = 0; site < bits_ - 1; ++site) {
+			for (SizeType site2 = site + 1; site2 < bits_; ++site2) {
+				if (!graph_.connected(site, site2)) {
+					continue;
+				}
+
+				if (!firstCall) {
+					str += " + ";
+				}
+				else {
+					firstCall = false;
+				}
+
+				str += coupling_str + "Sz" + ttos(site) + "*Sz" + ttos(site2);
+			}
+		}
+
+		return str;
+	}
+
 	// Use only to obtain the exact solution
 	void solve()
 	{
