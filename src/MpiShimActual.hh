@@ -34,7 +34,7 @@ public:
 	bool isMPI() const { return true; }
 
 
-	static std::string buildInput(const std::string& name)
+	std::string buildInput(const std::string& name)
 	{
 		bool is_open = false;
 		std::string buffer;
@@ -65,7 +65,7 @@ public:
 		return buffer;
 	}
 
-	static PsimagLite::String buildOutput(PsimagLite::String filename)
+	PsimagLite::String buildOutput(PsimagLite::String filename)
 	{
 		PsimagLite::String rootname = PsimagLite::basename(filename);
 		size_t index = rootname.find(".", 0);
@@ -78,7 +78,7 @@ public:
 
 private:
 
-	static std::string getVarValue(const std::string& name)
+	std::string getVarValue(const std::string& name)
 	{
 		if (name == "i") {
 			return ttos(rank_);
