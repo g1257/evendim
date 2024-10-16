@@ -21,12 +21,6 @@ gep2: gep2.o
 	$(CXX) -o  gep2 gep2.o $(LDFLAGS) $(CPPFLAGS)
 	$(STRIP_COMMAND) gep2
 
-test_redirect_output.o: test_redirect_output.cpp Makefile Config.make
-	$(CXX) $(CPPFLAGS) -c test_redirect_output.cpp
-
-test_redirect_output: test_redirect_output.o
-	$(CXX) -o test_redirect_output test_redirect_output.o $(LDFLAGS)
-
 testSchwinger.o: testSchwinger.cpp Makefile   Config.make
 	$(CXX) $(CPPFLAGS) -c testSchwinger.cpp
 

@@ -27,6 +27,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "XaccBackend.hh"
 #include <unistd.h>
 #include "MpiShim.hh"
+#include "RedirectOutput.hh"
 
 template <template <typename> class FitnessTemplate, typename EvolutionType>
 void main2(EvolutionType& evolution,
@@ -74,18 +75,22 @@ int main(int argc, char* argv[])
 
 	int opt = 0;
 	int precision = 0;
+	PsimagLite::String label;
 	PsimagLite::String strUsage(argv[0]);
 	strUsage += " -f filename [-S threads] [-p precision] [-v]\n";
-	while ((opt = getopt(argc, argv, "f:S:p:v")) != -1) {
+	while ((opt = getopt(argc, argv, "f:S:p:l:v")) != -1) {
 		switch (opt) {
 		case 'f':
-			filename = optarg; // mpi_ship.buildInput(optarg);
+			filename = mpi_shim.buildInput(optarg);
 			break;
 		case 'v':
 			verbose = true;
 			break;
 		case 'p':
 			precision = atoi(optarg);
+			break;
+		case 'l':
+			label = optarg;
 			break;
 		case 'S':
 			threads = PsimagLite::atoi(optarg);
@@ -102,6 +107,20 @@ int main(int argc, char* argv[])
 	if (precision > 0) {
 		std::cout.precision(precision);
 		std::cerr.precision(precision);
+	}
+
+	PsimagLite::RedirectOutput::setAppName(argv[0]);
+
+	if (!label.empty()) {
+		if (mpi_shim.isMPI()) {
+			err("Cannot use -l command line option with MPI\n");
+		}
+	}
+
+	if (label != "-") {
+		constexpr bool unbuffered = true;
+		std::string output = (label.empty()) ? mpi_shim.buildOutput(filename) : label;
+		PsimagLite::RedirectOutput::doIt(output, std::ofstream::out, unbuffered);
 	}
 
 	Gep::InputCheck inputCheck;
@@ -121,7 +140,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	// sanity checks here
+	       // sanity checks here
 	if (gepOptions.head == 0 || gepOptions.population == 0) {
 		throw PsimagLite::RuntimeError(strUsage);
 		return 1;
@@ -169,7 +188,7 @@ int main(int argc, char* argv[])
 	                                          0); // threadsStackSize;
 	PsimagLite::Concurrency::setOptions(codeSection);
 
-	// Xacc backend if needed
+	       // Xacc backend if needed
 	Gep::XaccBackend xaccBackend(argc, argv);
 
 	PrimitivesType primitives(numberOfBits, gates, io);
