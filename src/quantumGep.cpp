@@ -26,6 +26,7 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "Primitives/QuasiVector.hh"
 #include "XaccBackend.hh"
 #include <unistd.h>
+#include "MpiShim.hh"
 
 template <template <typename> class FitnessTemplate, typename EvolutionType>
 void main2(EvolutionType& evolution,
@@ -64,6 +65,7 @@ It takes the following optional arguments.
 */
 int main(int argc, char* argv[])
 {
+	Gep::MpiShim mpi_shim(argc, argv);
 	PsimagLite::String filename;
 	SizeType threads = 0;
 	bool verbose = false;
@@ -77,7 +79,7 @@ int main(int argc, char* argv[])
 	while ((opt = getopt(argc, argv, "f:S:p:v")) != -1) {
 		switch (opt) {
 		case 'f':
-			filename = optarg;
+			filename = optarg; // mpi_ship.buildInput(optarg);
 			break;
 		case 'v':
 			verbose = true;
