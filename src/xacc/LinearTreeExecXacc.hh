@@ -157,7 +157,6 @@ private:
 	                               const VecComplexType& initVector)
 
 	{
-		initVector.populateIndicesAndValues();
 		for (SizeType j = 0; j < initVector.nonZeros(); ++j) {
 			SizeType i = initVector.index(j);
 			circuit.push_back("Sx" + ttos(i));

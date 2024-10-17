@@ -54,22 +54,6 @@ public:
 		}
 	}
 
-	void populateIndicesAndValues()
-	{
-		// Already populated
-		if (!isExp_)
-			return;
-
-		indices_.clear();
-		values_.clear();
-		for (SizeType i = 0; i < data_.size(); ++i) {
-			if (std::norm(data_[i]) > 0) {
-				indices_.push_back(i);
-				values_.push_back(data_[i]);
-			}
-		}
-	}
-
 	SizeType nonZeros() const { return indices_.size(); }
 
 	void fromFile(const std::string& filename)
@@ -77,6 +61,7 @@ public:
 		isExp_ = true;
 		Gep::ProgramGlobals::readVector(data_, filename);
 		size_ = data_.size();
+		populateIndicesAndValues();
 	}
 
 	template <typename SomeRngType>
@@ -85,6 +70,7 @@ public:
 		blowUp(size);
 		needsExp("randomize");
 		ProgramGlobals::randomVector(data_, rng, a, b);
+		populateIndicesAndValues();
 	}
 
 	void flipABit(const QuasiVector& src, SizeType bit)
@@ -95,6 +81,8 @@ public:
 			SizeType j = i ^ mask;
 			data_[j] = src.data_[i];
 		}
+
+		populateIndicesAndValues();
 	}
 
 	// PUBLIC CONST FUNCTIONS BELOW
@@ -233,6 +221,22 @@ private:
 			return;
 		err(info + " unimplemented or non-working unless exponential "
 		           "representation\n");
+	}
+
+	void populateIndicesAndValues()
+	{
+		// Already populated
+		if (!isExp_)
+			return;
+
+		indices_.clear();
+		values_.clear();
+		for (SizeType i = 0; i < data_.size(); ++i) {
+			if (std::norm(data_[i]) > 0) {
+				indices_.push_back(i);
+				values_.push_back(data_[i]);
+			}
+		}
 	}
 
 	static RealType vectorDiff2_(const VectorType& v1,
