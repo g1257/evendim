@@ -153,58 +153,14 @@ private:
 		return std::pair<ProgramType, std::vector<double>>(program, angles);
 	}
 
-	// Avoid overload if second function exists
-
-	static SizeType findPureState(const VecComplexType& initVector, BogusFirstType = 0)
-	{
-		return findPureState(initVector.toVector());
-	}
-
-	static SizeType findPureState(const std::vector<ComplexType>& initVector, BogusSecondType = 0)
-	{
-		SizeType n = initVector.size();
-		bool hasSeenNonZero = false;
-		SizeType x = 0;
-		for (SizeType i = 0; i < n; ++i) {
-			if (std::norm(initVector[i]) > 0.0) {
-				if (hasSeenNonZero) {
-					dieVectorNotPure(initVector, "1");
-				}
-
-				hasSeenNonZero = true;
-				if (std::imag(initVector[i]) != 0) {
-					dieVectorNotPure(initVector, "2");
-				}
-
-				if (std::abs(std::real(initVector[i]) - 1) > 1e-4) {
-					dieVectorNotPure(initVector, "3");
-				}
-
-				x = i;
-			}
-		}
-
-		if (!hasSeenNonZero) {
-			throw std::runtime_error("initVector is zero\n");
-		}
-
-		return x;
-	}
-
 	static void pureVectorToXgates(VecStringType& circuit,
 	                               const VecComplexType& initVector)
 
 	{
-		typename FirstOrSecondType<!TypesEqual<VecComplexType, std::vector<ComplexType>>::value, BogusFirstType, BogusSecondType>::type bogus = 0;
-		SizeType x = findPureState(initVector, bogus);
-		SizeType i = 0;
-		while (x > 0) {
-			if (x & 1) {
-				circuit.push_back("Sx" + ttos(i));
-			}
-
-			x >>= 1;
-			++i;
+		initVector.populateIndicesAndValues();
+		for (SizeType j = 0; j < initVector.nonZeros(); ++j) {
+			SizeType i = initVector.index(j);
+			circuit.push_back("Sx" + ttos(i));
 		}
 	}
 

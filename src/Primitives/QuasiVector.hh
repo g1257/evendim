@@ -54,6 +54,24 @@ public:
 		}
 	}
 
+	void populateIndicesAndValues()
+	{
+		// Already populated
+		if (!isExp_)
+			return;
+
+		indices_.clear();
+		values_.clear();
+		for (SizeType i = 0; i < data_.size(); ++i) {
+			if (std::norm(data_[i]) > 0) {
+				indices_.push_back(i);
+				values_.push_back(data_[i]);
+			}
+		}
+	}
+
+	SizeType nonZeros() const { return indices_.size(); }
+
 	void fromFile(const std::string& filename)
 	{
 		isExp_ = true;
@@ -93,6 +111,12 @@ public:
 	{
 		assert(ind < data_.size());
 		return (std::norm(data_[ind]) > epsilon);
+	}
+
+	SizeType index(SizeType i) const
+	{
+		assert(i < indices_.size());
+		return indices_[i];
 	}
 
 	SizeType size() const { return size_; }
