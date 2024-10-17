@@ -67,9 +67,11 @@ private:
 	{
 		if (name == "i") {
 			return ttos(0);
-		} else if (name == "n") {
+		}
+		else if (name == "n") {
 			return ttos(1);
-		} else {
+		}
+		else {
 			return "";
 		}
 	}

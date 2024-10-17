@@ -22,12 +22,12 @@ along with evendim. If not, see <http://www.gnu.org/licenses/>.
 #include "FloatingPoint.h"
 #include "InputCheck.h"
 #include "InputNg.h"
+#include "MpiShim.hh"
 #include "Primitives/QuantumCircuit.h"
 #include "Primitives/QuasiVector.hh"
+#include "RedirectOutput.hh"
 #include "XaccBackend.hh"
 #include <unistd.h>
-#include "MpiShim.hh"
-#include "RedirectOutput.hh"
 
 template <template <typename> class FitnessTemplate, typename EvolutionType>
 void main2(EvolutionType& evolution,
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	       // sanity checks here
+	// sanity checks here
 	if (gepOptions.head == 0 || gepOptions.population == 0) {
 		throw PsimagLite::RuntimeError(strUsage);
 		return 1;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
 	                                          0); // threadsStackSize;
 	PsimagLite::Concurrency::setOptions(codeSection);
 
-	       // Xacc backend if needed
+	// Xacc backend if needed
 	Gep::XaccBackend xaccBackend(argc, argv);
 
 	PrimitivesType primitives(numberOfBits, gates, io);

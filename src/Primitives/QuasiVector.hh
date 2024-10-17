@@ -32,6 +32,28 @@ public:
 
 	explicit QuasiVector(const std::string& filename) { fromFile(filename); }
 
+	void resize(unsigned int size)
+	{
+		size_ = size;
+		if (isExp_) {
+			data_.resize(size);
+		}
+	}
+
+	void setEntry(unsigned int ind, const ComplexOrRealType& val)
+	{
+		auto itr = std::find(indices_.begin(), indices_.end(), ind);
+		if (itr == indices_.end()) {
+			indices_.push_back(ind);
+			values_.push_back(val);
+		}
+		else {
+			SizeType pos = itr - indices_.begin();
+			assert(values_.size() > pos);
+			values_[pos] = val;
+		}
+	}
+
 	void fromFile(const std::string& filename)
 	{
 		isExp_ = true;
@@ -77,8 +99,7 @@ public:
 
 	RealType norm() const
 	{
-		needsExp("norm");
-		return PsimagLite::norm(data_);
+		return (isExp_) ? PsimagLite::norm(data_) : PsimagLite::norm(values_);
 	}
 
 	void swap(QuasiVector& other)
@@ -238,6 +259,8 @@ private:
 	SizeType size_;
 	bool isExp_;
 	VectorType data_;
+	std::vector<unsigned int> indices_;
+	VectorType values_;
 };
 } // namespace Gep
 #endif // QUASIVECTOR_HH

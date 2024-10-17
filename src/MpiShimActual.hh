@@ -1,7 +1,7 @@
 #ifndef EVENDIM_MPI_SHIM_ACTUAL_HH
 #define EVENDIM_MPI_SHIM_ACTUAL_HH
-#include <mpi.h>
 #include "PsimagLite.h"
+#include <mpi.h>
 
 namespace Gep {
 
@@ -14,10 +14,10 @@ public:
 		// Initialize MPI
 		MPI_Init(&argc, &argv);
 
-		       // Get the rank of the process
+		// Get the rank of the process
 		MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
 
-		       // Get the total number of processes
+		// Get the total number of processes
 		MPI_Comm_size(MPI_COMM_WORLD, &size_);
 	}
 
@@ -32,7 +32,6 @@ public:
 	unsigned int size() const { return size_; }
 
 	bool isMPI() const { return true; }
-
 
 	std::string buildInput(const std::string& name)
 	{
@@ -82,9 +81,11 @@ private:
 	{
 		if (name == "i") {
 			return ttos(rank_);
-		} else if (name == "n") {
+		}
+		else if (name == "n") {
 			return ttos(size_);
-		} else {
+		}
+		else {
 			return "";
 		}
 	}
